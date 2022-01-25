@@ -8,3 +8,4 @@ set (source_dir "${PROJECT_SOURCE_DIR}/src/")
 file (GLOB source_files "${source_dir}/*.cpp")
 
 add_executable (Neptyne ${source_files})
+add_executable (Variables  "${source_dir}/Variables.cpp")

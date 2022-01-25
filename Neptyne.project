@@ -3,6 +3,7 @@
 	<VirtualDirectory Name="src">
 		<VirtualDirectory Name="src">
 			<File Name="src/Main.cpp"/>
+			<File Name="src/Variables.cpp"/>
 		</VirtualDirectory>
 	</VirtualDirectory>
 	<VirtualDirectory Name="include"/>
@@ -21,10 +22,10 @@
 			<PreBuild/>
 			<PostBuild/>
 			<CustomBuild Enabled="yes">
-				<RebuildCommand>/usr/bin/make -f$(ProjectPath)/Makefile -j 36 clean &amp;&amp; /usr/bin/make -f$(ProjectPath)/Makefile -j 36</RebuildCommand>
-				<CleanCommand>/usr/bin/make -f$(ProjectPath)/Makefile -j 36 clean</CleanCommand>
-				<BuildCommand>/usr/bin/make -f$(ProjectPath)/Makefile -j 36</BuildCommand>
-				<SingleFileCommand>/usr/bin/make -f$(ProjectPath)/Makefile -B $(CurrentFileFullName).o</SingleFileCommand>
+				<RebuildCommand>/usr/bin/ninja clean &amp;&amp; /usr/bin/ninja</RebuildCommand>
+				<CleanCommand>/usr/bin/ninja clean</CleanCommand>
+				<BuildCommand>/usr/bin/ninja</BuildCommand>
+				<SingleFileCommand></SingleFileCommand>
 				<PreprocessFileCommand/>
 				<WorkingDirectory>$(WorkspacePath)</WorkingDirectory>
 			</CustomBuild>
