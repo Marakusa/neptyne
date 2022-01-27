@@ -7,4 +7,4 @@ set (source_dir "${PROJECT_SOURCE_DIR}/src/")
 
 file (GLOB source_files "${source_dir}/*.cpp")
 
-add_executable (neptyne ${source_files} src/Logger.h src/Executer.cpp)
+add_executable (neptyne ${source_files} src/Logger.h src/Execution.cpp src/Execution.h src/StringUtils.cpp src/StringUtils.h src/Main.h)

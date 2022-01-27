@@ -1,8 +1,4 @@
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <cstring>
-#include "Logger.h"
+#include "Main.h"
 
 void open_file(char *file) {
     std::ifstream i_file;
@@ -11,11 +7,12 @@ void open_file(char *file) {
     if (i_file) {
     }
     else {
-        logger::error("File \"{0}\" doesn't exist or isn't a file", 1, file);
+        log.error("File \"{0}\" doesn't exist or isn't a file", 1, file);
     }
 }
 
 int main(int argc, char *argv[]) {
+
     if (argc == 1) {
         bool end = false;
         std::string input;
@@ -32,7 +29,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-
+            exec.npt_exec(input);
 
             std::cout << input << std::endl;
         }
@@ -45,7 +42,7 @@ int main(int argc, char *argv[]) {
                 open_file(argv[2]);
             }
             else {
-                logger::error("Incorrect command: {0}", 1, argv[1]);
+                log.error("Incorrect command: {0}", 1, argv[1]);
             }
         }
         else {

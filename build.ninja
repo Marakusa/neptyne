@@ -72,8 +72,8 @@ build edit_cache: phony CMakeFiles/edit_cache.util
 
 build cmake_object_order_depends_target_neptyne: phony || CMakeFiles/neptyne.dir
 
-build CMakeFiles/neptyne.dir/src/Executer.cpp.o: CXX_COMPILER__neptyne_Debug /home/markus/repos/neptyne/src/Executer.cpp || cmake_object_order_depends_target_neptyne
-  DEP_FILE = CMakeFiles/neptyne.dir/src/Executer.cpp.o.d
+build CMakeFiles/neptyne.dir/src/Execution.cpp.o: CXX_COMPILER__neptyne_Debug /home/markus/repos/neptyne/src/Execution.cpp || cmake_object_order_depends_target_neptyne
+  DEP_FILE = CMakeFiles/neptyne.dir/src/Execution.cpp.o.d
   FLAGS = -Wall -Werror -std=c++20 -g
   OBJECT_DIR = CMakeFiles/neptyne.dir
   OBJECT_FILE_DIR = CMakeFiles/neptyne.dir/src
@@ -90,6 +90,12 @@ build CMakeFiles/neptyne.dir/src/Main.cpp.o: CXX_COMPILER__neptyne_Debug /home/m
   OBJECT_DIR = CMakeFiles/neptyne.dir
   OBJECT_FILE_DIR = CMakeFiles/neptyne.dir/src
 
+build CMakeFiles/neptyne.dir/src/StringUtils.cpp.o: CXX_COMPILER__neptyne_Debug /home/markus/repos/neptyne/src/StringUtils.cpp || cmake_object_order_depends_target_neptyne
+  DEP_FILE = CMakeFiles/neptyne.dir/src/StringUtils.cpp.o.d
+  FLAGS = -Wall -Werror -std=c++20 -g
+  OBJECT_DIR = CMakeFiles/neptyne.dir
+  OBJECT_FILE_DIR = CMakeFiles/neptyne.dir/src
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target neptyne
@@ -98,7 +104,7 @@ build CMakeFiles/neptyne.dir/src/Main.cpp.o: CXX_COMPILER__neptyne_Debug /home/m
 #############################################
 # Link the executable neptyne
 
-build neptyne: CXX_EXECUTABLE_LINKER__neptyne_Debug CMakeFiles/neptyne.dir/src/Executer.cpp.o CMakeFiles/neptyne.dir/src/Logger.cpp.o CMakeFiles/neptyne.dir/src/Main.cpp.o
+build neptyne: CXX_EXECUTABLE_LINKER__neptyne_Debug CMakeFiles/neptyne.dir/src/Execution.cpp.o CMakeFiles/neptyne.dir/src/Logger.cpp.o CMakeFiles/neptyne.dir/src/Main.cpp.o CMakeFiles/neptyne.dir/src/StringUtils.cpp.o
   FLAGS = -Wall -Werror -std=c++20 -g
   OBJECT_DIR = CMakeFiles/neptyne.dir
   POST_BUILD = :
