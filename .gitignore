@@ -46,3 +46,10 @@ _deps
 
 # Code
 *.vscode
+
+.cmake
+
+.idea
+
+.ninja_deps
+.ninja_log

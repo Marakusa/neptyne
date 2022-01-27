@@ -1,40 +1,55 @@
-#include <Logger.cpp>
 #include <iostream>
+#include <string>
 #include <fstream>
-#include <CodeInput.cpp>
+#include <cstring>
+#include "Logger.h"
 
-int main(int argc, char *argv[])
-{
-    logger::init(argc, argv);
+void open_file(char *file) {
+    std::ifstream i_file;
+    i_file.open(file);
 
-    if (argc == 1)
-    {
-        code_input();
+    if (i_file) {
     }
-    else
-    {
-        std::ifstream ifile;
-        ifile.open(argv[1]);
+    else {
+        logger::error("File \"{0}\" doesn't exist or isn't a file", 1, file);
+    }
+}
 
-        if (ifile)
-        {
-            logger::error("Incorrect command ({0})", argv[1]);
-        }
-        else if (argv[1] == "-f" || argv[1] == "f")
-        {
-            ifile.open(argv[2]);
+int main(int argc, char *argv[]) {
+    if (argc == 1) {
+        bool end = false;
+        std::string input;
 
-            if (ifile)
+        std::cout << "Neptyne v0.0.1" << std::endl << "Input 'q' or press 'CTRL + C' to quit" << std::endl;
+
+        while (!end)
+        {
+            std::cin >> input;
+
+            if (input == "q")
             {
+                end = true;
+                break;
             }
-            else
-            {
-                std::cout << "[nptc] ERR: File (" << argv[2] << ") doesn't exist or isn't a file";
+
+
+
+            std::cout << input << std::endl;
+        }
+
+        std::cin.get();
+    }
+    else {
+        if (argv[1][0] == '-') {
+            if (strcmp(argv[1], "-f") == 0) {
+                open_file(argv[2]);
+            }
+            else {
+                logger::error("Incorrect command: {0}", 1, argv[1]);
             }
         }
-        else
-        {
-            std::cout << "[nptc] ERR: Incorrect command (" << argv[1] << ")";
+        else {
+            open_file(argv[1]);
         }
     }
 }

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<CodeLite_Project Name="Neptyne" InternalType="">
+<CodeLite_Project Name="neptyne" InternalType="">
 	<VirtualDirectory Name="src">
 		<VirtualDirectory Name="src">
+			<File Name="src/Executer.cpp"/>
 			<File Name="src/Logger.cpp"/>
 			<File Name="src/Main.cpp"/>
 		</VirtualDirectory>
