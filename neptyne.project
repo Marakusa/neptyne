@@ -2,7 +2,6 @@
 <CodeLite_Project Name="neptyne" InternalType="">
 	<VirtualDirectory Name="src">
 		<VirtualDirectory Name="src">
-			<File Name="src/Execution.cpp"/>
 			<File Name="src/Logger.cpp"/>
 			<File Name="src/Main.cpp"/>
 			<File Name="src/StringUtils.cpp"/>
@@ -10,7 +9,6 @@
 	</VirtualDirectory>
 	<VirtualDirectory Name="include">
 		<VirtualDirectory Name="src">
-			<File Name="src/Execution.h"/>
 			<File Name="src/Logger.h"/>
 			<File Name="src/Main.h"/>
 			<File Name="src/StringUtils.h"/>

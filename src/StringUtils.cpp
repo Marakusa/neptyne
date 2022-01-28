@@ -14,47 +14,24 @@ std::string StringUtils::trim(const std::string &s) {
     return rightTrim(leftTrim(s));
 }
 
-int StringUtils::str_len(std::string str)
-{
+int StringUtils::str_len(std::string str) {
     int length = 0;
-    for (int i = 0; str[i] != '\0'; i++)
-    {
+    for (int i = 0; str[i] != '\0'; i++) {
         length++;
     }
     return length;
 }
 
-std::string * StringUtils::str_split(std::string str, char separator)
-{
-    int count = 0;
+std::vector<std::string> StringUtils::str_split(std::string str, std::string separator) {
+    std::vector<std::string> split{};
 
-    int i = 0;
-    while (i <= str_len(str))
-    {
-        if (str[i] == separator || i == str_len(str))
-            count++;
-
-        i++;
+    size_t pos;
+    while ((pos = str.find(separator)) != std::string::npos) {
+        split.push_back(str.substr(0, pos));
+        str.erase(0, pos + str_len(separator));
     }
 
-    std::string *results[count];
+    split.push_back(str);
 
-    int currIndex = 0;
-    int startIndex = 0, endIndex = 0;
-    i = 0;
-    while (i <= str_len(str))
-    {
-        if (str[i] == separator || i == str_len(str))
-        {
-            endIndex = i;
-            std::string subStr = "";
-            subStr.append(str, startIndex, endIndex - startIndex);
-            *results[currIndex] = subStr;
-            currIndex += 1;
-            startIndex = endIndex + 1;
-        }
-        i++;
-    }
-
-    return *results;
+    return split;
 }

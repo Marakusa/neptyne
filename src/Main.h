@@ -3,7 +3,6 @@
 #include <fstream>
 #include <cstring>
 #include "Logger.h"
-#include "Execution.h"
+#include "StringUtils.h"
 
-logger log;
-execution exec(log);
+logger logger;

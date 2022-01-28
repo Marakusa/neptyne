@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 
 class StringUtils {
 public:
@@ -6,5 +7,5 @@ public:
     static std::string rightTrim(const std::string &s);
     static std::string trim(const std::string &s);
     static int str_len(std::string str);
-    static std::string * str_split(std::string str, char separator);
+    static std::vector<std::string> str_split(std::string str, std::string separator);
 };
