@@ -9,22 +9,24 @@ The syntax is a bit inspired from C and Python mixed.
 ```c
 bring system;
 
-string hello = "Hello world!";
+void main() {
+    string hello = "Hello world!";
 
-// This will print out the 'hello' variable to the console
-out(hello);
+    // This will print out the 'hello' variable to the console
+    out(hello);
 
-int n = 7;
-if n == 7: {
-    n++;
+    int n = 7;
+    if n == 7: {
+        n++;
+    }
+    else: {
+        out("The number wasn't 7...");
+    }
+
+    while n > 2: {
+        n--;
+    }
+
+    out("The number is now " + n + "!");
 }
-else: {
-    out("The number wasn't 7...");
-}
-
-while n > 2: {
-    n--;
-}
-
-out("The number is now " + n + "!");
 ```
