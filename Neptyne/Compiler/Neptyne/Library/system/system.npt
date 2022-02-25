@@ -1,0 +1,5 @@
+static class console {
+    func out(string message) {
+        std:out(message);
+    }
+}
