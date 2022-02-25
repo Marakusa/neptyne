@@ -18,7 +18,7 @@ public class AsmDataSection : AsmSection
 
         foreach (var item in Items)
         {
-            result += $" {item}\n";
+            result += $"    {item}\n";
         }
 
         return result;

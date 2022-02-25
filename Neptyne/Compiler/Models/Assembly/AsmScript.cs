@@ -18,7 +18,7 @@ public class AsmScript
         result += $"{TextSection.Convert()}\n";
 
         result +=
-            $"_start:\n mov eax,4\n mov ebx,1\n mov ecx,{DataSection.Items[0].Name}\n mov edx,{DataSection.Items[1].Name}\n int 80h\n mov eax,1\n mov ebx,0\n int 80h;";
+            $"_start:\n    mov eax,4\n    mov ebx,1\n    mov ecx,{DataSection.Items[0].Name}\n    mov edx,{DataSection.Items[1].Name}\n    int 80h\n    mov eax,1\n    mov ebx,0\n    int 80h;";
 
         return result;
     }

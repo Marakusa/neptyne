@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text;
 using Neptyne.Compiler;
 
 namespace Neptyne;
@@ -30,7 +31,8 @@ public static class CommandExecutor
                 if (file.Exists)
                 {
                     string writeFilePath = file.FullName.Substring(0, file.FullName.Length - file.Extension.Length);
-                    neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
+                    string compiled = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
+                    File.WriteAllBytes(writeFilePath + ".asm", Encoding.UTF8.GetBytes(compiled));
                 }
                 else
                     throw new Exception($"Script \"{args[1]}\" not found");
@@ -50,7 +52,6 @@ public static class CommandExecutor
                 if (file.Exists)
                 {
                     string c = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
-                    Console.WriteLine(c);
                 }
                 else
                     throw new Exception($"Script \"{args[1]}\" not found");
