@@ -20,9 +20,6 @@ public static class ParseToAsm
         _current = 0;
         
         AsmScript assemblyCode = new();
-
-        _functions.Add(new("_start", "void", null, null));
-        assemblyCode.TextSection.Items.Add(new("global", "_start"));
         
         _abstractSyntaxTree = abstractSyntaxTree.Params;
         while (_current < abstractSyntaxTree.Params.Count)
@@ -36,6 +33,13 @@ public static class ParseToAsm
             ParseFunction(function);
         }
 
+        var main = _functions.Find(f => f.Name == "main");
+        
+        if (main == null)
+        {
+            throw new CompilerException("Program does not contain a 'main' function suitable for an entry point", 1);
+        }
+        
         assemblyCode.DataSection.Items.AddRange(_variables);
         assemblyCode.Functions = _functions;
 
@@ -82,68 +86,82 @@ public static class ParseToAsm
     {
         string type = _abstractSyntaxTree[_current].Value;
         _current++;
-        ParserToken c = _abstractSyntaxTree[_current];
-        if (c.Type == ParserTokenType.Name)
+        ParserToken token = _abstractSyntaxTree[_current];
+        if (token.Type == ParserTokenType.Name)
         {
-            string variableName = c.Value;
+            string variableName = token.Value;
 
             _current++;
-            c = _abstractSyntaxTree[_current];
-            if (c.Type == ParserTokenType.AssignmentOperator && c.Value == "=")
+            token = _abstractSyntaxTree[_current];
+            if (token.Type == ParserTokenType.AssignmentOperator && token.Value == "=")
             {
                 _current++;
-                c = _abstractSyntaxTree[_current];
-                if (c.Type == variableType)
+                token = _abstractSyntaxTree[_current];
+                if (token.Type == variableType)
                 {
-                    if (_variables.Find(f => f.Name == variableName) == null)
-                    {
-                        AsmDataVariable variable = new($"{variableName}", c.Value, GetVariableType(c.Type));
-                        _variables.Add(variable);
-                    }
-                    else
-                        throw new CompilerException($"Variable named '{variableName}' is already defined", c.Line);
+                    DeclareVariable(variableName, token);
                     
                     _current++;
-                    c = _abstractSyntaxTree[_current];
-                    if (c.Type != ParserTokenType.EndStatementToken)
+                    token = _abstractSyntaxTree[_current];
+                    if (token.Type != ParserTokenType.EndStatementToken)
                     {
-                        throw new CompilerException("; expected", c.Line);
+                        throw new CompilerException("; expected", token.Line);
                     }
                 }
                 else
                 {
                     throw new CompilerException(
-                        $"Cannot convert expression of type '{GetVariableType(c.Type)}' to type '{GetVariableType(variableType)}'", c.Line);
+                        $"Cannot convert expression of type '{GetVariableType(token.Type)}' to type '{GetVariableType(variableType)}'", token.Line);
                 }
             }
             else if (variableType == ParserTokenType.ReturnType || GetVariableType(variableType) != null)
             {
-                if (c.Type == ParserTokenType.CallExpression)
+                if (token.Type == ParserTokenType.CallExpression)
                 {
                     if (_current + 1 < _abstractSyntaxTree.Count && _abstractSyntaxTree[_current + 1].Type == ParserTokenType.CodeBlock)
                     {
-                        AsmFunction function = new(variableName, type, c.Params, GetBlock());
-                        _functions.Add(function);
+                        DeclareFunction(variableName, type, token, GetBlock());
                     }
                     else
                     {
-                        throw new CompilerException("{ expected", c.Line);
+                        throw new CompilerException("{ expected", token.Line);
                     }
                 }
                 else
                 {
-                    throw new CompilerException("Expression expected", c.Line);
+                    throw new CompilerException("Expression expected", token.Line);
                 }
             }
             else
             {
-                throw new CompilerException("Unexpected token", c.Line);
+                throw new CompilerException("Unexpected token", token.Line);
             }
         }
         else
         {
-            throw new CompilerException("Unexpected token", c.Line);
+            throw new CompilerException("Unexpected token", token.Line);
         }
+    }
+
+    private static void DeclareVariable(string variableName, ParserToken token)
+    {
+        if (_variables.Find(f => f.Name == variableName) == null)
+        {
+            AsmDataVariable variable = new($"{variableName}", token.Value, GetVariableType(token.Type));
+            _variables.Add(variable);
+        }
+        else
+            throw new CompilerException("Member with the same signature is already declared", token.Line);
+    }
+
+    private static void DeclareFunction(string variableName, string type, ParserToken token, List<ParserToken> block)
+    {
+        AsmFunction function = new(variableName, type, token.Params, block);
+                        
+        if (_functions.Find(f => f.Name == function.Name) != null)
+            throw new CompilerException("Member with the same signature is already declared", token.Line);
+        
+        _functions.Add(function);
     }
 
     private static List<ParserToken> GetBlock()
@@ -216,10 +234,15 @@ public static class ParseToAsm
     {
         List<AsmStatement> statements = new();
         
-        int i = -1;
+        int i = 0;
         while (i < tokens.Count)
         {
-            statements.AddRange(ParseStatement(tokens, i));
+            if (tokens[i].Type == ParserTokenType.CodeBlock)
+            {
+                statements.AddRange(ParseStatement(tokens, i));
+            }
+            else
+                i++;
         }
 
         return statements;
@@ -243,7 +266,7 @@ public static class ParseToAsm
         List<AsmStatement> statements = new();
 
         i++;
-        ParserToken token = _abstractSyntaxTree[i];
+        ParserToken token = tokens[i];
         switch (token.Type)
         {
             case ParserTokenType.ValueType:
@@ -265,7 +288,7 @@ public static class ParseToAsm
                     // Built in functions
                     case "out":
                         i++;
-                        token = _abstractSyntaxTree[i];
+                        token = tokens[i];
                         if (token.Type == ParserTokenType.CallExpression)
                         {
                             if (token.Params.Count != 1
@@ -279,7 +302,7 @@ public static class ParseToAsm
                                     j++;
                                 }
                                 i++;
-                                token = _abstractSyntaxTree[i];
+                                token = tokens[i];
                                 if (token.Type == ParserTokenType.EndStatementToken)
                                 {
                                     statements.Add(new AsmCallStatement("out", $"({(string.Join(",", parameters))})"));
@@ -302,6 +325,8 @@ public static class ParseToAsm
                     default:
                         throw new CompilerException($"Could not resolve symbol '{token.Value}'", token.Line);
                 }
+                break;
+            case ParserTokenType.ReturnType:
                 break;
             case ParserTokenType.EndStatementToken:
                 return statements.ToArray();

@@ -6,7 +6,7 @@ public class AsmScript
 {
     public readonly AsmDataSection DataSection = new(".data");
     
-    public readonly AsmTextSection TextSection = new(".text");
+    public readonly AsmTextSection TextSection = new();
 
     public List<AsmFunction> Functions = new();
 
@@ -19,12 +19,7 @@ public class AsmScript
 
         foreach (var function in Functions)
         {
-            result += $"{function.Name}{function.GetParamsString()}:\n";
-            foreach (var statement in function.Block)
-            {
-                result += $"    {statement}\n";
-            }
-            result += "    int 80h;";
+            result += function.ToString();
         }
 
         return result;

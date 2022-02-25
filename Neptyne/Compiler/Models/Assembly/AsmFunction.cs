@@ -40,6 +40,33 @@ public class AsmFunction
         
         return $"({string.Join(",", result)})";
     }
+
+    public override string ToString()
+    {
+        string result = "";
+        
+        result += $"{Name}{GetParamsString()}:\n";
+        
+        if (Name != "_start")
+        {
+            result += "    push rbp\n";
+            result += "    mov rbp, rsp\n";
+        }
+        
+        foreach (var statement in Block)
+        {
+            result += $"    {statement}\n";
+        }
+        
+        if (Name != "_start")
+        {
+            result += "    mov eax, 0\n";
+            result += "    pop rbp\n";
+            result += "    ret\n\n";
+        }
+
+        return result;
+    }
 }
 
 public class AsmFunctionParameter

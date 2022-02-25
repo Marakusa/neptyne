@@ -33,6 +33,7 @@ public static class CommandExecutor
                     string writeFilePath = file.FullName.Substring(0, file.FullName.Length - file.Extension.Length);
                     string compiled = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
                     File.WriteAllBytes(writeFilePath + ".asm", Encoding.UTF8.GetBytes(compiled));
+                    
                 }
                 else
                     throw new Exception($"Script \"{args[1]}\" not found");

@@ -4,22 +4,17 @@ namespace Neptyne.Compiler.Models.Assembly;
 
 public class AsmTextSection : AsmSection
 {
-    public List<AsmTextSectionItem> Items { get; }
-
-    public AsmTextSection(string name)
-    {
-        Name = name;
-        Items = new List<AsmTextSectionItem>();
-    }
-
     public override string Convert()
     {
-        string result = $"section {Name}:\n";
+        string result = "section .text:\n";
+        result += "    global _start\n\n";
 
-        foreach (var item in Items)
+        AsmFunction start = new("_start", null, null, null);
+        start.Block = new List<AsmStatement>
         {
-            result += $"    {item}\n";
-        }
+            new("call", "main")
+        };
+        result += start.ToString();
 
         return result;
     }
