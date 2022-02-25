@@ -23,12 +23,16 @@ public class ParserToken
 
 public enum ParserTokenType
 {
-    Main,
+    Root,
     NumberLiteral,
+    FunctionCall,
     CallExpression,
     ValueType,
-    VariableName,
+    Name,
     StringLiteral,
     AssignmentOperator,
-    EndStatementToken
+    EndStatementToken,
+    Statement,
+    ReturnType,
+    CodeBlock
 }

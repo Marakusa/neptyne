@@ -26,5 +26,8 @@ public enum TokenType
     String,
     Semicolon,
     Point,
-    EqualsSign
+    EqualsSign,
+    Statement,
+    OpenCurlyBrackets,
+    CloseCurlyBrackets
 }

@@ -14,11 +14,11 @@ public class AsmTextSection : AsmSection
 
     public override string Convert()
     {
-        string result = $"section {Name}\n";
+        string result = $"section {Name}:\n";
 
         foreach (var item in Items)
         {
-            result += $" {item}\n";
+            result += $"    {item}\n";
         }
 
         return result;

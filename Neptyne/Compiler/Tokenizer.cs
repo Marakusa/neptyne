@@ -73,6 +73,14 @@ public static class Tokenizer
             {
                 tokens.Add(new(TokenType.CloseParenthesis, c.ToString(), row));
             }
+            else if (c == '{')
+            {
+                tokens.Add(new(TokenType.OpenCurlyBrackets, c.ToString(), row));
+            }
+            else if (c == '}')
+            {
+                tokens.Add(new(TokenType.CloseCurlyBrackets, c.ToString(), row));
+            }
             else if (c == '"')
             {
                 string value = "";
@@ -150,6 +158,23 @@ public static class Tokenizer
                     case "float":
                         tokens.Add(new(TokenType.Type, value, row));
                         break;
+                    case "void":
+                        tokens.Add(new(TokenType.Type, value, row));
+                        break;
+                    
+                    case "if":
+                        tokens.Add(new(TokenType.Statement, value, row));
+                        break;
+                    case "else":
+                        tokens.Add(new(TokenType.Statement, value, row));
+                        break;
+                    case "while":
+                        tokens.Add(new(TokenType.Statement, value, row));
+                        break;
+                    case "return":
+                        tokens.Add(new(TokenType.Statement, value, row));
+                        break;
+                    
                     default:
                         tokens.Add(new(TokenType.Name, value, row));
                         break;

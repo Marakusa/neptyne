@@ -1,0 +1,5 @@
+void main() {
+	string hello = "Hello world!";
+	out(hello);
+}
+
