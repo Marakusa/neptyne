@@ -107,6 +107,9 @@ public static class Parser
             case TokenType.Statement:
                 _index++;
                 return new(ParserTokenType.Statement, token.Value, token.Line);
+            case TokenType.ReturnStatement:
+                _index++;
+                return new(ParserTokenType.ReturnStatement, token.Value, token.Line);
             case TokenType.Keyword:
                 _index++;
                 return new(ParserTokenType.Keyword, token.Value, token.Line);

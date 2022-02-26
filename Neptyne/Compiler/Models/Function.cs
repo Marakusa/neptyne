@@ -1,29 +1,36 @@
 using System.Collections.Generic;
+using Neptyne.Compiler.Models.Assembly;
 
-namespace Neptyne.Compiler.Models.Assembly;
+namespace Neptyne.Compiler.Models;
 
-public class AsmFunction
+public class Function
 {
     public string Name { get; }
     
     public string ReturnType { get; }
     
-    public List<AsmFunctionParameter> Params { get; set; }
+    public List<FunctionParameter> Params { get; set; }
     
     public List<ParserToken> ParamsTokens { get; }
     
     public List<AsmStatement> Block { get; set; }
     
     public List<ParserToken> BlockTokens { get; }
-
-    public AsmFunction(string name, string returnType, List<ParserToken> paramsTokens, List<ParserToken> block)
+    
+    public ParserToken ParentBlockNode { get; }
+    
+    public int BlockIndex { get; }
+    
+    public Function(string name, string returnType, List<ParserToken> paramsTokens, List<ParserToken> block, ParserToken blockNode, int blockIndex)
     {
         Name = name;
         ReturnType = returnType;
-        Block = new();
         Params = new();
+        Block = new();
         ParamsTokens = paramsTokens;
         BlockTokens = block;
+        ParentBlockNode = blockNode;
+        BlockIndex = blockIndex;
     }
 
     public string GetParamsString()
@@ -69,13 +76,13 @@ public class AsmFunction
     }
 }
 
-public class AsmFunctionParameter
+public class FunctionParameter
 {
     public string Type { get; }
     
     public string Value { get; }
 
-    public AsmFunctionParameter(string type, string value)
+    public FunctionParameter(string type, string value)
     {
         Type = type;
         Value = value;

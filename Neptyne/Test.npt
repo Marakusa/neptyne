@@ -1,5 +1,9 @@
 int test = 12;
 
+int main(int arg) {
+	return;
+}
+
 /*void main() {
 	int i = 23;
 	//i += 3;

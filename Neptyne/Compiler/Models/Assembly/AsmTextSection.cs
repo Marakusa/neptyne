@@ -9,7 +9,7 @@ public class AsmTextSection : AsmSection
         string result = "section .text:\n";
         result += "    global _start\n\n";
 
-        AsmFunction start = new("_start", null, null, null);
+        Function start = new("_start", "void", null, null, null, 0);
         start.Block = new List<AsmStatement>
         {
             new("call", "main")

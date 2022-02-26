@@ -11,10 +11,12 @@ public static class ParseToAsm
 {
     private static List<Variable> _variables = new();
     private static List<Variable> _constVariables = new();
-    private static List<AsmFunction> _functions = new();
+    private static List<Function> _functions = new();
     private static List<ParserToken> _abstractSyntaxTree;
 
     private static int _current;
+
+    private static Function _currentFunction = null;
 
     public static string ParseToAssembly(ParserToken abstractSyntaxTree)
     {
@@ -31,10 +33,10 @@ public static class ParseToAsm
             _current++;
         }
 
-        /*foreach (var function in _functions)
+        foreach (var function in _functions)
         {
-            ParseFunction(function);
-        }*/
+            ParseFunctinon(function);
+        }
 
         var main = _functions.Find(f => f.Name == "main");
         
@@ -43,15 +45,15 @@ public static class ParseToAsm
             throw new CompilerException("Program does not contain a 'main' function suitable for an entry point", 1);
         }
         
-        assemblyCode.Variables.AddRange(_variables);
-        assemblyCode.ConstantVariables.AddRange(_constVariables);
+        assemblyCode.Variables = _variables;
+        assemblyCode.ConstantVariables = _constVariables;
         assemblyCode.Functions = _functions;
 
         return assemblyCode.Build();
     }
 
     private static List<Keyword> _statementKeywords = new();
-
+    
     private static void ParseLine(ParserToken parent)
     {
         if (_current >= _abstractSyntaxTree.Count) return;
@@ -92,11 +94,10 @@ public static class ParseToAsm
                         parent.Type == ParserTokenType.CodeBlock)
                     {
                         ParsePrimitive(node, parent != null && parent.Type == ParserTokenType.CodeBlock);
-                        _current++;
+                        break;
                     }
-                    else
-                        throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
-                    break;
+                    
+                    throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
                 }
                 else
                     throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
@@ -104,8 +105,9 @@ public static class ParseToAsm
                 switch (node.Value)
                 {
                     case "void":
-                        ParseReturnType(node, parent != null && parent.Type == ParserTokenType.CodeBlock);
-                        _current++;
+                        if (parent == null || parent.Type != ParserTokenType.CodeBlock && parent.Type == ParserTokenType.Keyword)
+                            throw new CompilerException("Return statement not excepted", node.Line);
+                        ParseFunction(node);
                         break;
                     default:
                         throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
@@ -115,12 +117,14 @@ public static class ParseToAsm
                 throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
         }
     }
-
+    
     private static void ParsePrimitive(ParserToken node, bool isInBlock)
     {
         if (isInBlock && _statementKeywords.Count > 0)
             throw new CompilerException("Statements inside blocks can't have keywords", node.Line);
 
+        ParserToken typeNode = node;
+        int typeNodeIndex = _current;
         PrimitiveTypeObject type = PrimitiveVariables.Parse(node.Value);
 
         _current++;
@@ -128,7 +132,7 @@ public static class ParseToAsm
             throw new CompilerException("Variable name expected", node.Line);
         node = _abstractSyntaxTree[_current];
         if (_variables.Find(f => f.Name == node.Value) != null)
-            throw new CompilerException($"Variable '{node.Value}' is already declared", node.Line);
+            throw new CompilerException($"Variable named '{node.Value}' is already declared", node.Line);
         if (node.Type != ParserTokenType.Name)
             throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
 
@@ -138,7 +142,7 @@ public static class ParseToAsm
         if (_current >= _abstractSyntaxTree.Count)
             throw new CompilerException("; expected", node.Line);
         node = _abstractSyntaxTree[_current];
-        if (node.Type != ParserTokenType.AssignmentOperator || node.Type != ParserTokenType.EndStatementToken || node.Type != ParserTokenType.CallExpression)
+        if (node.Type != ParserTokenType.AssignmentOperator && node.Type != ParserTokenType.EndStatementToken && node.Type != ParserTokenType.CallExpression)
             throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
         if (node.Type == ParserTokenType.EndStatementToken)
         {
@@ -168,7 +172,9 @@ public static class ParseToAsm
         }
         else if (node.Type == ParserTokenType.CallExpression)
         {
-            throw new CompilerException("NotImplementedException", node.Line);
+            _current = typeNodeIndex;
+            ParseFunction(typeNode);
+            return;
         }
         
         _current++;
@@ -179,9 +185,49 @@ public static class ParseToAsm
             throw new CompilerException("; expected", node.Line);
     }
 
-    private static void ParseReturnType(ParserToken node, bool b)
+    private static void ParseFunction(ParserToken node)
     {
-        throw new CompilerException("NotImplementedException", node.Line);
+        if (_statementKeywords.Contains(Keyword.Const))
+            throw new CompilerException("Functions cannot be constant", node.Line);
+        if (_statementKeywords.Contains(Keyword.Readonly))
+            throw new CompilerException("Functions cannot have a readonly keyword", node.Line);
+        
+        string returnType = node.Value;
+
+        _current++;
+        if (_current >= _abstractSyntaxTree.Count)
+            throw new CompilerException("Function name expected", node.Line);
+        node = _abstractSyntaxTree[_current];
+        if (_functions.Find(f => f.Name == node.Value) != null)
+            throw new CompilerException($"Function named '{node.Value}' is already defined", node.Line);
+        if (node.Type != ParserTokenType.Name)
+            throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
+
+        string functionName = node.Value;
+
+        _current++;
+        if (_current >= _abstractSyntaxTree.Count)
+            throw new CompilerException("( expected", node.Line);
+        node = _abstractSyntaxTree[_current];
+        if (node.Type != ParserTokenType.CallExpression)
+            throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
+
+        List<ParserToken> functionParameters = node.Params;
+        
+        _current++;
+        if (_current >= _abstractSyntaxTree.Count)
+            throw new CompilerException("{ expected", node.Line);
+        node = _abstractSyntaxTree[_current];
+        if (node.Type != ParserTokenType.CodeBlock)
+            throw new CompilerException($"Could not resolve symbol '{node.Value}'", node.Line);
+
+        List<ParserToken> functionBlock = node.Params;
+
+        Function function = new(functionName, returnType, functionParameters, functionBlock, node, _current);
+        _functions.Add(function);
+        
+        if (_current + 1 < _abstractSyntaxTree.Count && _abstractSyntaxTree[_current + 1].Type == ParserTokenType.EndStatementToken)
+            throw new CompilerException("Unexpected token", _abstractSyntaxTree[_current + 1].Line);
     }
     
     private static LiteralType GetLiteralType(ParserTokenType nodeType, ParserToken node)
@@ -225,5 +271,16 @@ public static class ParseToAsm
         }
         else
             throw new CompilerException("Member with the same signature is already declared", valueToken.Line);
+    }
+    
+    private static void ParseFunctinon(Function function)
+    {
+        if (function.BlockTokens.Count == 0)
+            return;
+        _current = _abstractSyntaxTree.Count;
+        _abstractSyntaxTree.AddRange(function.BlockTokens);
+        _currentFunction = function;
+        ParseLine(function.ParentBlockNode);
+        _currentFunction = null;
     }
 }

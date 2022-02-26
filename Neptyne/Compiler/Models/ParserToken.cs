@@ -38,5 +38,6 @@ public enum ParserTokenType
     CodeBlock,
     BooleanLiteral,
     FloatLiteral,
-    CharacterLiteral
+    CharacterLiteral,
+    ReturnStatement
 }

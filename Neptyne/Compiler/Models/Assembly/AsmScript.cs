@@ -10,7 +10,7 @@ public class AsmScript
     
     public readonly AsmTextSection TextSection = new();
 
-    public List<AsmFunction> Functions = new();
+    public List<Function> Functions = new();
 
     public string Build()
     {
