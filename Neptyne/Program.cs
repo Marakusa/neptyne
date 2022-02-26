@@ -10,8 +10,8 @@ public class Program
 
     public static void Main(string[] args)
     {
-        Console.BackgroundColor = ConsoleColor.Black;
-        Console.ForegroundColor = ConsoleColor.White;
+        var defaultColor = Console.ForegroundColor;
+        
         Console.WriteLine($"Welcome to Neptyne v{Assembly.GetExecutingAssembly().GetName().Version}.\nType \"help\" for more information.\nPress \"Ctrl+C\" or type \"exit\" to exit\nNOTE: This is not a REPL (code cannot be executed here)");
 
         Console.CancelKeyPress += delegate { Exit(); };
@@ -28,13 +28,13 @@ public class Program
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ForegroundColor = defaultColor;
             }
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine($"{ex.Message} - Type \"help\" for more information.");
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ForegroundColor = defaultColor;
             }
         }
     }
