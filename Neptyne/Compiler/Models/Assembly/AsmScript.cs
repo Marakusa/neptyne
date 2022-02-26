@@ -1,28 +1,27 @@
 using System.Collections.Generic;
 
-namespace Neptyne.Compiler.Models.Assembly
+namespace Neptyne.Compiler.Models.Assembly;
+
+public class AsmScript
 {
-    public class AsmScript
+    public readonly AsmDataSection DataSection = new(".data");
+    
+    public readonly AsmTextSection TextSection = new();
+
+    public List<AsmFunction> Functions = new();
+
+    public string Build()
     {
-        public readonly AsmDataSection DataSection = new AsmDataSection(".data");
+        string result = "";
 
-        public readonly AsmTextSection TextSection = new AsmTextSection();
+        result += $"{DataSection.Convert()}\n";
+        result += $"{TextSection.Convert()}\n";
 
-        public List<AsmFunction> Functions = new List<AsmFunction>();
-
-        public string Build()
+        foreach (var function in Functions)
         {
-            string result = "";
-
-            result += $"{DataSection.Convert()}\n";
-            result += $"{TextSection.Convert()}\n";
-
-            foreach (var function in Functions)
-            {
-                result += function.ToString();
-            }
-
-            return result;
+            result += function.ToString();
         }
+
+        return result;
     }
 }

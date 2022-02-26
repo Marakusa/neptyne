@@ -1,34 +1,33 @@
-namespace Neptyne.Compiler.Models
+namespace Neptyne.Compiler.Models;
+
+public class Token
 {
-    public class Token
+    public TokenType Type { get; }
+
+    public string Value { get; }
+    
+    public int Line { get; }
+
+    public Token(TokenType type, string value, int line)
     {
-        public TokenType Type { get; }
-
-        public string Value { get; }
-        
-        public int Line { get; }
-
-        public Token(TokenType type, string value, int line)
-        {
-            Type = type;
-            Value = value;
-            Line = line;
-        }
+        Type = type;
+        Value = value;
+        Line = line;
     }
+}
 
-    public enum TokenType
-    {
-        OpenParenthesis,
-        CloseParenthesis,
-        Type,
-        Name,
-        Number,
-        String,
-        Semicolon,
-        Point,
-        EqualsSign,
-        Statement,
-        OpenCurlyBrackets,
-        CloseCurlyBrackets
-    }
+public enum TokenType
+{
+    OpenParenthesis,
+    CloseParenthesis,
+    Type,
+    Name,
+    Number,
+    String,
+    Semicolon,
+    Point,
+    EqualsSign,
+    Statement,
+    OpenCurlyBrackets,
+    CloseCurlyBrackets
 }
