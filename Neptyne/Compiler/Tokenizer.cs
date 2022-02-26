@@ -146,37 +146,48 @@ public static class Tokenizer
 
                 switch (value)
                 {
+                    case "const":
+                    case "readonly":
+                        tokens.Add(new(TokenType.Keyword, value, row));
+                        break;
+
+                    case "byte":
                     case "char":
-                        tokens.Add(new(TokenType.Type, value, row));
-                        break;
-                    case "string":
-                        tokens.Add(new(TokenType.Type, value, row));
-                        break;
+                    case "short":
+                    case "ushort":
                     case "int":
-                        tokens.Add(new(TokenType.Type, value, row));
-                        break;
+                    case "uint":
+                    case "long":
+                    case "ulong":
                     case "float":
-                        tokens.Add(new(TokenType.Type, value, row));
+                        tokens.Add(new(TokenType.PrimitiveType, value, row));
                         break;
+
+                    case "string":
                     case "void":
                         tokens.Add(new(TokenType.Type, value, row));
                         break;
                     
                     case "if":
-                        tokens.Add(new(TokenType.Statement, value, row));
-                        break;
                     case "else":
-                        tokens.Add(new(TokenType.Statement, value, row));
-                        break;
                     case "while":
                         tokens.Add(new(TokenType.Statement, value, row));
                         break;
+                    
                     case "return":
-                        tokens.Add(new(TokenType.Statement, value, row));
+                        tokens.Add(new(TokenType.ReturnStatement, value, row));
+                        break;
+                    
+                    case "true":
+                    case "false":
+                        tokens.Add(new(TokenType.Boolean, value, row));
                         break;
                     
                     default:
-                        tokens.Add(new(TokenType.Name, value, row));
+                        if (value.EndsWith("f"))
+                            tokens.Add(new(TokenType.Float, value, row));
+                        else
+                            tokens.Add(new(TokenType.Name, value, row));
                         break;
                 }
             }

@@ -22,7 +22,6 @@ public class Program
             {
                 Console.Write("> ");
                 CommandExecutor.Execute(Console.ReadLine());
-                //ExecuteStatement(Console.ReadLine());
             }
             catch (CompilerException ex)
             {

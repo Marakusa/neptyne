@@ -4,7 +4,9 @@ namespace Neptyne.Compiler.Models.Assembly;
 
 public class AsmScript
 {
-    public readonly AsmDataSection DataSection = new(".data");
+    public List<Variable> Variables { get; set; }
+    
+    public List<Variable> ConstantVariables { get; set; }
     
     public readonly AsmTextSection TextSection = new();
 
@@ -14,7 +16,11 @@ public class AsmScript
     {
         string result = "";
 
-        result += $"{DataSection.Convert()}\n";
+        foreach (var variable in Variables)
+        {
+            result += $"{variable.ToAssembly()}\n";
+        }
+        
         result += $"{TextSection.Convert()}\n";
 
         foreach (var function in Functions)

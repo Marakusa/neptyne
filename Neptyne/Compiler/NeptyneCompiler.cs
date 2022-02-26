@@ -11,9 +11,4 @@ public class NeptyneCompiler
         string assemblyScript = ParseToAsm.ParseToAssembly(abstractSyntaxTree);
         return assemblyScript;
     }
-
-    public void ExecuteStatement(string statement)
-    {
-        
-    }
 }

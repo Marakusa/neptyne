@@ -10,18 +10,18 @@ public static class CommandExecutor
 {
     private static readonly Command[] Commands =
     {
-        new("help", "Print this help message", (_) =>
+        new("help", "Print this help message", _ =>
         {
             foreach (var command in Commands.OrderBy(f => f.Name))
             {
                 Console.WriteLine($"{command.Name}\t\t{command.Description}");
             }
         }),
-        new("exit", "Exit Neptyne", (_) =>
+        new("exit", "Exit Neptyne", _ =>
         {
             Program.Exit();
         }),
-        new("compile", "Compile a Neptyne script file (.npt)", (args) =>
+        new("compile", "Compile a Neptyne script file (.npt)", args =>
         {
             int minArgs = 1;
             if (args.Length > minArgs)
@@ -34,6 +34,8 @@ public static class CommandExecutor
                     string compiled = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
                     File.WriteAllBytes(writeFilePath + ".asm", Encoding.UTF8.GetBytes(compiled));
                     
+                    Console.WriteLine(compiled);
+                    
                 }
                 else
                     throw new Exception($"Script \"{args[1]}\" not found");
@@ -43,7 +45,7 @@ public static class CommandExecutor
                 ThrowInsufficientArgumentException(minArgs);
             }
         }),
-        new("load", "Load, compile and execute a Neptyne script file (.npt)", (args) =>
+        new("load", "Load, compile and execute a Neptyne script file (.npt)", args =>
         {
             int minArgs = 1;
             if (args.Length > minArgs)

@@ -24,10 +24,15 @@ public enum TokenType
     Name,
     Number,
     String,
+    Boolean,
+    Float,
     Semicolon,
     Point,
     EqualsSign,
-    Statement,
     OpenCurlyBrackets,
-    CloseCurlyBrackets
+    CloseCurlyBrackets,
+    Statement,
+    Keyword,
+    PrimitiveType,
+    ReturnStatement
 }

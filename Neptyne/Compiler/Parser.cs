@@ -1,4 +1,3 @@
-using System;
 using Neptyne.Compiler.Exceptions;
 using Neptyne.Compiler.Models;
 
@@ -37,7 +36,7 @@ public static class Parser
                     case "void":
                         return new(ParserTokenType.ReturnType, token.Value, token.Line);
                     default:
-                        return new(ParserTokenType.ValueType, token.Value, token.Line);
+                        return new(ParserTokenType.PrimitiveType, token.Value, token.Line);
                 }
             case TokenType.Name:
                 _index++;
@@ -48,6 +47,12 @@ public static class Parser
             case TokenType.String:
                 _index++;
                 return new(ParserTokenType.StringLiteral, token.Value, token.Line);
+            case TokenType.Float:
+                _index++;
+                return new(ParserTokenType.FloatLiteral, token.Value, token.Line);
+            case TokenType.Boolean:
+                _index++;
+                return new(ParserTokenType.BooleanLiteral, token.Value, token.Line);
             case TokenType.EqualsSign:
                 _index++;
                 return new(ParserTokenType.AssignmentOperator, token.Value, token.Line);
@@ -104,14 +109,10 @@ public static class Parser
                 }
             case TokenType.Statement:
                 _index++;
-                switch (token.Value)
-                {
-                    case "if":
-                    case "else":
-                        return new(ParserTokenType.Statement, token.Value, token.Line);
-                    default:
-                        throw new CompilerException($"Unknown statement '{token.Value}'", token.Line);
-                }
+                return new(ParserTokenType.Statement, token.Value, token.Line);
+            case TokenType.Keyword:
+                _index++;
+                return new(ParserTokenType.Keyword, token.Value, token.Line);
             default:
                 throw new CompilerException($"Syntax error near '{token.Value}'", token.Line);
         }

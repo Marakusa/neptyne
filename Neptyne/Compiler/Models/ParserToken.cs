@@ -27,12 +27,16 @@ public enum ParserTokenType
     NumberLiteral,
     FunctionCall,
     CallExpression,
-    ValueType,
+    PrimitiveType,
+    Keyword,
     Name,
     StringLiteral,
     AssignmentOperator,
     EndStatementToken,
     Statement,
     ReturnType,
-    CodeBlock
+    CodeBlock,
+    BooleanLiteral,
+    FloatLiteral,
+    CharacterLiteral
 }
