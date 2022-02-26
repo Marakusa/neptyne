@@ -1,26 +1,27 @@
 using System.Collections.Generic;
 
-namespace Neptyne.Compiler.Models.Assembly;
-
-public class AsmDataSection : AsmSection
+namespace Neptyne.Compiler.Models.Assembly
 {
-    public List<AsmDataVariable> Items { get; }
-
-    public AsmDataSection(string name)
+    public class AsmDataSection : AsmSection
     {
-        Name = name;
-        Items = new List<AsmDataVariable>();
-    }
+        public List<AsmDataVariable> Items { get; }
 
-    public override string Convert()
-    {
-        string result = $"section {Name}:\n";
-
-        foreach (var item in Items)
+        public AsmDataSection(string name)
         {
-            result += $"{item}\n";
+            Name = name;
+            Items = new List<AsmDataVariable>();
         }
 
-        return result;
+        public override string Convert()
+        {
+            string result = $"section {Name}:\n";
+
+            foreach (var item in Items)
+            {
+                result += $"{item}\n";
+            }
+
+            return result;
+        }
     }
 }

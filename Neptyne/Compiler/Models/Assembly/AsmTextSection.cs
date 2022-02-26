@@ -1,21 +1,22 @@
 using System.Collections.Generic;
 
-namespace Neptyne.Compiler.Models.Assembly;
-
-public class AsmTextSection : AsmSection
+namespace Neptyne.Compiler.Models.Assembly
 {
-    public override string Convert()
+    public class AsmTextSection : AsmSection
     {
-        string result = "section .text:\n";
-        result += "    global _start\n\n";
-
-        AsmFunction start = new("_start", null, null, null);
-        start.Block = new List<AsmStatement>
+        public override string Convert()
         {
-            new("call", "main")
-        };
-        result += start.ToString();
+            string result = "section .text:\n";
+            result += "    global _start\n\n";
 
-        return result;
+            AsmFunction start = new AsmFunction("_start", null, null, null);
+            start.Block = new List<AsmStatement>
+            {
+                new AsmStatement("call", "main")
+            };
+            result += start.ToString();
+
+            return result;
+        }
     }
 }

@@ -1,8 +1,9 @@
-namespace Neptyne.Compiler.Models.Assembly;
-
-public class AsmCallStatement : AsmStatement
+namespace Neptyne.Compiler.Models.Assembly
 {
-    public AsmCallStatement(string functionName, string parameters = "") : base("call", string.Format("{0}{1}", functionName, parameters))
+    public class AsmCallStatement : AsmStatement
     {
+        public AsmCallStatement(string functionName, string parameters = "") : base("call", string.Format("{0}{1}", functionName, parameters))
+        {
+        }
     }
 }

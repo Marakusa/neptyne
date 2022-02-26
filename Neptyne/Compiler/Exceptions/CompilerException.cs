@@ -1,10 +1,11 @@
 using System;
 
-namespace Neptyne.Compiler.Exceptions;
-
-public class CompilerException : Exception
+namespace Neptyne.Compiler.Exceptions
 {
-    public CompilerException(string error, int line) : base($"{error}: {line}")
+    public class CompilerException : Exception
     {
+        public CompilerException(string error, int line) : base($"{error}: {line}")
+        {
+        }
     }
 }

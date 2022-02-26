@@ -1,19 +1,20 @@
-namespace Neptyne.Compiler.Models.Assembly;
-
-public class AsmTextSectionItem
+namespace Neptyne.Compiler.Models.Assembly
 {
-    public string Key { get; }
-    
-    public string Value { get; }
-
-    public AsmTextSectionItem(string key, string value)
+    public class AsmTextSectionItem
     {
-        Key = key;
-        Value = value;
-    }
+        public string Key { get; }
 
-    public override string ToString()
-    {
-        return $"{Key} {Value}";
+        public string Value { get; }
+
+        public AsmTextSectionItem(string key, string value)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public override string ToString()
+        {
+            return $"{Key} {Value}";
+        }
     }
 }

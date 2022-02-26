@@ -1,19 +1,20 @@
-namespace Neptyne.Compiler.Models.Assembly;
-
-public class AsmStatement
+namespace Neptyne.Compiler.Models.Assembly
 {
-    public string Instruction { get; }
-
-    public string Data { get; }
-
-    public AsmStatement(string instruction, string data)
+    public class AsmStatement
     {
-        Instruction = instruction;
-        Data = data;
-    }
+        public string Instruction { get; }
 
-    public override string ToString()
-    {
-        return $"{Instruction} {Data}";
+        public string Data { get; }
+
+        public AsmStatement(string instruction, string data)
+        {
+            Instruction = instruction;
+            Data = data;
+        }
+
+        public override string ToString()
+        {
+            return $"{Instruction} {Data}";
+        }
     }
 }
