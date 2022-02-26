@@ -29,15 +29,12 @@ public static class Parser
         
         switch (token.Type)
         {
-            case TokenType.Type:
+            case TokenType.ReturnType:
                 _index++;
-                switch (token.Value)
-                {
-                    case "void":
-                        return new(ParserTokenType.ReturnType, token.Value, token.Line);
-                    default:
-                        return new(ParserTokenType.PrimitiveType, token.Value, token.Line);
-                }
+                return new(ParserTokenType.ReturnType, token.Value, token.Line);
+            case TokenType.PrimitiveType:
+                _index++;
+                return new(ParserTokenType.PrimitiveType, token.Value, token.Line);
             case TokenType.Name:
                 _index++;
                 return new(ParserTokenType.Name, token.Value, token.Line);

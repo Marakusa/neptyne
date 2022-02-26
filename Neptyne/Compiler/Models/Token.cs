@@ -20,7 +20,6 @@ public enum TokenType
 {
     OpenParenthesis,
     CloseParenthesis,
-    Type,
     Name,
     Number,
     String,
@@ -34,5 +33,6 @@ public enum TokenType
     Statement,
     Keyword,
     PrimitiveType,
-    ReturnStatement
+    ReturnStatement,
+    ReturnType
 }

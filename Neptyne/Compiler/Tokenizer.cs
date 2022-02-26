@@ -163,9 +163,8 @@ public static class Tokenizer
                         tokens.Add(new(TokenType.PrimitiveType, value, row));
                         break;
 
-                    case "string":
                     case "void":
-                        tokens.Add(new(TokenType.Type, value, row));
+                        tokens.Add(new(TokenType.ReturnType, value, row));
                         break;
                     
                     case "if":

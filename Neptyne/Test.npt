@@ -1,8 +1,10 @@
-void main() {
+int test = 12;
+
+/*void main() {
 	int i = 23;
-	i += 3;
+	//i += 3;
 	return i;
-}
+}*/
 
 /*void main() {
 	int a = 12;
