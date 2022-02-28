@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Neptyne.Compiler.Exceptions;
 
 namespace Neptyne;
@@ -8,7 +10,7 @@ public class Program
 {
     private static bool _running = true;
 
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var defaultColor = Console.ForegroundColor;
         
@@ -21,7 +23,8 @@ public class Program
             try
             {
                 Console.Write("> ");
-                CommandExecutor.Execute(Console.ReadLine());
+                var task = Task.Run(() => CommandExecutor.Execute(Console.ReadLine()));
+                await task.WaitAsync(CancellationToken.None);
             }
             catch (CompilerException ex)
             {

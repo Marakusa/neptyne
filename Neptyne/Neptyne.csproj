@@ -9,11 +9,4 @@
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
-    <ItemGroup>
-      <None Remove="Test.npt" />
-      <EmbeddedResource Include="Test.npt">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </EmbeddedResource>
-    </ItemGroup>
-
 </Project>

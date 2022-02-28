@@ -39,5 +39,7 @@ public enum ParserTokenType
     BooleanLiteral,
     FloatLiteral,
     CharacterLiteral,
-    ReturnStatement
+    ReturnStatement,
+    AdditionOperator,
+    MinusOperator
 }

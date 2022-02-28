@@ -34,5 +34,7 @@ public enum TokenType
     Keyword,
     PrimitiveType,
     ReturnStatement,
-    ReturnType
+    ReturnType,
+    AddSign,
+    MinusSign
 }

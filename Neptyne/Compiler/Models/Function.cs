@@ -20,7 +20,9 @@ public class Function
     public ParserToken ParentBlockNode { get; }
     
     public int BlockIndex { get; }
-    
+
+    public List<FunctionVariable> Variables { get; set; }
+
     public Function(string name, string returnType, List<ParserToken> paramsTokens, List<ParserToken> block, ParserToken blockNode, int blockIndex)
     {
         Name = name;
@@ -31,6 +33,7 @@ public class Function
         BlockTokens = block;
         ParentBlockNode = blockNode;
         BlockIndex = blockIndex;
+        Variables = new();
     }
 
     public string GetParamsString()
@@ -59,15 +62,18 @@ public class Function
             result += "    push rbp\n";
             result += "    mov rbp, rsp\n";
         }
-        
+
+        bool containsReturn = false;
         foreach (var statement in Block)
         {
             result += $"    {statement}\n";
+            containsReturn = statement.IsReturnStatement;
         }
         
         if (Name != "_start")
         {
-            result += "    mov eax, 0\n";
+            if (!containsReturn)
+                result += "    mov eax, 0\n";
             result += "    pop rbp\n";
             result += "    ret\n\n";
         }
@@ -87,4 +93,10 @@ public class FunctionParameter
         Type = type;
         Value = value;
     }
+}
+
+public class FunctionVariable : Variable
+{
+    public FunctionVariable(string pointer, string variableName, PrimitiveTypeObject type, ParserToken value) 
+        : base(false, type, variableName, pointer, value) { }
 }

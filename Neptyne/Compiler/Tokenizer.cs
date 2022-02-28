@@ -108,6 +108,14 @@ public static class Tokenizer
             {
                 tokens.Add(new(TokenType.EqualsSign, c.ToString(), row));
             }
+            else if (c == '+')
+            {
+                tokens.Add(new(TokenType.AddSign, c.ToString(), row));
+            }
+            else if (c == '-')
+            {
+                tokens.Add(new(TokenType.MinusSign, c.ToString(), row));
+            }
             else if (c == ';')
             {
                 tokens.Add(new(TokenType.Semicolon, c.ToString(), row));

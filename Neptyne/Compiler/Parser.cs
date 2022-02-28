@@ -53,6 +53,12 @@ public static class Parser
             case TokenType.EqualsSign:
                 _index++;
                 return new(ParserTokenType.AssignmentOperator, token.Value, token.Line);
+            case TokenType.AddSign:
+                _index++;
+                return new(ParserTokenType.AdditionOperator, token.Value, token.Line);
+            case TokenType.MinusSign:
+                _index++;
+                return new(ParserTokenType.MinusOperator, token.Value, token.Line);
             case TokenType.Semicolon:
                 _index++;
                 return new(ParserTokenType.EndStatementToken, token.Value, token.Line);

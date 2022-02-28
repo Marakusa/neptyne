@@ -6,10 +6,13 @@ public class AsmStatement
 
     public string Data { get; }
 
-    public AsmStatement(string instruction, string data)
+    public bool IsReturnStatement { get; set; }
+
+    public AsmStatement(string instruction, string data, bool isReturnStatement = false)
     {
         Instruction = instruction;
         Data = data;
+        IsReturnStatement = isReturnStatement;
     }
 
     public override string ToString()

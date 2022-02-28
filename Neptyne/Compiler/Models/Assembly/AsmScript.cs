@@ -14,7 +14,7 @@ public class AsmScript
 
     public string Build()
     {
-        string result = "";
+        string result = "%use masm\n\n";
 
         foreach (var variable in Variables)
         {
