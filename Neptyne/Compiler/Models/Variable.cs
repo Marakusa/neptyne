@@ -55,6 +55,6 @@ public class Variable
             }
         }
         
-        return result + "\n";
+        return result;
     }
 }

@@ -6,7 +6,7 @@ public class AsmStatement
 
     public string Data { get; }
 
-    public bool IsReturnStatement { get; set; }
+    public bool IsReturnStatement { get; }
 
     public AsmStatement(string instruction, string data, bool isReturnStatement = false)
     {

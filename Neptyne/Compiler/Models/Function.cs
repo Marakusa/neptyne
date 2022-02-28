@@ -9,7 +9,7 @@ public class Function
     
     public string ReturnType { get; }
     
-    public List<FunctionParameter> Params { get; set; }
+    public List<FunctionParameter> Params { get; }
     
     public List<ParserToken> ParamsTokens { get; }
     

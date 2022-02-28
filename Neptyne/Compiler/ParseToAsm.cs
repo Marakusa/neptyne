@@ -18,7 +18,8 @@ public static class ParseToAsm
     private static int _current;
 
     private static Function _currentFunction;
-    private static bool _functionHasReturnStatement = false;
+    private static bool _functionHasReturnStatement;
+    private static int _currentFunctionLastPointerValue;
 
     public static string ParseToAssembly(ParserToken abstractSyntaxTree)
     {
@@ -27,6 +28,7 @@ public static class ParseToAsm
         _functions = new();
         _currentFunction = null;
         _current = 0;
+        _currentFunctionLastPointerValue = 0;
         
         AsmScript assemblyCode = new();
         
@@ -136,7 +138,7 @@ public static class ParseToAsm
 
                             if (GetLiteralType(_currentFunction.ReturnType) == variable.Type.LiteralType)
                             {
-                                _currentFunction.Block.Add(new("mov", $"eax, DWORD PTR {variable.PointerName}", true));
+                                _currentFunction.Block.Add(new("mov", $"eax, {variable.PointerName}", true));
                                 
                                 Step(node, true);
                                 
@@ -177,77 +179,120 @@ public static class ParseToAsm
                     Variable v = GetVariable(node);
 
                     if (v == null)
-                        throw new CompilerException($"Cannot resolve symbol '{node.Value}'", CurrentLine);
-
-                    LiteralType literalType = v.Type.LiteralType;
-                    string  variableType = v.Type.Name;
-                    
-                    node = Step(node);
-
-                    switch (node.Type)
                     {
-                        case ParserTokenType.AssignmentOperator:
-                            if (_currentFunction == null)
-                                throw new CompilerException("Assignment statements must be inside a function", CurrentLine);
-
-                            if (literalType == LiteralType.Boolean || literalType == LiteralType.Character)
-                                throw new CompilerException($"Assignment operator cannot be used in variables typed '{variableType}", CurrentLine);
-
+                        if (node.Value == "out")
+                        {
                             node = Step(node);
 
-                            AsmMathAssignmentCollection statements = new();
+                            if (node.Params.Count != 1)
+                                throw new CompilerException("Insufficent amount of parameters (1 required)", CurrentLine);
+                            
+                            v = GetVariable(node.Params[0]);
 
-                            while (node.Type != ParserTokenType.EndStatementToken)
+                            List<AsmStatement> statements = new();
+                            
+                            if (v == null)
                             {
-                                switch (node.Type)
-                                {
-                                    case ParserTokenType.AdditionOperator:
-                                        if (_currentFunction == null)
-                                            throw new CompilerException("Addition statements must be inside a function", CurrentLine);
+                                statements.Add(new("mov", "edx, 1"));
+                                statements.Add(new("mov", $"ecx, {node.Params[0].Value}"));
+                            }
+                            else
+                            {
+                                statements.Add(new("mov", "edx, 1"));
+                                statements.Add(new("mov", $"ecx, {v.PointerName}"));
+                            }
+                            
+                            statements.Add(new("mov", "ebx, 1"));
+                            statements.Add(new("mov", "eax, 4"));
+                            statements.Add(new("int", "0x80"));
+                            _currentFunction.Block.AddRange(statements);
+                        }
+                        else
+                            throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                    }
+                    else
+                    {
+                        string variablePointer = v.PointerName;
+                        LiteralType literalType = v.Type.LiteralType;
+                        string variableType = v.Type.Name;
 
-                                        node = Step(node);
+                        node = Step(node);
 
-                                        Variable expressionVar = GetVariable(node);
+                        switch (node.Type)
+                        {
+                            case ParserTokenType.AssignmentOperator:
+                                if (_currentFunction == null)
+                                    throw new CompilerException("Assignment statements must be inside a function", CurrentLine);
 
-                                        if (expressionVar == null)
-                                        {
-                                            if (GetLiteralType(node.Type) != literalType)
-                                                throw new CompilerException(
-                                                    $"Cannot convert expression '{node.Value}' to a type of '{variableType}'", CurrentLine);
-                                        }
-                                        else
-                                        {
-                                            LiteralType eLiteralType = expressionVar.Type.LiteralType;
-                                            string  eVariableType = expressionVar.Type.Name;
-                                            if (GetLiteralType(node.Type) != eLiteralType)
-                                                throw new CompilerException(
-                                                    $"Cannot convert expression '{node.Value}' to a type of '{eVariableType}'", CurrentLine);
-
-                                        }
-
-                                        statements.Add(MathAssignmentType.Add, node);
-
-                                        break;
-                                    case ParserTokenType.MinusOperator:
-                                        if (_currentFunction == null)
-                                            throw new CompilerException("Addition statements must be inside a function", CurrentLine);
-                                        break;
-                                    default:
-                                        throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
-                                }
+                                if (literalType == LiteralType.Boolean || literalType == LiteralType.Character)
+                                    throw new CompilerException($"Assignment operator cannot be used in variables typed '{variableType}",
+                                        CurrentLine);
 
                                 node = Step(node);
-                            }
 
-                            break;
-                        default:
-                            throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                                AsmMathAssignmentCollection statements = new(variablePointer);
+
+                                node = Step(node);
+
+                                while (node.Type != ParserTokenType.EndStatementToken)
+                                {
+                                    switch (node.Type)
+                                    {
+                                        case ParserTokenType.AdditionOperator:
+                                            if (_currentFunction == null)
+                                                throw new CompilerException("Addition statements must be inside a function", CurrentLine);
+
+                                            node = Step(node);
+
+                                            HandleAssignmentMath(node, literalType, variableType, statements);
+
+                                            break;
+                                        case ParserTokenType.MinusOperator:
+                                            if (_currentFunction == null)
+                                                throw new CompilerException("Addition statements must be inside a function", CurrentLine);
+                                            break;
+                                        default:
+                                            throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                                    }
+
+                                    node = Step(node);
+                                }
+
+                                _currentFunction.Block.AddRange(statements.GetStatements());
+                                break;
+                            default:
+                                throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                        }
                     }
                     break;
                 }
                 throw new CompilerException("Function calls not implemented yet :/", CurrentLine);
             default:
                 throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+        }
+    }
+
+    private static void HandleAssignmentMath(ParserToken node, LiteralType literalType, string variableType, AsmMathAssignmentCollection statements)
+    {
+        Variable expressionVar = GetVariable(node);
+
+        if (expressionVar == null)
+        {
+            if (GetLiteralType(node.Type) != literalType)
+                throw new CompilerException(
+                    $"Cannot convert expression '{node.Value}' to a type of '{variableType}'", CurrentLine);
+                                            
+            statements.Add(MathAssignmentType.Add, node.Value, CurrentLine);
+        }
+        else
+        {
+            LiteralType eLiteralType = expressionVar.Type.LiteralType;
+            string  eVariableType = expressionVar.Type.Name;
+            if (expressionVar.Type.LiteralType != eLiteralType)
+                throw new CompilerException(
+                    $"Cannot convert expression '{node.Value}' to a type of '{eVariableType}'", CurrentLine);
+                                            
+            statements.Add(MathAssignmentType.Add, expressionVar.PointerName, CurrentLine);
         }
     }
 
@@ -270,11 +315,12 @@ public static class ParseToAsm
         if (_current + 1 >= _abstractSyntaxTree.Count)
             throw new CompilerException("; expected", CurrentLine);
         _current++;
-
+        node = _abstractSyntaxTree[_current];
+        
         if (checkEnd && node.Type != ParserTokenType.EndStatementToken)
             throw new CompilerException("; expected", CurrentLine);
         
-        return _abstractSyntaxTree[_current];
+        return node;
     }
 
     private static void EndFunction()
@@ -324,11 +370,12 @@ public static class ParseToAsm
             node = _abstractSyntaxTree[_current];
             if (type.LiteralType == GetLiteralType(node.Type))
             {
-                if (isInBlock || _currentFunction != null)
+                if (isInBlock && _currentFunction != null)
                 {
-                    string pointer = $"[rbp-{type.ByteLength / 8}]";
+                    string pointer = $"{GetPointerParam(type)} PTR [rbp-{type.ByteLength / 8 + _currentFunctionLastPointerValue}]";
                     _currentFunction.Variables.Add(new(pointer, variableName, type, node));
-                    _currentFunction.Block.Add(new("mov", $"DWORD PTR {pointer}, {node.Value}"));
+                    _currentFunction.Block.Add(new("mov", $"{pointer}, {node.Value}"));
+                    _currentFunctionLastPointerValue += type.ByteLength / 8;
                 }
                 else
                 {
@@ -446,7 +493,7 @@ public static class ParseToAsm
             else
             {
                 Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, $"{GetPointerParam(variableType)} PTR {variableName}[rip]", valueToken);
-                _constVariables.Add(variable);
+                _variables.Add(variable);
             }
         }
         else

@@ -1,9 +1,8 @@
-int test = 12;
-
 int main(int arg) {
 	int a = 10;
 	int b = 12;
 	a = a + b;
+	out(a);
 	return a;
 }
 
