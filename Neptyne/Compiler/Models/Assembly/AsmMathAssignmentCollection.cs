@@ -32,11 +32,14 @@ public class AsmMathAssignmentCollection
     public List<AsmStatement> GetStatements()
     {
         List<AsmStatement> statements = new();
-        statements.Add(new("mov", $"edx, {_originalValue}"));
         
         foreach (var calculation in _calculations)
         {
-            if (calculation.Type == MathAssignmentType.Add)
+            if (calculation.Type == MathAssignmentType.None)
+            {
+                statements.Add(new("mov", $"edx, {calculation.Value}"));
+            }
+            else if (calculation.Type == MathAssignmentType.Add)
             {
                 statements.Add(new("mov", $"eax, {calculation.Value}"));
                 statements.Add(new("add", "eax, edx"));
@@ -45,14 +48,14 @@ public class AsmMathAssignmentCollection
                 throw new CompilerException("Calculation assignment type not implemented yet", calculation.Line);
         }
         
-        statements.Add(new("add", $"{_originalValue}, eax"));
+        statements.Add(new("mov", $"{_originalValue}, eax"));
         return statements;
     }
 }
 
 public enum MathAssignmentType
 {
-    Add, Substract, Multiply, Divide
+    None, Add, Substract, Multiply, Divide
 }
 
 public class MathAssignment

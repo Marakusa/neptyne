@@ -2,7 +2,8 @@ int main(int arg) {
 	int a = 10;
 	int b = 12;
 	a = a + b;
-	out(a);
+	//a = b + a;
+	//out(a);
 	return a;
 }
 

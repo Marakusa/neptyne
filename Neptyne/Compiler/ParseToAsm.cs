@@ -232,6 +232,8 @@ public static class ParseToAsm
 
                                 AsmMathAssignmentCollection statements = new(variablePointer);
 
+                                HandleAssignmentMath(node, literalType, variableType, statements, MathAssignmentType.None);
+
                                 node = Step(node);
 
                                 while (node.Type != ParserTokenType.EndStatementToken)
@@ -244,7 +246,7 @@ public static class ParseToAsm
 
                                             node = Step(node);
 
-                                            HandleAssignmentMath(node, literalType, variableType, statements);
+                                            HandleAssignmentMath(node, literalType, variableType, statements, MathAssignmentType.Add);
 
                                             break;
                                         case ParserTokenType.MinusOperator:
@@ -272,7 +274,7 @@ public static class ParseToAsm
         }
     }
 
-    private static void HandleAssignmentMath(ParserToken node, LiteralType literalType, string variableType, AsmMathAssignmentCollection statements)
+    private static void HandleAssignmentMath(ParserToken node, LiteralType literalType, string variableType, AsmMathAssignmentCollection statements, MathAssignmentType mathAssignment)
     {
         Variable expressionVar = GetVariable(node);
 
@@ -282,7 +284,7 @@ public static class ParseToAsm
                 throw new CompilerException(
                     $"Cannot convert expression '{node.Value}' to a type of '{variableType}'", CurrentLine);
                                             
-            statements.Add(MathAssignmentType.Add, node.Value, CurrentLine);
+            statements.Add(mathAssignment, node.Value, CurrentLine);
         }
         else
         {
@@ -292,7 +294,7 @@ public static class ParseToAsm
                 throw new CompilerException(
                     $"Cannot convert expression '{node.Value}' to a type of '{eVariableType}'", CurrentLine);
                                             
-            statements.Add(MathAssignmentType.Add, expressionVar.PointerName, CurrentLine);
+            statements.Add(mathAssignment, expressionVar.PointerName, CurrentLine);
         }
     }
 
