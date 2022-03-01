@@ -1,0 +1,7 @@
+name:sample-project
+displayName:Sample Project
+version:0.1.0
+description:This is a sample project to introduce Neptyne.
+extensions:
+test-extension@0.0.0
+:extensions
