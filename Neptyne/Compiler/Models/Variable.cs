@@ -12,14 +12,17 @@ public class Variable
     
     public ParserToken Value { get; }
 
+    public string PointerPrefix { get; }
+
     public string PointerName { get; }
 
-    public Variable(bool isReadonly, PrimitiveTypeObject type, string name, string pointerName, ParserToken value)
+    public Variable(bool isReadonly, PrimitiveTypeObject type, string name, string pointerPrefix, string pointerName, ParserToken value)
     {
         Readonly = isReadonly;
         Type = type;
         Name = name;
         PointerName = pointerName;
+        PointerPrefix = pointerPrefix;
         Value = value;
     }
 

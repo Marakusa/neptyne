@@ -35,6 +35,15 @@ public static class Parser
             case TokenType.PrimitiveType:
                 _index++;
                 return new(ParserTokenType.PrimitiveType, token.Value, token.Line);
+            case TokenType.BuiltInType:
+                _index++;
+                switch (token.Value)
+                {
+                    case "string":
+                        return new(ParserTokenType.String, token.Value, token.Line);
+                    default:
+                        throw new CompilerException("Invalid built in type", token.Line);
+                }
             case TokenType.Name:
                 _index++;
                 return new(ParserTokenType.Name, token.Value, token.Line);

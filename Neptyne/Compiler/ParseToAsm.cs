@@ -8,6 +8,7 @@ namespace Neptyne.Compiler;
 
 public static class ParseToAsm
 {
+    private static Dictionary<string, string> _strings = new();
     private static List<Variable> _variables = new();
     private static List<Variable> _constVariables = new();
     private static List<Function> _functions = new();
@@ -23,6 +24,7 @@ public static class ParseToAsm
 
     public static string ParseToAssembly(ParserToken abstractSyntaxTree)
     {
+        _strings = new();
         _variables = new();
         _constVariables = new();
         _functions = new();
@@ -50,7 +52,8 @@ public static class ParseToAsm
         {
             throw new CompilerException("Program does not contain a 'main' function suitable for an entry point", 1);
         }
-        
+
+        assemblyCode.Strings = _strings;
         assemblyCode.Variables = _variables;
         assemblyCode.ConstantVariables = _constVariables;
         assemblyCode.Functions = _functions;
@@ -71,7 +74,7 @@ public static class ParseToAsm
                 EndStatement();
                 break;
             case ParserTokenType.Keyword:
-                if (parent == null || parent.Type != ParserTokenType.Keyword)
+                if (parent != null || parent != null &&parent.Type != ParserTokenType.Keyword)
                     throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
                 
                 switch (node.Value)
@@ -107,6 +110,33 @@ public static class ParseToAsm
                 }
                 else
                     throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+            case ParserTokenType.String:
+                node = Step(node);
+                if (node.Type != ParserTokenType.Name)
+                    throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+
+                string variableName = node.Value;
+                
+                node = Step(node);
+                if (node.Type != ParserTokenType.AssignmentOperator)
+                    throw new CompilerException("; expected", CurrentLine);
+                
+                node = Step(node);
+                if (node.Type != ParserTokenType.StringLiteral)
+                    throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+
+                if (!_strings.ContainsKey(node.Value))
+                {
+                    _strings.Add(node.Value, $".LC{_strings.Count}");
+                    if (_currentFunction != null)
+                    {
+                        string pointer = "[rbp-8]";
+                        _currentFunction.Variables.Add(new(pointer, "QWORD PTR ", variableName, PrimitiveVariables.Parse("string"), node));
+                        _currentFunction.Block.Add(new("mov", $"QWORD PTR {pointer}, {node.Value}"));
+                        _currentFunctionLastPointerValue += 8;
+                    }
+                }
+                break;
             case ParserTokenType.ReturnType:
                 switch (node.Value)
                 {
@@ -191,19 +221,20 @@ public static class ParseToAsm
 
                             List<AsmStatement> statements = new();
                             
+                            statements.Add(new("mov", "eax, 4"));
+                            statements.Add(new("mov", "ebx, 1"));
+                            
                             if (v == null)
                             {
-                                statements.Add(new("mov", "edx, 1"));
                                 statements.Add(new("mov", $"ecx, {node.Params[0].Value}"));
+                                statements.Add(new("mov", "edx, 1"));
                             }
                             else
                             {
-                                statements.Add(new("mov", "edx, 1"));
                                 statements.Add(new("mov", $"ecx, {v.PointerName}"));
+                                statements.Add(new("mov", "edx, 1"));
                             }
                             
-                            statements.Add(new("mov", "ebx, 1"));
-                            statements.Add(new("mov", "eax, 4"));
                             statements.Add(new("int", "0x80"));
                             _currentFunction.Block.AddRange(statements);
                         }
@@ -294,7 +325,7 @@ public static class ParseToAsm
                 throw new CompilerException(
                     $"Cannot convert expression '{node.Value}' to a type of '{eVariableType}'", CurrentLine);
                                             
-            statements.Add(mathAssignment, expressionVar.PointerName, CurrentLine);
+            statements.Add(mathAssignment, expressionVar.PointerPrefix + expressionVar.PointerName, CurrentLine);
         }
     }
 
@@ -307,6 +338,13 @@ public static class ParseToAsm
             v = _variables.Find(f => f.Name == node.Value);
             if (v == null)
                 v = _constVariables.Find(f => f.Name == node.Value);
+            if (v == null)
+            {
+                if (_strings.ContainsKey(node.Value))
+                {
+                    
+                }
+            }
         }
 
         return v;
@@ -374,9 +412,9 @@ public static class ParseToAsm
             {
                 if (isInBlock && _currentFunction != null)
                 {
-                    string pointer = $"{GetPointerParam(type)} PTR [rbp-{type.ByteLength / 8 + _currentFunctionLastPointerValue}]";
-                    _currentFunction.Variables.Add(new(pointer, variableName, type, node));
-                    _currentFunction.Block.Add(new("mov", $"{pointer}, {node.Value}"));
+                    string pointer = $"[rbp-{type.ByteLength / 8 + _currentFunctionLastPointerValue}]";
+                    _currentFunction.Variables.Add(new(pointer, $"{GetPointerParam(type)} PTR ", variableName, type, node));
+                    _currentFunction.Block.Add(new("mov", $"{GetPointerParam(type)} PTR {pointer}, {node.Value}"));
                     _currentFunctionLastPointerValue += type.ByteLength / 8;
                 }
                 else
@@ -489,12 +527,12 @@ public static class ParseToAsm
         {
             if (keywords.Contains(Keyword.Const))
             {
-                Variable variable = new(false, variableType, variableName, valueToken.Value, valueToken);
+                Variable variable = new(false, variableType, variableName, "", valueToken.Value, valueToken);
                 _constVariables.Add(variable);
             }
             else
             {
-                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, $"{GetPointerParam(variableType)} PTR {variableName}[rip]", valueToken);
+                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, $"{GetPointerParam(variableType)} PTR ", $"{variableName}[rip]", valueToken);
                 _variables.Add(variable);
             }
         }

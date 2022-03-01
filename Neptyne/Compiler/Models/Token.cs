@@ -36,5 +36,6 @@ public enum TokenType
     ReturnStatement,
     ReturnType,
     AddSign,
-    MinusSign
+    MinusSign,
+    BuiltInType
 }

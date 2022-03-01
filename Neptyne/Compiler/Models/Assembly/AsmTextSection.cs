@@ -13,7 +13,6 @@ public class AsmTextSection : AsmSection
         start.Block = new List<AsmStatement>
         {
             new("call", "main"),
-            new("int", "80h"),
             new("mov", "eax, 1"),
             new("mov", "ebx, 0"),
             new("int", "80h")

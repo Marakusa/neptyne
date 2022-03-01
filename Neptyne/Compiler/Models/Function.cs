@@ -97,6 +97,6 @@ public class FunctionParameter
 
 public class FunctionVariable : Variable
 {
-    public FunctionVariable(string pointer, string variableName, PrimitiveTypeObject type, ParserToken value) 
-        : base(false, type, variableName, pointer, value) { }
+    public FunctionVariable(string pointer, string variableNamePrefix, string variableName, PrimitiveTypeObject type, ParserToken value) 
+        : base(false, type, variableName, variableNamePrefix, pointer, value) { }
 }

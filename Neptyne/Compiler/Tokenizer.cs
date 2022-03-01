@@ -171,6 +171,10 @@ public static class Tokenizer
                         tokens.Add(new(TokenType.PrimitiveType, value, row));
                         break;
 
+                    case "string":
+                        tokens.Add(new(TokenType.BuiltInType, value, row));
+                        break;
+
                     case "void":
                         tokens.Add(new(TokenType.ReturnType, value, row));
                         break;

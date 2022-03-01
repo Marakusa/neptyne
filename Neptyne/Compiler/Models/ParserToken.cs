@@ -28,6 +28,7 @@ public enum ParserTokenType
     FunctionCall,
     CallExpression,
     PrimitiveType,
+    String,
     Keyword,
     Name,
     StringLiteral,

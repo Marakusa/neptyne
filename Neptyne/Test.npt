@@ -1,24 +1,13 @@
-int main(int arg) {
-	int a = 10;
-	int b = 12;
-	a = a + b;
-	//a = b + a;
-	//out(a);
-	return a;
+void main() {
+	string msg = "test";
+	out(msg);
 }
 
-/*void main() {
-	int i = 23;
-	//i += 3;
-	return i;
+/*int main(int arg) {
+	int a = 10;
+	//int b = 12;
+	//a = a + b;
+	//a = b + a;
+	out(a);
+	return 0;
 }*/
-
-/*void main() {
-	int a = 12;
-	int b = a;
-	int c = b;
-	int d = c;
-	//string hello = "Hello world!";
-	//out(hello);
-}*/
-
