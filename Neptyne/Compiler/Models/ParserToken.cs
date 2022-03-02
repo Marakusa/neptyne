@@ -4,7 +4,7 @@ namespace Neptyne.Compiler.Models;
 
 public class ParserToken
 {
-    public ParserTokenType Type { get; }
+    public TokenType Type { get; }
 
     public string Value { get; }
     
@@ -12,35 +12,11 @@ public class ParserToken
 
     public int Line { get; }
 
-    public ParserToken(ParserTokenType type, string value, int line)
+    public ParserToken(TokenType type, string value, int line)
     {
         Type = type;
         Value = value;
         Line = line;
         Params = new List<ParserToken>();
     }
-}
-
-public enum ParserTokenType
-{
-    Root,
-    NumberLiteral,
-    FunctionCall,
-    CallExpression,
-    PrimitiveType,
-    String,
-    Keyword,
-    Name,
-    StringLiteral,
-    AssignmentOperator,
-    EndStatementToken,
-    Statement,
-    ReturnType,
-    CodeBlock,
-    BooleanLiteral,
-    FloatLiteral,
-    CharacterLiteral,
-    ReturnStatement,
-    AdditionOperator,
-    MinusOperator
 }

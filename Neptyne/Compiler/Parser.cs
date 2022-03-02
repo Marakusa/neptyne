@@ -1,3 +1,4 @@
+using System;
 using Neptyne.Compiler.Exceptions;
 using Neptyne.Compiler.Models;
 
@@ -7,13 +8,15 @@ public static class Parser
 {
     private static int _index;
     private static Token[] _tokens;
-    
-    public static ParserToken Parse(Token[] inputTokens, string name)
+
+    public static int CurrentLine => _tokens[_index].Line;
+
+    public static ParserToken ParseToSyntaxTree(Token[] inputTokens, string name)
     {
         _index = 0;
         _tokens = inputTokens;
         
-        var root = new ParserToken(ParserTokenType.Root, name, 1);
+        ParserToken root = new(TokenType.Root, name, 1);
         
         while (_index < _tokens.Length)
         {
@@ -22,68 +25,26 @@ public static class Parser
         
         return root;
     }
-
+    
     private static ParserToken Walk()
     {
         Token token = _tokens[_index];
         
         switch (token.Type)
         {
-            case TokenType.ReturnType:
-                _index++;
-                return new(ParserTokenType.ReturnType, token.Value, token.Line);
-            case TokenType.PrimitiveType:
-                _index++;
-                return new(ParserTokenType.PrimitiveType, token.Value, token.Line);
-            case TokenType.BuiltInType:
-                _index++;
-                switch (token.Value)
-                {
-                    case "string":
-                        return new(ParserTokenType.String, token.Value, token.Line);
-                    default:
-                        throw new CompilerException("Invalid built in type", token.Line);
-                }
-            case TokenType.Name:
-                _index++;
-                return new(ParserTokenType.Name, token.Value, token.Line);
-            case TokenType.Number:
-                _index++;
-                return new(ParserTokenType.NumberLiteral, token.Value, token.Line);
-            case TokenType.String:
-                _index++;
-                return new(ParserTokenType.StringLiteral, token.Value, token.Line);
-            case TokenType.Float:
-                _index++;
-                return new(ParserTokenType.FloatLiteral, token.Value, token.Line);
-            case TokenType.Boolean:
-                _index++;
-                return new(ParserTokenType.BooleanLiteral, token.Value, token.Line);
-            case TokenType.EqualsSign:
-                _index++;
-                return new(ParserTokenType.AssignmentOperator, token.Value, token.Line);
-            case TokenType.AddSign:
-                _index++;
-                return new(ParserTokenType.AdditionOperator, token.Value, token.Line);
-            case TokenType.MinusSign:
-                _index++;
-                return new(ParserTokenType.MinusOperator, token.Value, token.Line);
-            case TokenType.Semicolon:
-                _index++;
-                return new(ParserTokenType.EndStatementToken, token.Value, token.Line);
-            case TokenType.OpenParenthesis:
+            case TokenType.OpenParentheses:
                 _index++;
                 token = _tokens[_index];
-                if (token.Type != TokenType.CloseParenthesis)
+                if (token.Type != TokenType.CloseParentheses)
                 {
-                    ParserToken node = new(ParserTokenType.CallExpression, "", token.Line);
+                    ParserToken node = new(TokenType.Expression, "", CurrentLine);
                     
-                    while (token.Type != TokenType.CloseParenthesis)
+                    while (token.Type != TokenType.CloseParentheses)
                     {
                         node.Params.Add(Walk());
                         token = _tokens[_index];
                         if (_index + 1 >= _tokens.Length)
-                            throw new CompilerException(") expected", _tokens[_index].Line);
+                            throw new CompilerException(") expected", CurrentLine);
                     }
 
                     _index++;
@@ -91,23 +52,23 @@ public static class Parser
                 }
                 else
                 {
-                    ParserToken node = new(ParserTokenType.CallExpression, "", token.Line);
+                    ParserToken node = new(TokenType.Expression, "", CurrentLine);
                     _index++;
                     return node;
                 }
-            case TokenType.OpenCurlyBrackets:
+            case TokenType.OpenBraces:
                 _index++;
                 token = _tokens[_index];
-                if (token.Type != TokenType.CloseCurlyBrackets)
+                if (token.Type != TokenType.CloseBraces)
                 {
-                    ParserToken blockNode = new(ParserTokenType.CodeBlock, "", token.Line);
+                    ParserToken blockNode = new(TokenType.StatementBody, "", CurrentLine);
                     
-                    while (token.Type != TokenType.CloseCurlyBrackets)
+                    while (token.Type != TokenType.CloseBraces)
                     {
                         blockNode.Params.Add(Walk());
                         token = _tokens[_index];
-                        if (_index + 1 >= _tokens.Length && token.Type != TokenType.CloseCurlyBrackets)
-                            throw new CompilerException("} expected", _tokens[_index].Line);
+                        if (_index + 1 >= _tokens.Length && token.Type != TokenType.CloseBraces)
+                            throw new CompilerException("} expected", CurrentLine);
                     }
                 
                     _index++;
@@ -115,21 +76,15 @@ public static class Parser
                 }
                 else
                 {
-                    ParserToken node = new(ParserTokenType.CodeBlock, "", token.Line);
+                    ParserToken node = new(TokenType.StatementBody, "", CurrentLine);
                     _index++;
                     return node;
                 }
-            case TokenType.Statement:
-                _index++;
-                return new(ParserTokenType.Statement, token.Value, token.Line);
-            case TokenType.ReturnStatement:
-                _index++;
-                return new(ParserTokenType.ReturnStatement, token.Value, token.Line);
-            case TokenType.Keyword:
-                _index++;
-                return new(ParserTokenType.Keyword, token.Value, token.Line);
+            case TokenType.OpenBrakcets:
+                throw new NotImplementedException("Open brackets not implemented yet");
             default:
-                throw new CompilerException($"Syntax error near '{token.Value}'", token.Line);
+                _index++;
+                return new(token.Type, token.Value, token.Line);
         }
     }
 }

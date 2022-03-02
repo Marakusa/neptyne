@@ -7,8 +7,8 @@ public class NeptyneCompiler
     public string Compile(string code, string name)
     {
         Token[] tokens = Tokenizer.Tokenize(code);
-        ParserToken abstractSyntaxTree = Parser.Parse(tokens, name);
-        string assemblyScript = ParseToAsm.ParseToAssembly(abstractSyntaxTree);
-        return assemblyScript;
+        ParserToken abstractSyntaxTree = Parser.ParseToSyntaxTree(tokens, name);
+        ParseToAsm parser = new();
+        return parser.Start(abstractSyntaxTree);
     }
 }
