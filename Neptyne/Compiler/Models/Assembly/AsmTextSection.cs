@@ -6,7 +6,7 @@ public class AsmTextSection : AsmSection
 {
     public override string Convert()
     {
-        string result = "section .text\n";
+        var result = "section .text\n";
         result += "    global _start\n\n";
 
         Function start = new("_start", "void", null, null, null, 0);

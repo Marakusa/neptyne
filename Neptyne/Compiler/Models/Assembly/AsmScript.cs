@@ -6,21 +6,18 @@ public class AsmScript
 {
     public List<Variable> Variables { get; set; }
     
-    public List<Variable> ConstantVariables { get; set; }
-
-    public Dictionary<string,string> Strings { get; set; }
-
     public readonly AsmTextSection TextSection = new();
 
     public List<Function> Functions = new();
 
     public string Build()
     {
-        string result = "%use masm\n\nsection .data\n\n";
+        var result = "%use masm\n\nsection .data\n\n";
 
-        foreach (var stringVariable in Strings)
+        foreach (var variable in Variables)
         {
-            result += $"{stringVariable.Value}:\n    .string \"{stringVariable.Key}\"\n";
+            if (variable.Type.Name == "string")
+                result += $"{variable.Name}:\n    .string \"{variable.Value}\"\n";
         }
 
         foreach (var variable in Variables)

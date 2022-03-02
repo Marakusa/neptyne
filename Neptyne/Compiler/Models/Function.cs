@@ -19,8 +19,6 @@ public class Function
     
     public ParserToken ParentBlockNode { get; }
     
-    public int BlockIndex { get; }
-
     public List<FunctionVariable> Variables { get; set; }
 
     public Function(string name, string returnType, List<ParserToken> paramsTokens, List<ParserToken> block, ParserToken blockNode, int blockIndex)
@@ -32,28 +30,24 @@ public class Function
         ParamsTokens = paramsTokens;
         BlockTokens = block;
         ParentBlockNode = blockNode;
-        BlockIndex = blockIndex;
         Variables = new();
     }
 
     public string GetParamsString()
     {
-        string[] result = new string[Params.Count];
+        var result = new string[Params.Count];
 
-        for (int i = 0; i < result.Length; i++)
+        for (var i = 0; i < result.Length; i++)
         {
             result[i] = $"{Params[i].Type} {Params[i].Value}";
         }
         
-        if (result.Length == 0)
-            return "";
-        
-        return $"({string.Join(",", result)})";
+        return result.Length == 0 ? "" : $"({string.Join(",", result)})";
     }
 
     public override string ToString()
     {
-        string result = "";
+        var result = "";
         
         result += $"{Name}{GetParamsString()}:\n";
         
@@ -63,7 +57,7 @@ public class Function
             result += "    mov rbp, rsp\n";
         }
 
-        bool containsReturn = false;
+        var containsReturn = false;
         foreach (var statement in Block)
         {
             result += $"    {statement}\n";

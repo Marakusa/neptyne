@@ -9,18 +9,18 @@ public static class Tokenizer
 {
     public static Token[] Tokenize(string inputExpression)
     {
-        List<Token> tokens = new List<Token>();
+        var tokens = new List<Token>();
 
         const string numberRegex = @"[0-9]";
         const string floatRegex = @"[+-]?([0-9]*[.])?[0-9]+";
         const string alphabetRegex = @"[a-zA-Z]";
         const string whitespaceRegex = @"\s";
 
-        int row = 1;
+        var row = 1;
 
-        for (int i = 0; i < inputExpression.Length; i++)
+        for (var i = 0; i < inputExpression.Length; i++)
         {
-            char c = inputExpression[i];
+            var c = inputExpression[i];
 
             #region Parse comments and whitespaces
             if (Regex.IsMatch(c.ToString(), whitespaceRegex))
@@ -102,7 +102,7 @@ public static class Tokenizer
             // String literal
             else if (c == '"')
             {
-                string value = "";
+                var value = "";
                 while (i + 1 < inputExpression.Length)
                 {
                     i++;
@@ -296,7 +296,7 @@ public static class Tokenizer
             // Integer literal
             else if (Regex.IsMatch(c.ToString(), numberRegex))
             {
-                string value = "";
+                var value = "";
                 
                 value += c.ToString();
                 
@@ -313,7 +313,7 @@ public static class Tokenizer
             // Other
             else if (Regex.IsMatch(c.ToString(), alphabetRegex))
             {
-                string value = "";
+                var value = "";
                 
                 value += c.ToString();
                 

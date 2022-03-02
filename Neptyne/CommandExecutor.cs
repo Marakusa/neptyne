@@ -21,7 +21,7 @@ public static class CommandExecutor
 
     public static async Task Execute(string command)
     {
-        string[] tokens = command.Split(' ');
+        var tokens = command.Split(' ');
         var cmd = Array.Find(Commands, f => f.Name == tokens[0]);
         
         if (cmd != null)
@@ -64,7 +64,7 @@ public static class CommandExecutor
 
     private static async Task Build(string[] args)
     {
-        int minArgs = 1;
+        var minArgs = 1;
         if (args.Length > minArgs)
         {
             var neptyneCompiler = new NeptyneCompiler();
@@ -73,23 +73,23 @@ public static class CommandExecutor
             {
                 Console.WriteLine("[npta] Starting a compile process...");
 
-                DateTime startTime = DateTime.Now;
+                var startTime = DateTime.Now;
 
-                string inputFilePath = file.FullName;
-                string outputFullPath = file.FullName.Substring(0, inputFilePath.Length - file.Extension.Length);
-                string outputAssembly = $"{outputFullPath}.asm";
-                string outputObjectCode = $"{outputFullPath}.o";
+                var inputFilePath = file.FullName;
+                var outputFullPath = file.FullName.Substring(0, inputFilePath.Length - file.Extension.Length);
+                var outputAssembly = $"{outputFullPath}.asm";
+                var outputObjectCode = $"{outputFullPath}.o";
 
                 CleanBuild(file);
 
-                Console.WriteLine($"\n[npta] Compiling {file.FullName}\n            -> {outputAssembly}");
-                string compiled = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
+                Console.WriteLine($"[npta] Compiling {file.FullName}\n            -> {outputAssembly}");
+                var compiled = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
 
                 try
                 {
                     File.WriteAllBytes($"{outputAssembly}", Encoding.UTF8.GetBytes(compiled));
 
-                    Console.WriteLine($"\n[npta] Writing {inputFilePath}\n            -> {outputAssembly}");
+                    Console.WriteLine($"[npta] Writing {inputFilePath}\n            -> {outputAssembly}");
 
                     using Process nasm = new();
 
@@ -110,7 +110,7 @@ public static class CommandExecutor
                         ld.ErrorDataReceived += (_, eventArgs) => Console.WriteLine($"[ld] E: {eventArgs.Data}");
                         ld.Disposed += (_, _) => Console.WriteLine("[ld] E: nasm process exited");
 
-                        Console.WriteLine($"\n[npta] Building {outputObjectCode}\n            -> {outputFullPath}");
+                        Console.WriteLine($"[npta] Building {outputObjectCode}\n            -> {outputFullPath}");
                         ld.StartInfo = new("ld", $"-o {outputFullPath} {outputObjectCode}");
 
                         ld.Start();
@@ -150,8 +150,8 @@ public static class CommandExecutor
 
     private static void CleanBuild(FileInfo file)
     {
-        string writeFilePathNoExt = file.FullName.Substring(0, file.FullName.Length - file.Extension.Length);
-        string writeFilePath = $"{writeFilePathNoExt}.asm";
+        var writeFilePathNoExt = file.FullName.Substring(0, file.FullName.Length - file.Extension.Length);
+        var writeFilePath = $"{writeFilePathNoExt}.asm";
 
         if (writeFilePath != file.FullName && File.Exists(writeFilePath))
             File.Delete(writeFilePath);

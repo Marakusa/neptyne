@@ -24,7 +24,7 @@ public class PrimitiveVariables
     
     public static int GetLength(string type)
     {
-        int n = 8;
+        var n = 8;
         
         var t = types.Find(f => f.Name == type);
         if (t != null) n = t.ByteLength;

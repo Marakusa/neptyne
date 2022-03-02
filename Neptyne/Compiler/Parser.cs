@@ -28,7 +28,7 @@ public static class Parser
     
     private static ParserToken Walk()
     {
-        Token token = _tokens[_index];
+        var token = _tokens[_index];
         
         switch (token.Type)
         {

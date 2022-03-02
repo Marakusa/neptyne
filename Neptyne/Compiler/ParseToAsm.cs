@@ -8,7 +8,6 @@ namespace Neptyne.Compiler;
 
 public class ParseToAsm
 {
-    private Dictionary<string, string> _strings = new();
     private List<Variable> _variables = new();
     private List<Variable> _constVariables = new();
     private List<Function> _functions = new();
@@ -43,9 +42,7 @@ public class ParseToAsm
         }
 
         AsmScript assemblyCode = new();
-        assemblyCode.Strings = _strings;
         assemblyCode.Variables = _variables;
-        assemblyCode.ConstantVariables = _constVariables;
         assemblyCode.Functions = _functions; 
         return assemblyCode.Build();
     }
@@ -84,14 +81,14 @@ public class ParseToAsm
                 Parse(node);
                 break;
             case TokenType.Identifier:
-                string type = node.Value;
+                var type = node.Value;
                 
                 node = Step();
                 
                 if (node.Type != TokenType.Name)
                     throw new CompilerException("Unexpected token", CurrentLine);
                 
-                string name = node.Value;
+                var name = node.Value;
                 
                 node = Step();
                 
@@ -102,26 +99,41 @@ public class ParseToAsm
                 }
                 else if (node.Type == TokenType.AssignmentOperator)
                 {
-                    List<MathAssignment> assignments = new();
-                    
-                    while (node.Type != TokenType.StatementTerminator)
+                    node = Step();
+
+                    if (node.Type == TokenType.Name)
                     {
-                        node = Step();
-
-                        if (node.Type == TokenType.Name)
-                        {
-                            
-                        }
-                        else if (GetLiteralType(node.Type) == GetLiteralType(type))
-                        {
-                            
-                        }
-
-                        throw new CompilerException("Unexpected token", CurrentLine);
                     }
-                    
-                    DefineVariable(name, type);
+                    else if (GetLiteralType(node.Type) == GetLiteralType(type))
+                    {
+                        var value = node.Value;
+                        
+                        node = Step();
+                        if (node.Type != TokenType.StatementTerminator)
+                            throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                        
+                        //DefineVariable(name, type, value);
 
+                        EndStatement();
+                        break;
+                    }
+
+                    throw new CompilerException($"Unexpected token '{node.Value}'", CurrentLine);
+                }
+                else if (node.Type == TokenType.Expression)
+                {
+                    node = Step();
+
+                    if (node.Type == TokenType.StatementBody)
+                    {
+                        Function function = new(name, type, paramsTokens, blockTokens, node, );
+
+                        EndStatement();
+                        break;
+                    }
+                    if (node.Type != TokenType.StatementTerminator)
+                        throw new CompilerException($"Unexpected token '{node.Value}'", CurrentLine);
+                    
                     EndStatement();
                     break;
                 }
@@ -149,13 +161,6 @@ public class ParseToAsm
             v = _variables.Find(f => f.Name == node.Value);
             if (v == null)
                 v = _constVariables.Find(f => f.Name == node.Value);
-            if (v == null)
-            {
-                if (_strings.ContainsKey(node.Value))
-                {
-                    
-                }
-            }
         }
 
         return v;
@@ -164,7 +169,6 @@ public class ParseToAsm
     private void EndStatement()
     {
         _statementKeywords.Clear();
-        _parsingStatement = false;
     }
     
     private void EndFunction()
@@ -220,27 +224,20 @@ public class ParseToAsm
 
     private string GetPointerParam(PrimitiveTypeObject variableType)
     {
-        switch (variableType.LiteralType)
+        return variableType.LiteralType switch
         {
-            case LiteralType.Character:
-                return "BYTE";
-            case LiteralType.String:
-                return "QWORD";
-            case LiteralType.Boolean:
-                return "BYTE";
-            case LiteralType.Float:
-                return "QWORD";
-            case LiteralType.Number:
-                if (variableType.Name == "int")
-                    return "DWORD";
-                else if (variableType.Name == "long")
-                    return "QWORD";
-                else if (variableType.Name == "short")
-                    return "WORD";
-                else
-                    throw new CompilerException($"Could not resolve type '{variableType.Name}'", CurrentLine);
-            default:
-                throw new CompilerException($"Could not resolve type '{variableType.Name}'", CurrentLine);
-        }
+            LiteralType.Character => "BYTE",
+            LiteralType.String => "QWORD",
+            LiteralType.Boolean => "BYTE",
+            LiteralType.Float => "QWORD",
+            LiteralType.Number => variableType.Name switch
+            {
+                "int" => "DWORD",
+                "long" => "QWORD",
+                "short" => "WORD",
+                _ => throw new CompilerException($"Could not resolve type '{variableType.Name}'", CurrentLine)
+            },
+            _ => throw new CompilerException($"Could not resolve type '{variableType.Name}'", CurrentLine)
+        };
     }
 }

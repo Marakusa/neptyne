@@ -21,7 +21,7 @@ public class AsmMathAssignmentCollection
 
     public override string ToString()
     {
-        string result = "";
+        var result = "";
         foreach (var statement in GetStatements())
         {
             result += $"    {statement}\n";

@@ -28,7 +28,7 @@ public class Variable
 
     public string ToAssembly()
     {
-        string result = $"{Name}:\n";
+        var result = $"{Name}:\n";
 
         if (Value == null)
         {
