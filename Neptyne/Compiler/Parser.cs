@@ -84,7 +84,7 @@ public static class Parser
                 throw new NotImplementedException("Open brackets not implemented yet");
             default:
                 _index++;
-                return new(token.Type, token.Value, token.Line);
+                return new ParserToken(token.Type, token.Value, token.Line);
         }
     }
 }

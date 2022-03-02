@@ -6,7 +6,7 @@ public class Variable
 {
     public bool Readonly { get; }
     
-    public PrimitiveTypeObject Type { get; }
+    public string Type { get; }
     
     public string Name { get; }
     
@@ -16,7 +16,7 @@ public class Variable
 
     public string PointerName { get; }
 
-    public Variable(bool isReadonly, PrimitiveTypeObject type, string name, string pointerPrefix, string pointerName, ParserToken value)
+    public Variable(bool isReadonly, string type, string name, string pointerPrefix, string pointerName, ParserToken value)
     {
         Readonly = isReadonly;
         Type = type;
@@ -28,36 +28,54 @@ public class Variable
 
     public string ToAssembly()
     {
-        var result = $"{Name}:\n";
-
-        if (Value == null)
+        if (Type != "string")
         {
-            result += $"    .zero {PrimitiveVariables.GetLength(Type.Name)}\n";
+            var result = $"{Name}:\n";
+
+            if (Value == null)
+            {
+                result += $"    .zero {PrimitiveVariables.GetLength(Type)}\n";
+            }
+            else
+            {
+                switch (Type)
+                {
+                    case "byte":
+                    case "bool":
+                        result += $"    .byte {Value.Value}\n";
+                        break;
+                    case "short":
+                    case "ushort":
+                        result += $"    .value {Value.Value}\n";
+                        break;
+                    case "char":
+                    case "int":
+                    case "uint":
+                        result += $"    .long {Value.Value}\n";
+                        break;
+                    case "long":
+                    case "ulong":
+                        result += $"    .quad {Value.Value}\n";
+                        break;
+                }
+            }
+
+            return result;
         }
         else
         {
-            switch (Type.Name)
+            var result = $"{Name}:\n";
+
+            if (Value == null)
             {
-                case "byte":
-                case "bool":
-                    result += $"    .byte {Value.Value}\n";
-                    break;
-                case "short":
-                case "ushort":
-                    result += $"    .value {Value.Value}\n";
-                    break;
-                case "char":
-                case "int":
-                case "uint":
-                    result += $"    .long {Value.Value}\n";
-                    break;
-                case "long":
-                case "ulong":
-                    result += $"    .quad {Value.Value}\n";
-                    break;
+                result += $"    .string {Value}\n";
             }
+            else
+            {
+                result += $"    .string \"\"\n";
+            }
+
+            return result;
         }
-        
-        return result;
     }
 }

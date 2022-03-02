@@ -11,12 +11,12 @@ public class AsmMathAssignmentCollection
     public AsmMathAssignmentCollection(string originalValue)
     {
         _originalValue = originalValue;
-        _calculations = new();
+        _calculations = new List<MathAssignment>();
     }
 
     public void Add(MathAssignmentType assignmentType, string value, int line)
     {
-        _calculations.Add(new(assignmentType, value, line));
+        _calculations.Add(new MathAssignment(assignmentType, value, line));
     }
 
     public override string ToString()
@@ -37,18 +37,18 @@ public class AsmMathAssignmentCollection
         {
             if (calculation.Type == MathAssignmentType.None)
             {
-                statements.Add(new("mov", $"edx, {calculation.Value}"));
+                statements.Add(new AsmStatement("mov", $"edx, {calculation.Value}"));
             }
             else if (calculation.Type == MathAssignmentType.Add)
             {
-                statements.Add(new("mov", $"eax, {calculation.Value}"));
-                statements.Add(new("add", "eax, edx"));
+                statements.Add(new AsmStatement("mov", $"eax, {calculation.Value}"));
+                statements.Add(new AsmStatement("add", "eax, edx"));
             }
             else
                 throw new CompilerException("Calculation assignment type not implemented yet", calculation.Line);
         }
         
-        statements.Add(new("mov", $"{_originalValue}, eax"));
+        statements.Add(new AsmStatement("mov", $"{_originalValue}, eax"));
         return statements;
     }
 }

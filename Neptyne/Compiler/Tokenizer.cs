@@ -72,31 +72,31 @@ public static class Tokenizer
             // Parentheses
             else if (c == '(')
             {
-                tokens.Add(new(TokenType.OpenParentheses, c.ToString(), row));
+                tokens.Add(new Token(TokenType.OpenParentheses, c.ToString(), row));
             }
             else if (c == ')')
             {
-                tokens.Add(new(TokenType.CloseParentheses, c.ToString(), row));
+                tokens.Add(new Token(TokenType.CloseParentheses, c.ToString(), row));
             }
             
             // Braces
             else if (c == '{')
             {
-                tokens.Add(new(TokenType.OpenBraces, c.ToString(), row));
+                tokens.Add(new Token(TokenType.OpenBraces, c.ToString(), row));
             }
             else if (c == '}')
             {
-                tokens.Add(new(TokenType.CloseBraces, c.ToString(), row));
+                tokens.Add(new Token(TokenType.CloseBraces, c.ToString(), row));
             }
             
             // Brackets
             else if (c == '[')
             {
-                tokens.Add(new(TokenType.OpenBrakcets, c.ToString(), row));
+                tokens.Add(new Token(TokenType.OpenBrakcets, c.ToString(), row));
             }
             else if (c == ']')
             {
-                tokens.Add(new(TokenType.CloseBrakcets, c.ToString(), row));
+                tokens.Add(new Token(TokenType.CloseBrakcets, c.ToString(), row));
             }
             
             // String literal
@@ -116,7 +116,7 @@ public static class Tokenizer
                     }
                     else if (c == '"')
                     {
-                        tokens.Add(new(TokenType.StringLiteral, value, row));
+                        tokens.Add(new Token(TokenType.StringLiteral, value, row));
                         break;
                     }
                     else
@@ -133,11 +133,11 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '=')
                     {
                         i++;
-                        tokens.Add(new(TokenType.EqualityOperator, "==", row));
+                        tokens.Add(new Token(TokenType.EqualityOperator, "==", row));
                         continue;
                     }
                 }
-                tokens.Add(new(TokenType.AssignmentOperator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.AssignmentOperator, c.ToString(), row));
             }
             
             // Addition operator
@@ -149,7 +149,7 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '=')
                     {
                         i++;
-                        tokens.Add(new(TokenType.AdditionAssignmentOperator, "+=", row));
+                        tokens.Add(new Token(TokenType.AdditionAssignmentOperator, "+=", row));
                         continue;
                     }
                     
@@ -157,11 +157,11 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '+')
                     {
                         i++;
-                        tokens.Add(new(TokenType.IncrementOperator, "++", row));
+                        tokens.Add(new Token(TokenType.IncrementOperator, "++", row));
                         continue;
                     }
                 }
-                tokens.Add(new(TokenType.AdditionOperator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.AdditionOperator, c.ToString(), row));
             }
             
             // Subtraction operator
@@ -173,7 +173,7 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '=')
                     {
                         i++;
-                        tokens.Add(new(TokenType.SubtractionAssignmentOperator, "-=", row));
+                        tokens.Add(new Token(TokenType.SubtractionAssignmentOperator, "-=", row));
                         continue;
                     }
                     
@@ -181,11 +181,11 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '-')
                     {
                         i++;
-                        tokens.Add(new(TokenType.DecrementOperator, "--", row));
+                        tokens.Add(new Token(TokenType.DecrementOperator, "--", row));
                         continue;
                     }
                 }
-                tokens.Add(new(TokenType.SubtractionOperator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.SubtractionOperator, c.ToString(), row));
             }
             
             // Multiplication operator
@@ -197,11 +197,11 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '=')
                     {
                         i++;
-                        tokens.Add(new(TokenType.MultiplicationAssignmentOperator, "*=", row));
+                        tokens.Add(new Token(TokenType.MultiplicationAssignmentOperator, "*=", row));
                         continue;
                     }
                 }
-                tokens.Add(new(TokenType.MultiplicationOperator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.MultiplicationOperator, c.ToString(), row));
             }
             
             // Division operator
@@ -213,11 +213,11 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '=')
                     {
                         i++;
-                        tokens.Add(new(TokenType.DivisionAssignmentOperator, "/=", row));
+                        tokens.Add(new Token(TokenType.DivisionAssignmentOperator, "/=", row));
                         continue;
                     }
                 }
-                tokens.Add(new(TokenType.DivisionOperator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.DivisionOperator, c.ToString(), row));
             }
             
             // Logical AND operator
@@ -229,7 +229,7 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '&')
                     {
                         i++;
-                        tokens.Add(new(TokenType.LogicalAndOperator, "&&", row));
+                        tokens.Add(new Token(TokenType.LogicalAndOperator, "&&", row));
                         continue;
                     }
                 }
@@ -245,7 +245,7 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '|')
                     {
                         i++;
-                        tokens.Add(new(TokenType.LogicalOrOperator, "||", row));
+                        tokens.Add(new Token(TokenType.LogicalOrOperator, "||", row));
                         continue;
                     }
                 }
@@ -261,36 +261,36 @@ public static class Tokenizer
                     if (inputExpression[i + 1] == '=')
                     {
                         i++;
-                        tokens.Add(new(TokenType.LogicalOrOperator, "!=", row));
+                        tokens.Add(new Token(TokenType.LogicalOrOperator, "!=", row));
                         continue;
                     }
                 }
                 
-                tokens.Add(new(TokenType.LogicalNotOperator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.LogicalNotOperator, c.ToString(), row));
             }
 
             // Statement terminator
             else if (c == ';')
             {
-                tokens.Add(new(TokenType.StatementTerminator, c.ToString(), row));
+                tokens.Add(new Token(TokenType.StatementTerminator, c.ToString(), row));
             }
             
             // Colon
             else if (c == ':')
             {
-                tokens.Add(new(TokenType.Colon, c.ToString(), row));
+                tokens.Add(new Token(TokenType.Colon, c.ToString(), row));
             }
             
             // Comma
             else if (c == ',')
             {
-                tokens.Add(new(TokenType.Comma, c.ToString(), row));
+                tokens.Add(new Token(TokenType.Comma, c.ToString(), row));
             }
 
             // Point
             else if (c == '.')
             {
-                tokens.Add(new(TokenType.Point, c.ToString(), row));
+                tokens.Add(new Token(TokenType.Point, c.ToString(), row));
             }
 
             // Integer literal
@@ -307,7 +307,7 @@ public static class Tokenizer
                     value += c.ToString();
                 }
 
-                tokens.Add(new(TokenType.IntegerLiteral, value, row));
+                tokens.Add(new Token(TokenType.IntegerLiteral, value, row));
             }
             
             // Other
@@ -327,7 +327,7 @@ public static class Tokenizer
                 // Float literal
                 if (Regex.IsMatch(value, floatRegex))
                 {
-                    tokens.Add(new(TokenType.FloatLiteral, value, row));
+                    tokens.Add(new Token(TokenType.FloatLiteral, value, row));
                     continue;
                 }
 
@@ -335,12 +335,12 @@ public static class Tokenizer
                 {
                     case "true":
                     case "false":
-                        tokens.Add(new(TokenType.BooleanLiteral, value, row));
+                        tokens.Add(new Token(TokenType.BooleanLiteral, value, row));
                         break;
 
                     case "const":
                     case "readonly":
-                        tokens.Add(new(TokenType.Keyword, value, row));
+                        tokens.Add(new Token(TokenType.Keyword, value, row));
                         break;
 
                     case "byte":
@@ -354,22 +354,22 @@ public static class Tokenizer
                     case "float":
                     case "string":
                     case "void":
-                        tokens.Add(new(TokenType.Identifier, value, row));
+                        tokens.Add(new Token(TokenType.Identifier, value, row));
                         break;
                     
                     case "bring":
                     case "if":
                     case "else":
                     case "while":
-                        tokens.Add(new(TokenType.StatementIdentifier, value, row));
+                        tokens.Add(new Token(TokenType.StatementIdentifier, value, row));
                         break;
                     
                     case "return":
-                        tokens.Add(new(TokenType.ReturnStatement, value, row));
+                        tokens.Add(new Token(TokenType.ReturnStatement, value, row));
                         break;
                     
                     default:
-                        tokens.Add(new(TokenType.Name, value, row));
+                        tokens.Add(new Token(TokenType.Name, value, row));
                         break;
                 }
             }

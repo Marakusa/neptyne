@@ -4,29 +4,25 @@ namespace Neptyne.Compiler.Models.Assembly;
 
 public class PrimitiveVariables
 {
-    private static List<PrimitiveTypeObject> types = new()
+    private static readonly List<PrimitiveTypeObject> Types = new()
     {
-        new("byte", 8, LiteralType.Number),
-        new("short", 16, LiteralType.Number),
-        new("ushort", 16, LiteralType.Number),
-        new("int", 32, LiteralType.Number),
-        new("uint", 32, LiteralType.Number),
-        new("long", 64, LiteralType.Number),
-        new("ulong", 64, LiteralType.Number),
-        new("char", 16, LiteralType.Number),
-        new("bool", 8, LiteralType.Boolean)
+        new PrimitiveTypeObject("byte", 8, LiteralType.Number),
+        new PrimitiveTypeObject("short", 16, LiteralType.Number),
+        new PrimitiveTypeObject("ushort", 16, LiteralType.Number),
+        new PrimitiveTypeObject("int", 32, LiteralType.Number),
+        new PrimitiveTypeObject("uint", 32, LiteralType.Number),
+        new PrimitiveTypeObject("long", 64, LiteralType.Number),
+        new PrimitiveTypeObject("ulong", 64, LiteralType.Number),
+        new PrimitiveTypeObject("char", 16, LiteralType.Number),
+        new PrimitiveTypeObject("bool", 8, LiteralType.Boolean),
+        new PrimitiveTypeObject("string", 64, LiteralType.String)
     };
-    
-    public static bool IsValidPrimitive(string type)
-    {
-        return types.Find(f => f.Name == type) != null;
-    }
     
     public static int GetLength(string type)
     {
         var n = 8;
         
-        var t = types.Find(f => f.Name == type);
+        var t = Types.Find(f => f.Name == type);
         if (t != null) n = t.ByteLength;
         
         return n / 8;
@@ -34,7 +30,7 @@ public class PrimitiveVariables
 
     public static PrimitiveTypeObject Parse(string type)
     {
-        return types.Find(f => f.Name == type);
+        return Types.Find(f => f.Name == type);
     }
 }
 

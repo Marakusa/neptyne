@@ -8,17 +8,20 @@ namespace Neptyne.Compiler;
 
 public class ParseToAsm
 {
-    private List<Variable> _variables = new();
-    private List<Variable> _constVariables = new();
-    private List<Function> _functions = new();
+    private readonly List<Variable> _variables = new();
+    private readonly List<Variable> _constVariables = new();
+    private readonly List<Function> _functions = new();
     private List<ParserToken> _abstractSyntaxTree;
 
-    public int CurrentLine => _abstractSyntaxTree[_current].Line;
+    private int CurrentLine => _abstractSyntaxTree[_current].Line;
     private int _current;
 
     private Function _currentFunction;
+    private bool _functionHasReturnStatement = false;
 
-    private List<Keyword> _statementKeywords = new();
+    private readonly List<Keyword> _statementKeywords = new();
+    private int _stringCounter;
+    private int _lengthCounter;
 
     public string Start(ParserToken abstractSyntaxTree)
     {
@@ -29,11 +32,6 @@ public class ParseToAsm
             _current++;
         }
 
-        foreach (var function in _functions)
-        {
-            //ParseFunctinon(function);
-        }
-
         var main = _functions.Find(f => f.Name == "main");
         
         if (main == null)
@@ -41,9 +39,16 @@ public class ParseToAsm
             throw new CompilerException("Program does not contain a 'main' function suitable for an entry point", 1);
         }
 
-        AsmScript assemblyCode = new();
-        assemblyCode.Variables = _variables;
-        assemblyCode.Functions = _functions; 
+        foreach (var function in _functions)
+        {
+            ParseFunction(function);
+        }
+
+        AsmScript assemblyCode = new()
+        {
+            Variables = _variables,
+            Functions = _functions
+        };
         return assemblyCode.Build();
     }
 
@@ -106,13 +111,29 @@ public class ParseToAsm
                     }
                     else if (GetLiteralType(node.Type) == GetLiteralType(type))
                     {
-                        var value = node.Value;
+                        var valueNode = node;
                         
                         node = Step();
                         if (node.Type != TokenType.StatementTerminator)
                             throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
-                        
-                        //DefineVariable(name, type, value);
+
+                        if (parent?.Type == TokenType.StatementBody)
+                        {
+                            var pointerLength = PrimitiveVariables.GetLength(type) + _lengthCounter;
+                            _lengthCounter++;
+                            
+                            var pointer = type != "string" ? $"[rbp-{pointerLength}]" : $".LC{_stringCounter}";
+                            
+                            _currentFunction.Variables.Add(new FunctionVariable(pointer, GetPointerPrefix(type, false), name, type, valueNode));
+                            
+                            _currentFunction.Block.Add(new AsmStatement("mov", $"{GetPointerParam(type)} PTR [rbp-{pointerLength}], {GetPointerPrefix(type, false)}{pointer}", true));
+                            
+                            if (type == "string") _stringCounter++;
+                        }
+                        else
+                        {
+                            DeclareClassVariable(name, valueNode, type, _statementKeywords.ToArray());
+                        }
 
                         EndStatement();
                         break;
@@ -122,11 +143,14 @@ public class ParseToAsm
                 }
                 else if (node.Type == TokenType.Expression)
                 {
+                    var functionParameters = node.Params;
+
                     node = Step();
 
                     if (node.Type == TokenType.StatementBody)
                     {
-                        Function function = new(name, type, paramsTokens, blockTokens, node, );
+                        Function function = new(name, type, functionParameters, node.Params, node, _current);
+                        _functions.Add(function);
 
                         EndStatement();
                         break;
@@ -139,17 +163,88 @@ public class ParseToAsm
                 }
                 else
                     throw new CompilerException($"Unexpected token '{node.Value}'", CurrentLine);
+            case TokenType.ReturnStatement:
+                if (_currentFunction == null)
+                    throw new CompilerException("Return statements must be inside a function", CurrentLine);
+                
+                node = Step();
+
+                if (_currentFunction.ReturnType != "void")
+                {
+                    switch (node.Type)
+                    {
+                        case TokenType.Name:
+                            var variable = _currentFunction.Variables.Find(f => f.Name == node.Value);
+                            if (variable == null)
+                                throw new CompilerException(
+                                    $"Cannot resolve symbol '{node.Value}'", CurrentLine);
+
+                            if (_currentFunction.ReturnType == variable.Type)
+                            {
+                                _currentFunction.Block.Add(new AsmStatement("mov", $"eax, {variable.PointerName}", true));
+                                
+                                Step(true);
+                                
+                                _functionHasReturnStatement = true;
+                                EndFunction();
+                                break;
+                            }
+                            else
+                                throw new CompilerException(
+                                    $"Function with return type '{_currentFunction.ReturnType}' cannot have a return statement with typed '{node.Value}'", CurrentLine);
+                        default:
+                            if (GetLiteralType(_currentFunction.ReturnType) == GetLiteralType(node.Type))
+                            {
+                                _currentFunction.Block.Add(new AsmStatement("mov", $"eax, {node.Value}", true));
+                                
+                                Step(true);
+
+                                _functionHasReturnStatement = true;
+                                EndFunction();
+                                break;
+                            }
+                            else
+                                throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                    }
+                }
+                else if (node.Type != TokenType.StatementTerminator)
+                {
+                    throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
+                }
+                _functionHasReturnStatement = true;
+                break;
             default:
                 throw new CompilerException($"Could not resolve symbol '{node.Value}'", CurrentLine);
         }
     }
 
-    private ParserToken Step()
+    private ParserToken Step(bool throwNoLineTerm = false)
     {
         if (_current + 1 >= _abstractSyntaxTree.Count)
             throw new CompilerException("Unexpected token", CurrentLine);
         _current++;
+        
+        if (throwNoLineTerm && _abstractSyntaxTree[_current].Type != TokenType.StatementTerminator)
+            throw new CompilerException("; expected", CurrentLine);
+
         return _abstractSyntaxTree[_current];
+    }
+
+    private void ParseFunction(Function function)
+    {
+        if (function.BlockTokens.Count == 0)
+            return;
+        _current = _abstractSyntaxTree.Count;
+        _abstractSyntaxTree.AddRange(function.BlockTokens);
+        _currentFunction = function;
+        while (_current < _abstractSyntaxTree.Count && _currentFunction != null)
+        {
+            Parse(function.ParentBlockNode);
+            _current++;
+        }
+        if (function.ReturnType != "void" && !_functionHasReturnStatement)
+            throw new CompilerException($"Function of return type '{function.ReturnType}' must have a return statement", function.ParentBlockNode.Line);
+        _currentFunction = null;
     }
 
     private Variable GetVariable(ParserToken node)
@@ -191,7 +286,7 @@ public class ParseToAsm
                 return LiteralType.Float;
         }
 
-        throw new CompilerException("Invalid literal type", CurrentLine);
+        throw new CompilerException($"Invalid literal type '{type}'", CurrentLine);
     }
 
     private LiteralType GetLiteralType(string type)
@@ -200,21 +295,21 @@ public class ParseToAsm
         if (t != null)
             return t.LiteralType;
 
-        throw new CompilerException("Invalid literal type", CurrentLine);
+        throw new CompilerException($"Invalid literal type '{type}'", CurrentLine);
     }
 
-    private void DeclareClassVariable(string variableName, ParserToken valueToken, PrimitiveTypeObject variableType, Keyword[] keywords)
+    private void DeclareClassVariable(string variableName, ParserToken valueToken, string variableType, Keyword[] keywords)
     {
         if (_variables.Find(f => f.Name == variableName) == null)
         {
             if (keywords.Contains(Keyword.Const))
             {
-                Variable variable = new(false, variableType, variableName, "", valueToken.Value, valueToken);
+                Variable variable = new(false, variableType, variableName, GetPointerPrefix(variableType, true), valueToken.Value, valueToken);
                 _constVariables.Add(variable);
             }
             else
             {
-                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, $"{GetPointerParam(variableType)} PTR ", $"{variableName}[rip]", valueToken);
+                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, GetPointerPrefix(variableType, false), $"{variableName}[rip]", valueToken);
                 _variables.Add(variable);
             }
         }
@@ -222,22 +317,28 @@ public class ParseToAsm
             throw new CompilerException("Member with the same signature is already declared", CurrentLine);
     }
 
-    private string GetPointerParam(PrimitiveTypeObject variableType)
+    private string GetPointerPrefix(string variableType, bool isConstVariable)
     {
-        return variableType.LiteralType switch
+        if (variableType != "string")
         {
-            LiteralType.Character => "BYTE",
-            LiteralType.String => "QWORD",
-            LiteralType.Boolean => "BYTE",
-            LiteralType.Float => "QWORD",
-            LiteralType.Number => variableType.Name switch
-            {
-                "int" => "DWORD",
-                "long" => "QWORD",
-                "short" => "WORD",
-                _ => throw new CompilerException($"Could not resolve type '{variableType.Name}'", CurrentLine)
-            },
-            _ => throw new CompilerException($"Could not resolve type '{variableType.Name}'", CurrentLine)
-        };
+            return isConstVariable ? "" : $"{GetPointerParam(variableType)} PTR ";
+        }
+        
+        return isConstVariable ? "" : "OFFSET FLAT:";
     }
+
+    private string GetPointerParam(string variableType) =>
+        variableType switch
+        {
+            "char" => "BYTE",
+            "string" => "QWORD",
+            "bool" => "BYTE",
+            "float" => "QWORD",
+            "decimal" => "QWORD",
+            "double" => "QWORD",
+            "int" => "DWORD",
+            "long" => "QWORD",
+            "short" => "WORD",
+            _ => throw new CompilerException($"Could not resolve type '{variableType}'", CurrentLine)
+        };
 }

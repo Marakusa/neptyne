@@ -12,20 +12,28 @@ public class AsmScript
 
     public string Build()
     {
-        var result = "%use masm\n\nsection .data\n\n";
+        var result = "%use masm\n\n";
 
+        result += $"section .data\n\n{TextSection.Convert()}\n";
+
+        foreach (var function in Functions)
+        {
+            foreach (var variable in function.Variables)
+            {
+                if (variable.Type == "string")
+                    result += $"{variable.PointerName}:\n    .string \"{variable.Value.Value}\"\n\n";
+            }
+        }
         foreach (var variable in Variables)
         {
-            if (variable.Type.Name == "string")
-                result += $"{variable.Name}:\n    .string \"{variable.Value}\"\n";
+            if (variable.Type == "string")
+                result += $"{variable.PointerName}:\n    .string \"{variable.Value.Value}\"\n\n";
         }
 
         foreach (var variable in Variables)
         {
             result += $"{variable.ToAssembly()}\n";
         }
-        
-        result += $"{TextSection.Convert()}\n";
 
         foreach (var function in Functions)
         {

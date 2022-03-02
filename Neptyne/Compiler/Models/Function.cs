@@ -25,12 +25,12 @@ public class Function
     {
         Name = name;
         ReturnType = returnType;
-        Params = new();
-        Block = new();
+        Params = new List<FunctionParameter>();
+        Block = new List<AsmStatement>();
         ParamsTokens = paramsTokens;
         BlockTokens = block;
         ParentBlockNode = blockNode;
-        Variables = new();
+        Variables = new List<FunctionVariable>();
     }
 
     public string GetParamsString()
@@ -91,6 +91,6 @@ public class FunctionParameter
 
 public class FunctionVariable : Variable
 {
-    public FunctionVariable(string pointer, string variableNamePrefix, string variableName, PrimitiveTypeObject type, ParserToken value) 
+    public FunctionVariable(string pointer, string variableNamePrefix, string variableName, string type, ParserToken value) 
         : base(false, type, variableName, variableNamePrefix, pointer, value) { }
 }

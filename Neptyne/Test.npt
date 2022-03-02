@@ -1,6 +1,6 @@
 void main() {
 	string msg = "test";
-	out(msg);
+	//out(msg);
 }
 
 /*int main(int arg) {
