@@ -83,7 +83,7 @@ public static class CommandExecutor
                 CleanBuild(file);
 
                 Console.WriteLine($"[npta] Compiling {file.FullName}\n            -> {outputAssembly}");
-                var compiled = neptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
+                var compiled = NeptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
 
                 try
                 {

@@ -7,12 +7,18 @@ public class Token
     public string Value { get; }
     
     public int Line { get; }
+    
+    public int LineIndex { get; }
 
-    public Token(TokenType type, string value, int line)
+    public string File { get; }
+
+    public Token(TokenType type, string value, int line, int lineIndex, string file)
     {
         Type = type;
         Value = value;
         Line = line;
+        LineIndex = lineIndex;
+        File = file;
     }
 }
 
@@ -55,5 +61,6 @@ public enum TokenType
     Identifier,
     
     Expression,
-    StatementBody
+    StatementBody,
+    Library
 }

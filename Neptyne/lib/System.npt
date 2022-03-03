@@ -1,0 +1,7 @@
+// Bring standard C library
+bring clib "stdio.h";
+
+void out(string format, ...): {
+    // Call the printf function from stdio C library
+    stdio.printf(format, args);
+}

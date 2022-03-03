@@ -45,7 +45,7 @@ public class AsmMathAssignmentCollection
                 statements.Add(new AsmStatement("add", "eax, edx"));
             }
             else
-                throw new CompilerException("Calculation assignment type not implemented yet", calculation.Line);
+                throw new CompilerException("Calculation assignment type not implemented yet", "", calculation.Line, 0);
         }
         
         statements.Add(new AsmStatement("mov", $"{_originalValue}, eax"));

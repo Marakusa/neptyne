@@ -1,9 +1,11 @@
-void main() {
+bring System;
+
+void main: {
 	string msg = "test";
-	//out(msg);
+	out(msg);
 }
 
-/*int main(int arg) {
+/*int main(int arg): {
 	int a = 10;
 	//int b = 12;
 	//a = a + b;
