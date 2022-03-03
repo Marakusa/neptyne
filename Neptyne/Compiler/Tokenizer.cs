@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Neptyne.Compiler.Exceptions;
@@ -365,6 +364,8 @@ public static class Tokenizer
                         tokens.Add(new Token(TokenType.BooleanLiteral, value, _row, _lineIndex, name));
                         break;
 
+                    case "clib":
+                    case "csta":
                     case "const":
                     case "readonly":
                         tokens.Add(new Token(TokenType.Keyword, value, _row, _lineIndex, name));
@@ -386,32 +387,6 @@ public static class Tokenizer
                     
                     case "bring":
                         tokens.Add(new Token(TokenType.StatementIdentifier, value, _row, _lineIndex, name));
-                        
-                        var bringLibName = "";
-
-                        i = IncrementIndex(i);
-                        
-                        while (i < tokens.Count)
-                        {
-                            c = inputExpression[i];
-
-                            if (c == ';')
-                            {
-                                tokens.Add(new Token(TokenType.Library, bringLibName, _row, _lineIndex, name));
-                                tokens.Add(new Token(TokenType.StatementIdentifier, c.ToString(), _row, _lineIndex, name));
-                                break;
-                            }
-
-                            if (!Regex.IsMatch(c.ToString(), alphabetRegex))
-                                throw new CompilerException($"Cannot resolve symbol '{c}'", name, _row, _lineIndex);
-
-                            bringLibName += c.ToString();
-                            i = IncrementIndex(i);
-                        }
-                        
-                        if (i + 1 >= tokens.Count)
-                            throw new CompilerException("; expected", name, _row, _lineIndex);
-
                         break;
                     
                     case "if":

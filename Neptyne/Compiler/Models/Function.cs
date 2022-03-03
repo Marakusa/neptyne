@@ -13,7 +13,7 @@ public class Function
     
     public List<ParserToken> ParamsTokens { get; }
     
-    public List<AsmStatement> Block { get; set; }
+    public List<Statement> Block { get; set; }
     
     public List<ParserToken> BlockTokens { get; }
     

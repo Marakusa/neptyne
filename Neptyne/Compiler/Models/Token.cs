@@ -61,6 +61,5 @@ public enum TokenType
     Identifier,
     
     Expression,
-    StatementBody,
-    Library
+    StatementBody
 }

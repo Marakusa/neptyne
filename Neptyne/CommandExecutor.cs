@@ -64,10 +64,9 @@ public static class CommandExecutor
 
     private static async Task Build(string[] args)
     {
-        var minArgs = 1;
+        const int minArgs = 1;
         if (args.Length > minArgs)
         {
-            var neptyneCompiler = new NeptyneCompiler();
             FileInfo file = new(args[1]);
             if (file.Exists)
             {
@@ -83,11 +82,11 @@ public static class CommandExecutor
                 CleanBuild(file);
 
                 Console.WriteLine($"[npta] Compiling {file.FullName}\n            -> {outputAssembly}");
-                var compiled = NeptyneCompiler.Compile(File.ReadAllText(args[1]), file.Name);
+                var compiled = NeptyneCompiler.Compile(await File.ReadAllTextAsync(args[1]), file.FullName);
 
                 try
                 {
-                    File.WriteAllBytes($"{outputAssembly}", Encoding.UTF8.GetBytes(compiled));
+                    await File.WriteAllBytesAsync($"{outputAssembly}", Encoding.UTF8.GetBytes(compiled));
 
                     Console.WriteLine($"[npta] Writing {inputFilePath}\n            -> {outputAssembly}");
 
@@ -97,7 +96,7 @@ public static class CommandExecutor
                     nasm.ErrorDataReceived += (_, eventArgs) => Console.WriteLine($"[nasm] E: {eventArgs.Data}");
                     nasm.Disposed += (_, _) => Console.WriteLine("[npta] E: nasm process exited");
 
-                    nasm.StartInfo = new("nasm", $"-w+all -f elf64 -o {outputObjectCode} {outputAssembly}");
+                    nasm.StartInfo = new ProcessStartInfo("nasm", $"-w+all -f elf64 -o {outputObjectCode} {outputAssembly}");
 
                     nasm.Start();
                     await nasm.WaitForExitAsync();
@@ -111,7 +110,7 @@ public static class CommandExecutor
                         ld.Disposed += (_, _) => Console.WriteLine("[ld] E: nasm process exited");
 
                         Console.WriteLine($"[npta] Building {outputObjectCode}\n            -> {outputFullPath}");
-                        ld.StartInfo = new("ld", $"-o {outputFullPath} {outputObjectCode}");
+                        ld.StartInfo = new ProcessStartInfo("ld", $"-o {outputFullPath} {outputObjectCode}");
 
                         ld.Start();
                         await ld.WaitForExitAsync();

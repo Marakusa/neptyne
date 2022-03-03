@@ -9,6 +9,7 @@ namespace Neptyne.Compiler;
 
 public class Compiler
 {
+    private readonly List<string> _broughtCLibraries = new();
     private readonly List<string> _broughtLibraries = new();
     private readonly List<Statement> _statements = new();
     private readonly List<Variable> _variables = new();
@@ -64,6 +65,25 @@ public class Compiler
                 EndStatement();
                 break;
             case TokenType.Keyword:
+                if (node.Value == "csta")
+                {
+                    List<ParserToken> tokens = new();
+                    while (node.Type != TokenType.StatementTerminator)
+                    {
+                        node = Step();
+                        tokens.Add(node);
+                    }
+                    var cStatement = CStatementFormatter.Format(tokens);
+                    if (_currentFunction != null)
+                    {
+                        _currentFunction.Block.Add(new Statement(cStatement));
+                    }
+                    else
+                    {
+                        throw ThrowException("This statement cannot be called outside a function");
+                    }
+                    break;
+                }
                 if (parent != null || parent != null && parent.Type != TokenType.Keyword)
                     throw ThrowException($"Could not resolve symbol '{node.Value}'");
 
@@ -126,6 +146,7 @@ public class Compiler
                             
                             _currentFunction.Variables.Add(new FunctionVariable(pointer, GetPointerPrefix(type, false), name, type, valueNode));
                             
+                            _currentFunction.Block.Add(new Statement());
                             _currentFunction.Block.Add(new AsmStatement("mov", $"{GetPointerParam(type)} PTR [rbp-{pointerLength}], {GetPointerPrefix(type, false)}{pointer}", true));
                             
                             if (type == "string") _stringCounter++;
@@ -225,9 +246,23 @@ public class Compiler
                 {
                     case "bring":
                         node = Step();
-                        
-                        if (node.Type != TokenType.Library)
-                            throw ThrowException($"Unexpected token '{node.Value}'");
+
+                        if (node.Type != TokenType.Name)
+                        {
+                            if (node.Type != TokenType.Keyword || node.Value != "clib")
+                            {
+                                throw ThrowException($"Unexpected token '{node.Value}'");
+                            }
+                            
+                            node = Step();
+                                
+                            if (node.Type != TokenType.StringLiteral)
+                                throw ThrowException($"Unexpected token '{node.Value}'");
+                                
+                            _broughtCLibraries.Add(node.Value);
+                            Step(true);
+                            break;
+                        }
 
                         if (_broughtLibraries.Contains(node.Value))
                             throw ThrowException($"Library is already brought '{node.Value}'");
@@ -235,8 +270,8 @@ public class Compiler
                         _broughtLibraries.Add(node.Value);
 
                         var libTokens = Libraries.Bring(node.Value, node);
-                        _abstractSyntaxTree.InsertRange(CurrentLine + 1, libTokens);
-                        
+                        _abstractSyntaxTree.InsertRange(CurrentLine + 2, libTokens);
+
                         Step(true);
                         break;
                     default:
