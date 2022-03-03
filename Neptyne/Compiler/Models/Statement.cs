@@ -6,14 +6,18 @@ public class Statement
     
     private ParserToken[] Tokens { get; }
 
-    public Statement(ParserToken[] tokens)
+    public bool IsReturnStatement { get; }
+
+    public Statement(ParserToken[] tokens, bool isReturnStatement = false)
     {
         Tokens = tokens;
+        IsReturnStatement = isReturnStatement;
     }
 
-    public Statement(string cStatement)
+    public Statement(string cStatement, bool isReturnStatement = false)
     {
         _cStatement = cStatement;
+        IsReturnStatement = isReturnStatement;
     }
 
     public override string ToString()

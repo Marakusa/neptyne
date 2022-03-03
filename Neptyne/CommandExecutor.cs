@@ -6,11 +6,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Neptyne.Compiler;
+using Neptyne.Compiler.Exceptions;
 
 namespace Neptyne;
 
 public static class CommandExecutor
 {
+    private const string CompilerName = "nptc";
+    
     private static readonly Command[] Commands =
     {
         new("help", "Print this help message", Help),
@@ -70,7 +73,7 @@ public static class CommandExecutor
             FileInfo file = new(args[1]);
             if (file.Exists)
             {
-                Console.WriteLine("[npta] Starting a compile process...");
+                Console.WriteLine($"[{CompilerName}] Starting a compile process...");
 
                 var startTime = DateTime.Now;
 
@@ -81,14 +84,32 @@ public static class CommandExecutor
 
                 CleanBuild(file);
 
-                Console.WriteLine($"[npta] Compiling {file.FullName}\n            -> {outputAssembly}");
-                var compiled = NeptyneCompiler.Compile(await File.ReadAllTextAsync(args[1]), file.FullName);
+                Console.WriteLine($"[{CompilerName}] Compiling {file.FullName}\n            -> {outputAssembly}");
+                string compiled = null;
+                try
+                {
+                    compiled = NeptyneCompiler.Compile(await File.ReadAllTextAsync(args[1]), file.FullName);
+                }
+                catch (CompilerException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new DetailedException($"[{CompilerName}] E: {ex}");
+                }
+
+                if (string.IsNullOrEmpty(compiled))
+                {
+                    Console.WriteLine($"[{CompilerName}] E: Compiling {file.FullName} failed for an unknown reason");
+                    return;
+                }
 
                 try
                 {
                     await File.WriteAllBytesAsync($"{outputAssembly}", Encoding.UTF8.GetBytes(compiled));
 
-                    Console.WriteLine($"[npta] Writing {inputFilePath}\n            -> {outputAssembly}");
+                    Console.WriteLine($"[{CompilerName}] Writing {inputFilePath}\n            -> {outputAssembly}");
 
                     using Process nasm = new();
 
@@ -109,7 +130,7 @@ public static class CommandExecutor
                         ld.ErrorDataReceived += (_, eventArgs) => Console.WriteLine($"[ld] E: {eventArgs.Data}");
                         ld.Disposed += (_, _) => Console.WriteLine("[ld] E: nasm process exited");
 
-                        Console.WriteLine($"[npta] Building {outputObjectCode}\n            -> {outputFullPath}");
+                        Console.WriteLine($"[{CompilerName}] Building {outputObjectCode}\n            -> {outputFullPath}");
                         ld.StartInfo = new ProcessStartInfo("ld", $"-o {outputFullPath} {outputObjectCode}");
 
                         ld.Start();
@@ -117,29 +138,29 @@ public static class CommandExecutor
 
                         if (File.Exists(outputFullPath))
                         {
-                            Console.WriteLine($"[npta] Build finished in {(DateTime.Now.Subtract(startTime).TotalMilliseconds / 1000):0.000}s");
+                            Console.WriteLine($"[{CompilerName}] Build finished in {(DateTime.Now.Subtract(startTime).TotalMilliseconds / 1000):0.000}s");
 
                         }
                         else
                         {
-                            Console.WriteLine("[npta] E: ld process exited");
+                            Console.WriteLine($"[{CompilerName}] E: ld process exited");
                             Console.WriteLine("Build failed");
                         }
                     }
                     else
                     {
-                        Console.WriteLine("[npta] E: nasm process exited");
+                        Console.WriteLine($"[{CompilerName}] E: nasm process exited");
                         Console.WriteLine("Build failed");
                     }
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"\n[npta] E: {ex.Message}");
+                    Console.WriteLine($"\n[{CompilerName}] E: {ex.Message}");
                     Console.WriteLine("[npta] Build failed");
                 }
             }
             else
-                throw new Exception($"[npta] Script \"{args[1]}\" not found");
+                throw new Exception($"Script \"{args[1]}\" not found");
         }
         else
         {

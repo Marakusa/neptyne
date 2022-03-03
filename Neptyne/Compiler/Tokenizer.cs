@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Neptyne.Compiler.Exceptions;
@@ -345,7 +346,6 @@ public static class Tokenizer
                 while (i + 1 < inputExpression.Length && Regex.IsMatch(inputExpression[i + 1].ToString(), alphabetRegex))
                 {
                     i = IncrementIndex(i);
-                    
                     c = inputExpression[i];
                     value += c.ToString();
                 }
@@ -364,8 +364,23 @@ public static class Tokenizer
                         tokens.Add(new Token(TokenType.BooleanLiteral, value, _row, _lineIndex, name));
                         break;
 
-                    case "clib":
                     case "csta":
+                        var cStatementValue = "";
+
+                        i = IncrementIndex(i);
+                        c = inputExpression[i];
+                        
+                        while (i + 1 < inputExpression.Length && inputExpression[i] != ';')
+                        {
+                            i = IncrementIndex(i);
+                            c = inputExpression[i];
+                            cStatementValue += c.ToString();
+                        }
+
+                        tokens.Add(new Token(TokenType.CStatement, cStatementValue, _row, _lineIndex, name));
+                        break;
+                    
+                    case "clib":
                     case "const":
                     case "readonly":
                         tokens.Add(new Token(TokenType.Keyword, value, _row, _lineIndex, name));

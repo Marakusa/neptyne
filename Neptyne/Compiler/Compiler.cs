@@ -64,28 +64,12 @@ public class Compiler
             case TokenType.StatementTerminator:
                 EndStatement();
                 break;
+            case TokenType.CStatement:
+                _currentFunction.Block.Add(new Statement(node.Value));
+                break;
             case TokenType.Keyword:
-                if (node.Value == "csta")
-                {
-                    List<ParserToken> tokens = new();
-                    while (node.Type != TokenType.StatementTerminator)
-                    {
-                        node = Step();
-                        tokens.Add(node);
-                    }
-                    var cStatement = CStatementFormatter.Format(tokens);
-                    if (_currentFunction != null)
-                    {
-                        _currentFunction.Block.Add(new Statement(cStatement));
-                    }
-                    else
-                    {
-                        throw ThrowException("This statement cannot be called outside a function");
-                    }
-                    break;
-                }
                 if (parent != null || parent != null && parent.Type != TokenType.Keyword)
-                    throw ThrowException($"Could not resolve symbol '{node.Value}'");
+                    throw ThrowException($"Unexpected token '{node.Value}'");
 
                 switch (node.Value)
                 {
@@ -135,19 +119,16 @@ public class Compiler
                         
                         node = Step();
                         if (node.Type != TokenType.StatementTerminator)
-                            throw ThrowException($"Could not resolve symbol '{node.Value}'");
+                            throw ThrowException($"Unexpected token '{node.Value}'");
 
                         if (parent?.Type == TokenType.StatementBody)
                         {
                             var pointerLength = PrimitiveVariables.GetLength(type) + _lengthCounter;
                             _lengthCounter++;
                             
-                            var pointer = type != "string" ? $"[rbp-{pointerLength}]" : $".LC{_stringCounter}";
-                            
-                            _currentFunction.Variables.Add(new FunctionVariable(pointer, GetPointerPrefix(type, false), name, type, valueNode));
-                            
-                            _currentFunction.Block.Add(new Statement());
-                            _currentFunction.Block.Add(new AsmStatement("mov", $"{GetPointerParam(type)} PTR [rbp-{pointerLength}], {GetPointerPrefix(type, false)}{pointer}", true));
+                            _currentFunction.Variables.Add(new FunctionVariable(name, type, valueNode));
+
+                            _currentFunction.Block.Add(new Statement($"{type} {name} = {valueNode.Value}"));
                             
                             if (type == "string") _stringCounter++;
                         }
@@ -177,7 +158,7 @@ public class Compiler
                     
                     if (node.Type == TokenType.StatementBody)
                     {
-                        Function function = new(name, type, functionParameters, node.Params, node, _current);
+                        Function function = new(name, type, functionParameters, node.Params, node);
                         _functions.Add(function);
 
                         EndStatement();
@@ -202,14 +183,14 @@ public class Compiler
                     switch (node.Type)
                     {
                         case TokenType.Name:
-                            var variable = _currentFunction.Variables.Find(f => f.Name == node.Value);
+                            var variable = GetVariable(node.Value);
                             if (variable == null)
                                 throw ThrowException(
                                     $"Cannot resolve symbol '{node.Value}'");
 
                             if (_currentFunction.ReturnType == variable.Type)
                             {
-                                _currentFunction.Block.Add(new AsmStatement("mov", $"eax, {variable.PointerName}", true));
+                                _currentFunction.Block.Add(new Statement($"return {variable.Name};", true));
                                 
                                 Step(true);
                                 
@@ -223,7 +204,7 @@ public class Compiler
                         default:
                             if (GetLiteralType(_currentFunction.ReturnType) == GetLiteralType(node.Type))
                             {
-                                _currentFunction.Block.Add(new AsmStatement("mov", $"eax, {node.Value}", true));
+                                _currentFunction.Block.Add(new Statement($"return {node.Value};"));
                                 
                                 Step(true);
 
@@ -278,6 +259,52 @@ public class Compiler
                         throw ThrowException($"Could not resolve symbol '{node.Value}'");
                 }
                 break;
+            case TokenType.Name:
+                if (_currentFunction == null)
+                    throw ThrowException($"Unexpected token '{node.Value}'");
+                
+                var nameVariable = GetVariable(node.Value);
+                if (nameVariable != null)
+                {
+                    throw new NotImplementedException("variable set");
+                }
+                
+                var nameFunction = _functions.Find(f => f.Name == node.Value);
+                if (nameFunction != null)
+                {
+                    node = Step();
+                    
+                    if (node.Type != TokenType.Expression)
+                        throw ThrowException($"Unexpected token '{node.Value}'");
+
+                    var parameters = "";
+                    var i = 0;
+
+                    while (i < node.Params.Count)
+                    {
+                        if (node.Params[i].Type != TokenType.Identifier)
+                            throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
+                        
+                        parameters += node.Params[i].Value;
+
+                        i++;
+                        
+                        if (i >= node.Params.Count)
+                            throw ThrowException("; expected");
+                        
+                        if (node.Params[i].Type != TokenType.Name)
+                            throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
+
+                        parameters += node.Params[i].Value;
+                    
+                        i++;
+                        if (i < node.Params.Count)
+                            parameters = ", ";
+                    }
+
+                    _currentFunction.Block.Add(new Statement($"{nameFunction.Name}({parameters});"));
+                }
+                break;
             default:
                 throw ThrowException($"Could not resolve symbol '{node.Value}'");
         }
@@ -312,15 +339,14 @@ public class Compiler
         _currentFunction = null;
     }
 
-    private Variable GetVariable(ParserToken node)
+    private Variable GetVariable(string name)
     {
-        Variable v = _currentFunction.Variables.Find(f => f.Name == node.Value);
+        Variable v = _currentFunction.Variables.Find(f => f.Name == name);
 
-        if (v == null)
+        if (v != null)
+            return v;
         {
-            v = _variables.Find(f => f.Name == node.Value);
-            if (v == null)
-                v = _constVariables.Find(f => f.Name == node.Value);
+            v = _variables.Find(f => f.Name == name) ?? _constVariables.Find(f => f.Name == name);
         }
 
         return v;
@@ -369,12 +395,12 @@ public class Compiler
         {
             if (keywords.Contains(Keyword.Const))
             {
-                Variable variable = new(false, variableType, variableName, GetPointerPrefix(variableType, true), valueToken.Value, valueToken);
+                Variable variable = new(false, variableType, variableName, valueToken, true);
                 _constVariables.Add(variable);
             }
             else
             {
-                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, GetPointerPrefix(variableType, false), $"{variableName}[rip]", valueToken);
+                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, valueToken);
                 _variables.Add(variable);
             }
         }

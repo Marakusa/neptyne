@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Neptyne.Compiler.Models.Assembly;
 
 namespace Neptyne.Compiler.Models;
 
@@ -21,12 +20,12 @@ public class Function
     
     public List<FunctionVariable> Variables { get; set; }
 
-    public Function(string name, string returnType, List<ParserToken> paramsTokens, List<ParserToken> block, ParserToken blockNode, int blockIndex)
+    public Function(string name, string returnType, List<ParserToken> paramsTokens, List<ParserToken> block, ParserToken blockNode)
     {
         Name = name;
         ReturnType = returnType;
         Params = new List<FunctionParameter>();
-        Block = new List<AsmStatement>();
+        Block = new List<Statement>();
         ParamsTokens = paramsTokens;
         BlockTokens = block;
         ParentBlockNode = blockNode;
@@ -35,28 +34,24 @@ public class Function
 
     public string GetParamsString()
     {
-        var result = new string[Params.Count];
-
-        for (var i = 0; i < result.Length; i++)
+        var p = "";
+        
+        for (var i = 0; i < Params.Count; i++)
         {
-            result[i] = $"{Params[i].Type} {Params[i].Value}";
+            p += $"{Params[i].Type} {Params[i].Value}";
+            if (i + 1 < Params.Count)
+                p += ",";
         }
         
-        return result.Length == 0 ? "" : $"({string.Join(",", result)})";
+        return $"({p})";
     }
 
     public override string ToString()
     {
         var result = "";
         
-        result += $"{Name}{GetParamsString()}:\n";
+        result += $"{(ReturnType == "void" ? "int" : ReturnType)} {Name}{GetParamsString()} {{\n";
         
-        if (Name != "_start")
-        {
-            result += "    push rbp\n";
-            result += "    mov rbp, rsp\n";
-        }
-
         var containsReturn = false;
         foreach (var statement in Block)
         {
@@ -64,13 +59,8 @@ public class Function
             containsReturn = statement.IsReturnStatement;
         }
         
-        if (Name != "_start")
-        {
-            if (!containsReturn)
-                result += "    mov eax, 0\n";
-            result += "    pop rbp\n";
-            result += "    ret\n\n";
-        }
+        if (!containsReturn)
+            result += "    return 1;\n}\n";
 
         return result;
     }
@@ -91,6 +81,6 @@ public class FunctionParameter
 
 public class FunctionVariable : Variable
 {
-    public FunctionVariable(string pointer, string variableNamePrefix, string variableName, string type, ParserToken value) 
-        : base(false, type, variableName, variableNamePrefix, pointer, value) { }
+    public FunctionVariable(string variableName, string type, ParserToken value) 
+        : base(false, type, variableName, value) { }
 }

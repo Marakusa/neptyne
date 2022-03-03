@@ -61,5 +61,7 @@ public enum TokenType
     Identifier,
     
     Expression,
-    StatementBody
+    StatementBody,
+    
+    CStatement
 }
