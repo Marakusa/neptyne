@@ -1,15 +1,7 @@
 bring System;
 
 void main: {
-	string msg = "test";
-	out(msg);
+	out("Hello world!");
+	in("Hello world!");
 }
 
-/*int main(int arg): {
-	int a = 10;
-	//int b = 12;
-	//a = a + b;
-	//a = b + a;
-	out(a);
-	return 0;
-}*/

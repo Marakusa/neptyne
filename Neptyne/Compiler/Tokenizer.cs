@@ -315,6 +315,18 @@ public static class Tokenizer
             // Point
             else if (c == '.')
             {
+                if (i + 2 < inputExpression.Length)
+                {
+                    // Parameter pack
+                    if (inputExpression[i + 1] == '.' && inputExpression[i + 2] == '.')
+                    {
+                        i = IncrementIndex(i);
+                        i = IncrementIndex(i);
+                        
+                        tokens.Add(new Token(TokenType.ParameterPack, "...", _row, _lineIndex, name));
+                        continue;
+                    }
+                }
                 tokens.Add(new Token(TokenType.Point, c.ToString(), _row, _lineIndex, name));
             }
 
@@ -408,6 +420,10 @@ public static class Tokenizer
                     case "else":
                     case "while":
                         tokens.Add(new Token(TokenType.StatementIdentifier, value, _row, _lineIndex, name));
+                        break;
+                    
+                    case "sizeof":
+                        tokens.Add(new Token(TokenType.Operator, value, _row, _lineIndex, name));
                         break;
                     
                     case "return":

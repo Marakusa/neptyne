@@ -18,8 +18,9 @@ public class Compiler
     private List<ParserToken> _abstractSyntaxTree;
 
     private int CurrentLine => _abstractSyntaxTree[_current].Line;
-
     private int CurrentLineIndex => _abstractSyntaxTree[_current].LineIndex;
+
+    private string CurrentFile => _abstractSyntaxTree[_current].File;
     private int _current;
 
     private Function _currentFunction;
@@ -45,9 +46,15 @@ public class Compiler
             throw ThrowException("Program does not contain a 'main' function suitable for an entry point", 1, 0);
         }
 
+        foreach (var cLibrary in _broughtCLibraries)
+        {
+            _statements.Add(new Statement($"#include <{cLibrary}>"));
+        }
+
         foreach (var function in _functions)
         {
             ParseFunction(function);
+            _statements.Add(new Statement(function.ToString()));
         }
 
         return string.Join('\n', _statements);
@@ -112,6 +119,37 @@ public class Compiler
 
                     if (node.Type == TokenType.Name)
                     {
+                        throw ThrowException($"Unexpected token '{node.Value}'");
+                    }
+                    else if (node.Type == TokenType.Operator)
+                    {
+                        if (node.Value == "sizeof")
+                        {
+                            if (GetLiteralType(type) != LiteralType.Number)
+                                throw ThrowException($"Can't convert from type '{type}' to a numeral type");
+
+                            node = Step();
+                            if (node.Type != TokenType.Expression)
+                                throw ThrowException($"Unexpected token '{node.Value}'");
+
+                            if (node.Params.Count != 1)
+                                throw ThrowException($"Insufficient amount of parameters: 1 needed, {node.Params.Count} given");
+
+                            if (node.Params[0].Type == TokenType.Name)
+                            {
+                                var variable = GetVariable(node.Params[0].Value);
+                                if (variable == null || variable.Type == type)
+                                    throw ThrowException($"Unexpected token '{node.Params[0].Value}'");
+                            }
+                            
+                            _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+
+                            _currentFunction.Block.Add(new Statement($"{type} {name} = sizeof({node.Params[0].Value});"));
+
+                            EndStatement();
+                            break;
+                        }
+                        throw ThrowException($"Unexpected token '{node.Value}'");
                     }
                     else if (GetLiteralType(node.Type) == GetLiteralType(type))
                     {
@@ -126,10 +164,12 @@ public class Compiler
                             var pointerLength = PrimitiveVariables.GetLength(type) + _lengthCounter;
                             _lengthCounter++;
                             
-                            _currentFunction.Variables.Add(new FunctionVariable(name, type, valueNode));
+                            _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
 
-                            _currentFunction.Block.Add(new Statement($"{type} {name} = {valueNode.Value}"));
-                            
+                            _currentFunction.Block.Add(type == "string"
+                                ? new Statement($"char *{name} = \"{valueNode.Value}\";")
+                                : new Statement($"{type} {name} = {valueNode.Value};"));
+
                             if (type == "string") _stringCounter++;
                         }
                         else
@@ -159,6 +199,11 @@ public class Compiler
                     if (node.Type == TokenType.StatementBody)
                     {
                         Function function = new(name, type, functionParameters, node.Params, node);
+                        function.SetParameters();
+
+                        if (_functions.Find(f => f.Name == name && f.HasSameParams(function.Params)) != null)
+                            throw ThrowException($"Function named '{name}' with the parameters '{function.GetParamsString(true)}' is already defined");
+                        
                         _functions.Add(function);
 
                         EndStatement();
@@ -200,11 +245,14 @@ public class Compiler
                             }
                             else
                                 throw ThrowException(
-                                    $"Function with return type '{_currentFunction.ReturnType}' cannot have a return statement with typed '{node.Value}'");
+                                    $"Function with return type '{_currentFunction.ReturnType}' cannot have a return statement with a type of '{variable.Type}'");
                         default:
                             if (GetLiteralType(_currentFunction.ReturnType) == GetLiteralType(node.Type))
                             {
-                                _currentFunction.Block.Add(new Statement($"return {node.Value};"));
+                                if (GetLiteralType(_currentFunction.ReturnType) == LiteralType.String)
+                                    _currentFunction.Block.Add(new Statement($"return \"{node.Value}\";", true));
+                                else
+                                    _currentFunction.Block.Add(new Statement($"return {node.Value};", true));
                                 
                                 Step(true);
 
@@ -215,11 +263,13 @@ public class Compiler
                             else
                                 throw ThrowException($"Could not resolve symbol '{node.Value}'");
                     }
+                    break;
                 }
                 else if (node.Type != TokenType.StatementTerminator)
                 {
                     throw ThrowException($"Could not resolve symbol '{node.Value}'");
                 }
+                _currentFunction.Block.Add(new Statement("return 1;", true));
                 _functionHasReturnStatement = true;
                 break;
             case TokenType.StatementIdentifier:
@@ -282,28 +332,47 @@ public class Compiler
 
                     while (i < node.Params.Count)
                     {
-                        if (node.Params[i].Type != TokenType.Identifier)
-                            throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
+                        if (node.Params[i].Type == TokenType.Name)
+                        {
+                            var paramVariable = GetVariable(node.Params[i].Value);
+                            if (paramVariable == null)
+                                throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
                         
-                        parameters += node.Params[i].Value;
+                            parameters += paramVariable.Name;
 
-                        i++;
-                        
-                        if (i >= node.Params.Count)
-                            throw ThrowException("; expected");
-                        
-                        if (node.Params[i].Type != TokenType.Name)
-                            throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
+                            i++;
 
-                        parameters += node.Params[i].Value;
-                    
-                        i++;
-                        if (i < node.Params.Count)
-                            parameters = ", ";
+                            if (i >= node.Params.Count)
+                                continue;
+                        
+                            parameters += ", ";
+                            if (node.Params[i].Type != TokenType.Comma)
+                                throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
+                            i++;
+                        }
+                        else
+                        {
+                            if (node.Params[i].Type == TokenType.StringLiteral)
+                                parameters += $"\"{node.Params[i].Value}\"";
+                            else
+                                parameters += node.Params[i].Value;
+
+                            i++;
+
+                            if (i >= node.Params.Count)
+                                continue;
+                        
+                            parameters += ", ";
+                            if (node.Params[i].Type != TokenType.Comma)
+                                throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
+                            i++;
+                        }
                     }
 
                     _currentFunction.Block.Add(new Statement($"{nameFunction.Name}({parameters});"));
                 }
+                else
+                    throw ThrowException($"Could not resolve symbol '{node.Value}'. Are you missing a library reference?");
                 break;
             default:
                 throw ThrowException($"Could not resolve symbol '{node.Value}'");
@@ -395,12 +464,12 @@ public class Compiler
         {
             if (keywords.Contains(Keyword.Const))
             {
-                Variable variable = new(false, variableType, variableName, valueToken, true);
+                Variable variable = new(false, variableType, variableName, true);
                 _constVariables.Add(variable);
             }
             else
             {
-                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName, valueToken);
+                Variable variable = new(keywords.Contains(Keyword.Readonly), variableType, variableName);
                 _variables.Add(variable);
             }
         }
@@ -435,6 +504,6 @@ public class Compiler
 
     private Exception ThrowException(string message, int line = 0, int lineIndex = -1)
     {
-        throw new CompilerException(message, _abstractSyntaxTree[0].File, line <= 0 ? CurrentLine : line, CurrentLineIndex);
+        throw new CompilerException(message, CurrentFile, line <= 0 ? CurrentLine : line, CurrentLineIndex);
     }
 }

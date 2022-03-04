@@ -59,6 +59,8 @@ public enum TokenType
     Colon,
     Comma,
     Identifier,
+    ParameterPack,
+    Operator,
     
     Expression,
     StatementBody,

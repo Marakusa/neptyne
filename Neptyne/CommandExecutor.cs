@@ -78,14 +78,13 @@ public static class CommandExecutor
                 var startTime = DateTime.Now;
 
                 var inputFilePath = file.FullName;
-                var outputFullPath = file.FullName.Substring(0, inputFilePath.Length - file.Extension.Length);
-                var outputAssembly = $"{outputFullPath}.asm";
-                var outputObjectCode = $"{outputFullPath}.o";
+                var outputFullPath = file.FullName[..(inputFilePath.Length - file.Extension.Length)];
+                var outputScript = $"{outputFullPath}.c";
 
                 CleanBuild(file);
 
-                Console.WriteLine($"[{CompilerName}] Compiling {file.FullName}\n            -> {outputAssembly}");
-                string compiled = null;
+                Console.WriteLine($"[{CompilerName}] Compiling {file.FullName}\n            -> {outputFullPath}");
+                string compiled;
                 try
                 {
                     compiled = NeptyneCompiler.Compile(await File.ReadAllTextAsync(args[1]), file.FullName);
@@ -107,49 +106,27 @@ public static class CommandExecutor
 
                 try
                 {
-                    await File.WriteAllBytesAsync($"{outputAssembly}", Encoding.UTF8.GetBytes(compiled));
+                    await File.WriteAllBytesAsync($"{outputScript}", Encoding.UTF8.GetBytes(compiled));
+                    
+                    using Process gcc = new();
 
-                    Console.WriteLine($"[{CompilerName}] Writing {inputFilePath}\n            -> {outputAssembly}");
+                    gcc.OutputDataReceived += (_, eventArgs) => Console.WriteLine($"[gcc] {eventArgs.Data}");
+                    gcc.ErrorDataReceived += (_, eventArgs) => Console.WriteLine($"[gcc] E: {eventArgs.Data}");
+                    gcc.Disposed += (_, _) => Console.WriteLine("[npta] E: gcc process exited");
 
-                    using Process nasm = new();
+                    gcc.StartInfo = new ProcessStartInfo("gcc", $"-O0 -g -o {outputFullPath} {outputScript}");
 
-                    nasm.OutputDataReceived += (_, eventArgs) => Console.WriteLine($"[nasm] {eventArgs.Data}");
-                    nasm.ErrorDataReceived += (_, eventArgs) => Console.WriteLine($"[nasm] E: {eventArgs.Data}");
-                    nasm.Disposed += (_, _) => Console.WriteLine("[npta] E: nasm process exited");
+                    gcc.Start();
+                    await gcc.WaitForExitAsync();
 
-                    nasm.StartInfo = new ProcessStartInfo("nasm", $"-w+all -f elf64 -o {outputObjectCode} {outputAssembly}");
-
-                    nasm.Start();
-                    await nasm.WaitForExitAsync();
-
-                    if (File.Exists(outputObjectCode))
+                    if (File.Exists(outputFullPath))
                     {
-                        using Process ld = new();
+                        Console.WriteLine($"[{CompilerName}] Build finished in {(DateTime.Now.Subtract(startTime).TotalMilliseconds / 1000):0.000}s");
 
-                        ld.OutputDataReceived += (_, eventArgs) => Console.WriteLine($"[ld] {eventArgs.Data}");
-                        ld.ErrorDataReceived += (_, eventArgs) => Console.WriteLine($"[ld] E: {eventArgs.Data}");
-                        ld.Disposed += (_, _) => Console.WriteLine("[ld] E: nasm process exited");
-
-                        Console.WriteLine($"[{CompilerName}] Building {outputObjectCode}\n            -> {outputFullPath}");
-                        ld.StartInfo = new ProcessStartInfo("ld", $"-o {outputFullPath} {outputObjectCode}");
-
-                        ld.Start();
-                        await ld.WaitForExitAsync();
-
-                        if (File.Exists(outputFullPath))
-                        {
-                            Console.WriteLine($"[{CompilerName}] Build finished in {(DateTime.Now.Subtract(startTime).TotalMilliseconds / 1000):0.000}s");
-
-                        }
-                        else
-                        {
-                            Console.WriteLine($"[{CompilerName}] E: ld process exited");
-                            Console.WriteLine("Build failed");
-                        }
                     }
                     else
                     {
-                        Console.WriteLine($"[{CompilerName}] E: nasm process exited");
+                        Console.WriteLine($"[{CompilerName}] E: gcc process exited");
                         Console.WriteLine("Build failed");
                     }
                 }
@@ -171,7 +148,7 @@ public static class CommandExecutor
     private static void CleanBuild(FileInfo file)
     {
         var writeFilePathNoExt = file.FullName.Substring(0, file.FullName.Length - file.Extension.Length);
-        var writeFilePath = $"{writeFilePathNoExt}.asm";
+        var writeFilePath = $"{writeFilePathNoExt}.c";
 
         if (writeFilePath != file.FullName && File.Exists(writeFilePath))
             File.Delete(writeFilePath);

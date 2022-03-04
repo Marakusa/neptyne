@@ -1,7 +1,19 @@
-// Bring standard C library
 bring clib "stdio.h";
 
-void out(string format, ...): {
-    // csta: C statement
-    csta printf(format, ...);
+void out(const string format, ...): {
+    csta printf(format);
+    csta printf("%c", 10);
+    return;
+}
+
+string in(const string format, ...): {
+    csta printf(format);
+    string inputValue = "";
+    csta scanf("%s", &inputValue);
+    return inputValue;
+}
+
+long len(const string s): {
+    long length = sizeof(s);
+    return length;
 }

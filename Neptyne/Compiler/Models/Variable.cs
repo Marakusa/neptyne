@@ -10,14 +10,11 @@ public class Variable
     
     public string Name { get; }
     
-    public ParserToken Value { get; }
-    
-    public Variable(bool isReadonly, string type, string name, ParserToken value, bool constant = false)
+    public Variable(bool isReadonly, string type, string name, bool constant = false)
     {
         Readonly = isReadonly;
         Type = type;
         Name = name;
-        Value = value;
         Constant = constant;
     }
 }
