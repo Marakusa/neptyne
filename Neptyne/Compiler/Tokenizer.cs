@@ -107,11 +107,11 @@ public static class Tokenizer
             // Brackets
             else if (c == '[')
             {
-                tokens.Add(new Token(TokenType.OpenBrakcets, c.ToString(), _row, _lineIndex, name));
+                tokens.Add(new Token(TokenType.OpenBrackets, c.ToString(), _row, _lineIndex, name));
             }
             else if (c == ']')
             {
-                tokens.Add(new Token(TokenType.CloseBrakcets, c.ToString(), _row, _lineIndex, name));
+                tokens.Add(new Token(TokenType.CloseBrackets, c.ToString(), _row, _lineIndex, name));
             }
             
             // String literal

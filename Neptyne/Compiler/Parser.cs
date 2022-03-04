@@ -82,8 +82,30 @@ public static class Parser
                     _index++;
                     return node;
                 }
-            case TokenType.OpenBrakcets:
-                throw new NotImplementedException("Open brackets not implemented yet");
+            case TokenType.OpenBrackets:
+                _index++;
+                token = _tokens[_index];
+                if (token.Type != TokenType.CloseBrackets)
+                {
+                    ParserToken blockNode = new(TokenType.Brackets, "", CurrentLine, CurrentLineIndex, CurrentFile);
+                    
+                    while (token.Type != TokenType.CloseBrackets)
+                    {
+                        blockNode.Params.Add(Walk());
+                        token = _tokens[_index];
+                        if (_index + 1 >= _tokens.Length && token.Type != TokenType.CloseBrackets)
+                            throw new CompilerException("] expected", CurrentFile, CurrentLine, CurrentLineIndex);
+                    }
+                
+                    _index++;
+                    return blockNode;
+                }
+                else
+                {
+                    ParserToken node = new(TokenType.Brackets, "", CurrentLine, CurrentLineIndex, CurrentFile);
+                    _index++;
+                    return node;
+                }
             default:
                 _index++;
                 return new ParserToken(token.Type, token.Value, CurrentLine, CurrentLineIndex, CurrentFile);

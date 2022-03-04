@@ -146,7 +146,14 @@ public class Function
         }
     }
 
-    public bool HasSameParams(List<FunctionParameter> functionParams) => Params.Count == functionParams.Count && Params.Where((t, i) => t.Constant == functionParams[i].Constant && t.Type == functionParams[i].Type).Any();
+    public bool HasSameParams(List<FunctionParameter> functionParams)
+    {
+        if (Params.Count == functionParams.Count && Params.Count == 0)
+            return true;
+        
+        return Params.Count == functionParams.Count &&
+            Params.Where((t, i) => t.Constant == functionParams[i].Constant && t.Type == functionParams[i].Type).Any();
+    }
 }
 
 public class FunctionParameter

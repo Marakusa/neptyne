@@ -1,3 +1,4 @@
+bring clib "iostream";
 bring clib "stdio.h";
 
 void out(const string format, ...): {
@@ -8,9 +9,9 @@ void out(const string format, ...): {
 
 string in(const string format, ...): {
     csta printf(format);
-    string inputValue = "";
-    csta scanf("%s", &inputValue);
-    return inputValue;
+    int size = sizeof(char) * 1024;
+    string[] inputValue = [1];
+    return csta fgets (inputValue, size, stdin);
 }
 
 long len(const string s): {

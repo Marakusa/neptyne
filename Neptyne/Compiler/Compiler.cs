@@ -115,73 +115,143 @@ public class Compiler
                 }
                 else if (node.Type == TokenType.AssignmentOperator)
                 {
+                    var assignValues = new List<string>();
+
                     node = Step();
 
-                    if (node.Type == TokenType.Name)
+                    while (node.Type != TokenType.StatementTerminator)
                     {
-                        throw ThrowException($"Unexpected token '{node.Value}'");
-                    }
-                    else if (node.Type == TokenType.Operator)
-                    {
-                        if (node.Value == "sizeof")
+                        if (node.Type == TokenType.Name)
                         {
-                            if (GetLiteralType(type) != LiteralType.Number)
-                                throw ThrowException($"Can't convert from type '{type}' to a numeral type");
+                            var assignVariable = GetVariable(node.Value);
+                            if (assignVariable != null && type == assignVariable.Type)
+                            {
+                                throw new NotImplementedException("variable assign");
+                            }
+
+                            var assignFunction = _functions.Find(f => f.Name == node.Value);
+                            if (assignFunction != null && type == assignFunction.ReturnType)
+                            {
+                                node = Step();
+
+                                if (assignFunction.Params.Count == 0)
+                                {
+                                    if (node.Type == TokenType.Expression)
+                                        node = Step();
+
+                                    if (node.Type == TokenType.StatementTerminator)
+                                    {
+                                        if (_currentFunction.Variables.Find(f => f.Name == name) != null)
+                                            throw ThrowException($"Variable named '{name}' already exists");
+
+                                        _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+
+                                        assignValues.Add("+");
+                                        assignValues.Add($"{assignFunction.Name}()");
+                                        node = Step();
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    if (node.Type == TokenType.Expression)
+                                    {
+                                        string p = ParseParameters(node.Params, type);
+
+                                        node = Step();
+
+                                        if (node.Type == TokenType.StatementTerminator)
+                                        {
+                                            if (_currentFunction.Variables.Find(f => f.Name == name) != null)
+                                                throw ThrowException($"Variable named '{name}' already exists");
+
+                                            _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+
+                                            assignValues.Add("+");
+                                            assignValues.Add($"{assignFunction.Name}({p})");
+                                            node = Step();
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+
+                            throw ThrowException($"Unexpected token '{node.Value}'");
+                        }
+                        else if (node.Type == TokenType.Operator)
+                        {
+                            if (node.Value == "sizeof")
+                            {
+                                if (GetLiteralType(type) != LiteralType.Number)
+                                    throw ThrowException($"Can't convert from type '{type}' to a numeral type");
+
+                                node = Step();
+                                if (node.Type != TokenType.Expression)
+                                    throw ThrowException($"Unexpected token '{node.Value}'");
+
+                                if (node.Params.Count != 1)
+                                    throw ThrowException($"Insufficient amount of parameters: 1 needed, {node.Params.Count} given");
+
+                                if (node.Params[0].Type == TokenType.Name)
+                                {
+                                    var variable = GetVariable(node.Params[0].Value);
+                                    if (variable == null || variable.Type == type)
+                                        throw ThrowException($"Unexpected token '{node.Params[0].Value}'");
+                                }
+
+                                _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+
+                                _currentFunction.Block.Add(new Statement($"{type} {name} = sizeof({node.Params[0].Value});"));
+
+                                EndStatement();
+                                break;
+                            }
+                            throw ThrowException($"Unexpected token '{node.Value}'");
+                        }
+                        else if (GetLiteralType(node.Type) == GetLiteralType(type))
+                        {
+                            var valueNode = node;
 
                             node = Step();
-                            if (node.Type != TokenType.Expression)
+                            if (node.Type != TokenType.StatementTerminator)
                                 throw ThrowException($"Unexpected token '{node.Value}'");
 
-                            if (node.Params.Count != 1)
-                                throw ThrowException($"Insufficient amount of parameters: 1 needed, {node.Params.Count} given");
-
-                            if (node.Params[0].Type == TokenType.Name)
+                            if (parent?.Type == TokenType.StatementBody)
                             {
-                                var variable = GetVariable(node.Params[0].Value);
-                                if (variable == null || variable.Type == type)
-                                    throw ThrowException($"Unexpected token '{node.Params[0].Value}'");
-                            }
-                            
-                            _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+                                var pointerLength = PrimitiveVariables.GetLength(type) + _lengthCounter;
+                                _lengthCounter++;
 
-                            _currentFunction.Block.Add(new Statement($"{type} {name} = sizeof({node.Params[0].Value});"));
+                                _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+
+                                _currentFunction.Block.Add(type == "string"
+                                    ? new Statement($"char *{name} = \"{valueNode.Value}\";")
+                                    : new Statement($"{type} {name} = {valueNode.Value};"));
+
+                                if (type == "string") _stringCounter++;
+                            }
+                            else
+                            {
+                                DeclareClassVariable(name, valueNode, type, _statementKeywords.ToArray());
+                            }
 
                             EndStatement();
                             break;
                         }
+
                         throw ThrowException($"Unexpected token '{node.Value}'");
                     }
-                    else if (GetLiteralType(node.Type) == GetLiteralType(type))
-                    {
-                        var valueNode = node;
-                        
-                        node = Step();
-                        if (node.Type != TokenType.StatementTerminator)
-                            throw ThrowException($"Unexpected token '{node.Value}'");
-
-                        if (parent?.Type == TokenType.StatementBody)
-                        {
-                            var pointerLength = PrimitiveVariables.GetLength(type) + _lengthCounter;
-                            _lengthCounter++;
-                            
-                            _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
-
-                            _currentFunction.Block.Add(type == "string"
-                                ? new Statement($"char *{name} = \"{valueNode.Value}\";")
-                                : new Statement($"{type} {name} = {valueNode.Value};"));
-
-                            if (type == "string") _stringCounter++;
-                        }
-                        else
-                        {
-                            DeclareClassVariable(name, valueNode, type, _statementKeywords.ToArray());
-                        }
-
-                        EndStatement();
-                        break;
-                    }
-
-                    throw ThrowException($"Unexpected token '{node.Value}'");
+                    
+                    if (_currentFunction.Variables.Find(f => f.Name == name) != null)
+                        throw ThrowException($"Variable named '{name}' already exists");
+                                    
+                    _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+                                    
+                    _currentFunction.Block.Add(type == "string"
+                        ? new Statement($"char *{name} = {assignFunction.Name}();")
+                        : new Statement($"{type} {name} = {assignFunction.Name}();"));
+                                    
+                    EndStatement();
+                    break;
                 }
                 else if (node.Type is TokenType.Expression or TokenType.Colon)
                 {
@@ -377,6 +447,53 @@ public class Compiler
             default:
                 throw ThrowException($"Could not resolve symbol '{node.Value}'");
         }
+    }
+
+    private string ParseParameters(List<ParserToken> nodeParams, string type)
+    {
+        var p = "";
+
+        for (int i = 0; i < nodeParams.Count; i++)
+        {
+            if (nodeParams[i].Type == TokenType.Name)
+            {
+                var assignVariable = GetVariable(nodeParams[i].Value);
+                if (assignVariable != null)
+                {
+                    p += $"{assignVariable.Name}, ";
+                }
+                else
+                {
+                    var assignFunction = _functions.Find(f => f.Name == nodeParams[i].Value);
+                    if (assignFunction != null)
+                    {
+                        p += $"{assignFunction.Name}({ParseParameters(assignFunction.ParamsTokens, type)}), ";
+                    }
+                    else
+                        throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
+                }
+
+                if (i + 1 >= nodeParams.Count)
+                    break;
+
+                i++;
+                if (nodeParams[i].Type != TokenType.Comma)
+                    throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
+            }
+            else if (GetLiteralType(nodeParams[i].Type) == GetLiteralType(type))
+            {
+                if (GetLiteralType(nodeParams[i].Type) == LiteralType.String)
+                    p += $"\"{nodeParams[i].Value}\", ";
+                else
+                    p += $"{nodeParams[i].Value}, ";
+            }
+            else
+            {
+                throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
+            }
+        }
+
+        return p.Length > 0 ? p[..^2] : p;
     }
 
     private ParserToken Step(bool throwNoLineTerm = false)

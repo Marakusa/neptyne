@@ -2,6 +2,6 @@ bring System;
 
 void main: {
 	out("Hello world!");
-	in("Hello world!");
+	string name = in("Please enter your name: ");
+	out("Hello %s!", name);
 }
-
