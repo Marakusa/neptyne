@@ -8,9 +8,9 @@ Neptyne is a simple programming language created just for fun and learning the c
 ## Syntax example
 The syntax is a bit inspired from C and Python mixed.
 ```c
-bring system;
+bring System;
 
-void main() {
+void main: {
     string hello = "Hello world!";
 
     // This will print out the 'hello' variable to the console
