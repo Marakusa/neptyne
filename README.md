@@ -17,6 +17,13 @@ void main: {
     out(hello);
 
     int n = 7;
+    
+    n = doMath(n);
+    
+    out("The number is now %d!", n);
+}
+
+int doMath(int n): {
     if n == 7: {
         n++;
     }
@@ -27,7 +34,7 @@ void main: {
     while n > 2: {
         n--;
     }
-
-    out("The number is now " + n + "!");
+    
+    return n;
 }
 ```
