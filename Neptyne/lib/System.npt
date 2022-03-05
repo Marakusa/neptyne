@@ -18,26 +18,25 @@ long len(const string s): {
     return length;
 }
 
-string substring(string input, int position, int length)
-{
-    string p;
-    int c;
+string substring(string input, int position, int length) {
+    string output;
+    int i;
     
-    p = csta malloc(length + 1);
+    output = csta malloc(length + 1);
     
-    if p == null: {
+    if output == null: {
         out("Unable to allocate memory.");
         csta exit(1);
     }
     
-    for c = 0; c < length; c++: {
-        // p[c] => *(p + c)
+    for i = 0; i < length; i++: {
+        // output[i] => *(p + i)
         // input[position - 1] => *(input + position - 1)
-        p[c] = input[position - 1];
+        output[i] = input[position - 1];
         input++;  
     }
     
-    p[c] = '\0';
+    output[i] = '\0';
 
-    return p;
+    return output;
 }

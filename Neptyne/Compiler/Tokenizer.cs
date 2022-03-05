@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Neptyne.Compiler.Exceptions;
@@ -141,6 +140,36 @@ public static class Tokenizer
                 }
             }
             
+            // Character literal
+            else if (c == '\'')
+            {
+                var value = "";
+                
+                i = IncrementIndex(i);
+                
+                c = inputExpression[i];
+                if (c == '\\')
+                {
+                    value += c.ToString();
+                    i = IncrementIndex(i);
+                    
+                    c = inputExpression[i];
+                    value += c.ToString();
+                }
+                else
+                    value += c.ToString();
+                
+                i = IncrementIndex(i);
+                
+                c = inputExpression[i];
+                if (c == '\'')
+                {
+                    tokens.Add(new Token(TokenType.CharacterLiteral, value, _row, _lineIndex, name));
+                    break;
+                }
+                throw new CompilerException($"Unexpected token '{c}'", name, _row, _lineIndex);
+            }
+            
             // Equals sign tokens
             else if (c == '=')
             {
@@ -242,6 +271,16 @@ public static class Tokenizer
                 tokens.Add(new Token(TokenType.DivisionOperator, c.ToString(), _row, _lineIndex, name));
             }
             
+            // Logical comparsion operators
+            else if (c == '<')
+            {
+                tokens.Add(new Token(TokenType.LogicalLessThanOperator, c.ToString(), _row, _lineIndex, name));
+            }
+            else if (c == '>')
+            {
+                tokens.Add(new Token(TokenType.LogicalMoreThanOperator, c.ToString(), _row, _lineIndex, name));
+            }
+
             // Logical AND operator
             else if (c == '&')
             {
@@ -413,12 +452,10 @@ public static class Tokenizer
                         break;
                     
                     case "bring":
-                        tokens.Add(new Token(TokenType.StatementIdentifier, value, _row, _lineIndex, name));
-                        break;
-                    
                     case "if":
                     case "else":
                     case "while":
+                    case "for":
                         tokens.Add(new Token(TokenType.StatementIdentifier, value, _row, _lineIndex, name));
                         break;
                     
@@ -428,6 +465,10 @@ public static class Tokenizer
                     
                     case "return":
                         tokens.Add(new Token(TokenType.ReturnStatement, value, _row, _lineIndex, name));
+                        break;
+                    
+                    case "null":
+                        tokens.Add(new Token(TokenType.Null, value, _row, _lineIndex, name));
                         break;
                     
                     default:

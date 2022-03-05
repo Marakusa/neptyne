@@ -1,4 +1,3 @@
-using System;
 using Neptyne.Compiler.Exceptions;
 using Neptyne.Compiler.Models;
 
@@ -105,6 +104,38 @@ public static class Parser
                     ParserToken node = new(TokenType.Brackets, "", CurrentLine, CurrentLineIndex, CurrentFile);
                     _index++;
                     return node;
+                }
+            case TokenType.StatementIdentifier:
+                if (token.Value != "bring")
+                {
+                    _index++;
+                    token = _tokens[_index];
+                    if (token.Type != TokenType.Colon)
+                    {
+                        ParserToken node = new(TokenType.Expression, "", CurrentLine, CurrentLineIndex, CurrentFile);
+                    
+                        while (token.Type != TokenType.Colon)
+                        {
+                            node.Params.Add(Walk());
+                            token = _tokens[_index];
+                            if (_index + 1 >= _tokens.Length)
+                                throw new CompilerException(": expected", CurrentFile, CurrentLine, CurrentLineIndex);
+                        }
+
+                        _index++;
+                        return node;
+                    }
+                    else
+                    {
+                        ParserToken node = new(TokenType.Expression, "", CurrentLine, CurrentLineIndex, CurrentFile);
+                        _index++;
+                        return node;
+                    }
+                }
+                else
+                {
+                    _index++;
+                    return new ParserToken(token.Type, token.Value, CurrentLine, CurrentLineIndex, CurrentFile);
                 }
             default:
                 _index++;
