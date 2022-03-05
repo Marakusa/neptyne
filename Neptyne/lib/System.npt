@@ -1,4 +1,3 @@
-bring clib "iostream";
 bring clib "stdio.h";
 
 void out(const string format, ...): {
@@ -17,4 +16,14 @@ string in(const string format, ...): {
 long len(const string s): {
     long length = sizeof(s);
     return length;
+}
+
+// TODO
+char * substr(const char * input, int startIndex, int length) {
+    char outputValue[length];
+    for (int i = startIndex; i < startIndex + length; i++) {
+        outputValue[i] = input[i];
+        out("%c", outputValue[i]);
+    }
+    return outputValue;
 }
