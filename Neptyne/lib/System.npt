@@ -36,7 +36,7 @@ string substring(string input, int position, int length)
         p[c] = input[position - 1];
         input++;  
     }
-
+    
     p[c] = '\0';
 
     return p;
