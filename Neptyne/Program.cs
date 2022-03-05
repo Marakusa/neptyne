@@ -6,7 +6,7 @@ using Neptyne.Compiler.Exceptions;
 
 namespace Neptyne;
 
-public class Program
+public static class Program
 {
     private static bool _running = true;
 
@@ -14,8 +14,18 @@ public class Program
     {
         var defaultColor = Console.ForegroundColor;
         
-        Console.WriteLine($"Welcome to Neptyne v{Assembly.GetExecutingAssembly().GetName().Version}.\nType \"help\" for more information.\nPress \"Ctrl+C\" or type \"exit\" to exit\nNOTE: This is not a REPL (code cannot be executed here)");
+        Console.WriteLine($"Neptyne v{Assembly.GetExecutingAssembly().GetName().Version}");
 
+        if (args.Length > 0)
+        {
+            await CommandExecutor.Execute($"compile {args[0]}");
+            Exit();
+        }
+        
+        Console.ForegroundColor = ConsoleColor.Gray;
+        Console.WriteLine("Welcome to Neptyne! Type \"help\" for more information.\nPress \"Ctrl+C\" or type \"exit\" to exit\nNOTE: This is not a REPL (code cannot be executed here)");
+        Console.ForegroundColor = defaultColor;
+        
         Console.CancelKeyPress += delegate { Exit(); };
 
         while (_running)
