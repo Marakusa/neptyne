@@ -28,7 +28,7 @@ int doMath(int n): {
         n++;
     }
     else: {
-        out : "The number wasn't 7...";
+        out("The number wasn't 7...");
     }
 
     while n > 2: {
