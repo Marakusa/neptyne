@@ -18,12 +18,26 @@ long len(const string s): {
     return length;
 }
 
-// TODO
-char * substr(const char * input, int startIndex, int length) {
-    char outputValue[length];
-    for (int i = startIndex; i < startIndex + length; i++) {
-        outputValue[i] = input[i];
-        out("%c", outputValue[i]);
+string substring(string input, int position, int length)
+{
+    string p;
+    int c;
+    
+    p = csta malloc(length + 1);
+    
+    if p == null: {
+        out("Unable to allocate memory.");
+        csta exit(1);
     }
-    return outputValue;
+    
+    for c = 0; c < length; c++: {
+        // p[c] => *(p + c)
+        // input[position - 1] => *(input + position - 1)
+        p[c] = input[position - 1];
+        input++;  
+    }
+
+    p[c] = '\0';
+
+    return p;
 }
