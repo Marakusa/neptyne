@@ -18,7 +18,7 @@ long len(const string s): {
     return length;
 }
 
-string substring(string input, int position, int length) {
+string substring(string input, int position, int length): {
     string output;
     int i;
     

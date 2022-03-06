@@ -108,11 +108,12 @@ public static class Parser
             case TokenType.StatementIdentifier:
                 if (token.Value != "bring")
                 {
+                    var value = token.Value;
                     _index++;
                     token = _tokens[_index];
                     if (token.Type != TokenType.Colon)
                     {
-                        ParserToken node = new(TokenType.Expression, "", CurrentLine, CurrentLineIndex, CurrentFile);
+                        ParserToken node = new(TokenType.StatementIdentifier, value, CurrentLine, CurrentLineIndex, CurrentFile);
                     
                         while (token.Type != TokenType.Colon)
                         {
@@ -127,7 +128,7 @@ public static class Parser
                     }
                     else
                     {
-                        ParserToken node = new(TokenType.Expression, "", CurrentLine, CurrentLineIndex, CurrentFile);
+                        ParserToken node = new(TokenType.StatementIdentifier, value, CurrentLine, CurrentLineIndex, CurrentFile);
                         _index++;
                         return node;
                     }

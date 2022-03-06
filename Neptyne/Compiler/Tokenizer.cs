@@ -165,7 +165,7 @@ public static class Tokenizer
                 if (c == '\'')
                 {
                     tokens.Add(new Token(TokenType.CharacterLiteral, value, _row, _lineIndex, name));
-                    break;
+                    continue;
                 }
                 throw new CompilerException($"Unexpected token '{c}'", name, _row, _lineIndex);
             }
