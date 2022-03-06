@@ -118,6 +118,26 @@ public class Compiler
                 
                 if (node.Type == TokenType.StatementTerminator)
                 {
+                    if (_currentFunction != null)
+                    {
+                        if (_currentFunction.Variables.Find(f => f.Name == name) != null)
+                            throw ThrowException($"Variable named '{name}' already exists");
+                                    
+                        _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+
+                        if (!array)
+                            _currentFunction.Block.Add(type == "string"
+                                ? new Statement($"char *{name};")
+                                : new Statement($"{type} {name};"));
+                        else
+                            _currentFunction.Block.Add(type == "string[]"
+                                ? new Statement($"char *{name}[1];")
+                                : new Statement($"{type[..^2]} {name}[1];"));
+                    }
+                    else
+                    {
+                        DeclareClassVariable(name, type, _statementKeywords.ToArray());
+                    }
                     EndStatement();
                     break;
                 }
@@ -171,23 +191,21 @@ public class Compiler
 
                                             node = Step();
 
-                                            if (node.Type == TokenType.StatementTerminator)
-                                            {
-                                                if (_currentFunction.Variables.Find(f => f.Name == name) != null)
-                                                    throw ThrowException($"Unexpected token '{name}'");
+                                            if (_currentFunction.Variables.Find(f => f.Name == name) != null)
+                                                throw ThrowException($"Unexpected token '{name}'");
 
-                                                assignValues.Add($"{assignFunction.Name}({p})");
-                                                if (node.Type != TokenType.StatementTerminator)
-                                                    node = CheckMathOperators(node, assignValues);
-                                                continue;
-                                            }
+                                            assignValues.Add($"{assignFunction.Name}({p})");
+                                            
+                                            if (node.Type != TokenType.StatementTerminator)
+                                                node = CheckMathOperators(node, assignValues);
+                                            continue;
                                         }
                                     }
                                 }
 
                                 throw ThrowException($"Unexpected token '{node.Value}'");
                             }
-                            else if (node.Type == TokenType.Operator)
+                            if (node.Type == TokenType.Operator)
                             {
                                 if (node.Value == "sizeof")
                                 {
@@ -216,7 +234,7 @@ public class Compiler
                                 }
                                 throw ThrowException($"Unexpected token '{node.Value}'");
                             }
-                            else if (GetLiteralType(node.Type) == GetLiteralType(type))
+                            if (GetLiteralType(node.Type) == GetLiteralType(type))
                             {
                                 var valueNode = node;
 

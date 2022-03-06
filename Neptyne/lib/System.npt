@@ -19,7 +19,7 @@ long len(const string s): {
 }
 
 string substring(string input, int position, int length): {
-    string output;
+    string output = "asa" + " yrdfg " + in("Test: ") + in("erfdts: ") + in(in("erfdts: ")) + in("fgxvcb: ") + " jjo";
     int i;
     
     output = csta malloc(length + 1);
