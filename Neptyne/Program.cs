@@ -21,7 +21,6 @@ namespace Neptyne
                 try
                 {
                     await CommandExecutor.Execute($"compile -R {args[0]}");
-                    Exit();
                 }
                 catch (CompilerException ex)
                 {
@@ -41,6 +40,7 @@ namespace Neptyne
                     Console.WriteLine($"{ex.Message} - Type \"help\" for more information.");
                     Console.ForegroundColor = defaultColor;
                 }
+                Exit();
             }
 
             Console.ForegroundColor = ConsoleColor.Gray;
