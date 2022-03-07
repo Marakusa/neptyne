@@ -60,10 +60,11 @@ namespace Neptyne
         {
             await Build(new[]
             {
-            "compile",
-            "/home/markus/repos/Neptyne/Neptyne/Test.npt",
-            "-R"
-        });
+                "compile",
+                "/home/markus/repos/Neptyne/Neptyne/Test.npt",
+                "-R",
+                "-D"
+            });
         }
 
         private static async Task Build(string[] args)
@@ -73,6 +74,7 @@ namespace Neptyne
             {
                 var filename = "";
                 var run = false;
+                var dontClean = false;
 
                 for (int i = 1; i < args.Length; i++)
                 {
@@ -82,6 +84,9 @@ namespace Neptyne
                         {
                             case "R":
                                 run = true;
+                                break;
+                            case "D":
+                                dontClean = true;
                                 break;
                             case "F":
                                 if (string.IsNullOrEmpty(filename) && i + 1 < args.Length)
@@ -184,6 +189,9 @@ namespace Neptyne
                 }
                 else
                     throw new Exception($"Script \"{filename}\" not found");
+            
+                if (!dontClean)
+                    CleanAfterBuild(file);
             }
             else
             {
@@ -198,10 +206,17 @@ namespace Neptyne
 
             if (writeFilePath != file.FullName && File.Exists(writeFilePath))
                 File.Delete(writeFilePath);
-            if (writeFilePath != file.FullName && File.Exists($"{writeFilePathNoExt}.o"))
-                File.Delete($"{writeFilePathNoExt}.o");
             if (writeFilePath != file.FullName && File.Exists(writeFilePathNoExt))
                 File.Delete(writeFilePathNoExt);
+        }
+        
+        private static void CleanAfterBuild(FileInfo file)
+        {
+            var writeFilePathNoExt = file.FullName.Substring(0, file.FullName.Length - file.Extension.Length);
+            var writeFilePath = $"{writeFilePathNoExt}.c";
+
+            if (writeFilePath != file.FullName && File.Exists(writeFilePath))
+                File.Delete(writeFilePath);
         }
     }
 

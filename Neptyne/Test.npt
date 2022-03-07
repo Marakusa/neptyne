@@ -1,8 +1,11 @@
 bring System;
 
+string test(string s, int a): {
+	return s;
+}
+
 void main: {
 	out("Hello world!");
-	out(in("Please enter your name: "));
-	//string name = in("Please enter your name: ");
-	//out("Hello %s!", name);
+	string name = in("Please enter your name: ");
+	out("Hello %s!", name);
 }

@@ -65,6 +65,7 @@ namespace Neptyne.Compiler
                 return;
 
             var node = _abstractSyntaxTree[_current];
+            Console.WriteLine(node.Value + "\n: " + node.Type.ToString());
             switch (node.Type)
             {
                 case TokenType.StatementTerminator:
@@ -145,14 +146,15 @@ namespace Neptyne.Compiler
                     else if (node.Type == TokenType.AssignmentOperator)
                     {
                         _arrayInitParams = "";
-                        var assignValues = HandleAssignStatement(node, array, name, type);
-
+                        
                         if (_currentFunction != null)
                         {
                             if (_currentFunction.Variables.Find(f => f.Name == name) != null)
                                 throw ThrowException($"Variable named '{name}' already exists");
 
                             _currentFunction.Variables.Add(new FunctionVariable(name, type, false));
+                            
+                            var assignValues = HandleAssignStatement(node, array, name, type);
 
                             if (!array)
                                 _currentFunction.Block.Add(type == "string"
@@ -350,6 +352,7 @@ namespace Neptyne.Compiler
                     }
 
                     var nameFunction = _functions.Find(f => f.Name == node.Value);
+                    Console.WriteLine(nameFunction);
                     if (nameFunction != null)
                     {
                         node = Step();
@@ -357,58 +360,9 @@ namespace Neptyne.Compiler
                         if (node.Type != TokenType.Expression)
                             throw ThrowException($"Unexpected token '{node.Value}'");
 
-                        var parameters = "";
-                        var i = 0;
-
-                        while (i < node.Params.Count)
-                        {
-                            if (node.Params[i].Type == TokenType.Name)
-                            {
-                                var assignVar = GetVariable(node.Params[i].Value);
-                                var assignFunc = _functions.Find(f => f.Name == node.Params[i].Value);
-                                var assignValues = new List<string>();
-
-                                if (assignVar != null)
-                                {
-                                    assignValues = HandleAssignStatement(node, false, assignVar.Name, assignVar.Type);
-                                }
-                                if (assignFunc != null)
-                                {
-                                    assignValues = HandleAssignStatement(node, false, assignFunc.Name, assignFunc.ReturnType);
-                                }
-
-                                parameters += CombineAssigns(assignValues);
-
-                                i++;
-
-                                if (i >= node.Params.Count)
-                                    continue;
-
-                                parameters += ", ";
-                                if (node.Params[i].Type != TokenType.Comma)
-                                    throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
-                                i++;
-                            }
-                            else
-                            {
-                                if (node.Params[i].Type == TokenType.StringLiteral)
-                                    parameters += $"\"{node.Params[i].Value}\"";
-                                else
-                                    parameters += node.Params[i].Value;
-
-                                i++;
-
-                                if (i >= node.Params.Count)
-                                    continue;
-
-                                parameters += ", ";
-                                if (node.Params[i].Type != TokenType.Comma)
-                                    throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
-                                i++;
-                            }
-                        }
-
-                        _currentFunction.Block.Add(new Statement($"{nameFunction.Name}({parameters});"));
+                        var callStatement = HandleCallStatement(node, false, nameFunction.Name, nameFunction.ReturnType);
+                        
+                        _currentFunction.Block.Add(new Statement($"{nameFunction.Name}({callStatement});"));
                         EndStatement();
                     }
                     else
@@ -566,6 +520,14 @@ namespace Neptyne.Compiler
             return assignValues;
         }
 
+        private string HandleCallStatement(ParserToken node, bool array, string name, string type)
+        {
+            if (node.Type != TokenType.Expression)
+                throw ThrowException($"Unexpected token '{node.Value}'");
+            return ParseParameters(node.Params, type);
+        }
+
+
         private ParserToken CheckMathOperators(ParserToken node, List<string> assignValues)
         {
             switch (node.Type)
@@ -653,16 +615,19 @@ namespace Neptyne.Compiler
                     if (nodeParams[i].Type != TokenType.Comma)
                         throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
                 }
-                else if (GetLiteralType(nodeParams[i].Type) == GetLiteralType(type))
+                else
                 {
                     if (GetLiteralType(nodeParams[i].Type) == LiteralType.String)
                         p += $"\"{nodeParams[i].Value}\", ";
                     else
                         p += $"{nodeParams[i].Value}, ";
-                }
-                else
-                {
-                    throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
+
+                    if (i + 1 >= nodeParams.Count)
+                        break;
+
+                    i++;
+                    if (nodeParams[i].Type != TokenType.Comma)
+                        throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
                 }
             }
 
