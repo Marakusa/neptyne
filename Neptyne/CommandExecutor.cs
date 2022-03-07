@@ -61,7 +61,8 @@ public static class CommandExecutor
         await Build(new []
         {
             "compile",
-            "/home/markus/repos/Neptyne/Neptyne/Test.npt"
+            "/home/markus/repos/Neptyne/Neptyne/Test.npt",
+            "-R"
         });
     }
 
@@ -70,7 +71,38 @@ public static class CommandExecutor
         const int minArgs = 1;
         if (args.Length > minArgs)
         {
-            FileInfo file = new(args[1]);
+            var filename = "";
+            var run = false;
+        
+            for (int i = 1; i < args.Length; i++)
+            {
+                if (args[i].StartsWith("-"))
+                {
+                    switch (args[i].Substring(1))
+                    {
+                        case "R":
+                            run = true;
+                            break;
+                        case "F":
+                            if (string.IsNullOrEmpty(filename) && i + 1 < args.Length)
+                            {
+                                i++;
+                                filename = args[i];
+                            }
+                            break;
+                    }
+                }
+                else
+                {
+                    if (string.IsNullOrEmpty(filename))
+                        filename = args[i];
+                }
+            }
+
+            if (filename == null)
+                throw new Exception("Script path not given");
+            
+            FileInfo file = new(filename);
             if (file.Exists)
             {
                 Console.WriteLine($"[{CompilerName}] Starting a compile process...");
@@ -87,7 +119,7 @@ public static class CommandExecutor
                 string compiled;
                 try
                 {
-                    compiled = NeptyneCompiler.Compile(await File.ReadAllTextAsync(args[1]), file.FullName);
+                    compiled = NeptyneCompiler.Compile(await File.ReadAllTextAsync(filename), file.FullName);
                 }
                 catch (CompilerException)
                 {
@@ -123,6 +155,20 @@ public static class CommandExecutor
                     {
                         Console.WriteLine($"[{CompilerName}] Build finished in {(DateTime.Now.Subtract(startTime).TotalMilliseconds / 1000):0.000}s");
 
+                        if (run)
+                        {
+                            using Process buildExecutable = new();
+
+                            buildExecutable.OutputDataReceived += (_, eventArgs) => Console.WriteLine(eventArgs.Data);
+                            buildExecutable.ErrorDataReceived += (_, eventArgs) => Console.WriteLine(eventArgs.Data);
+
+                            buildExecutable.StartInfo = new ProcessStartInfo(outputFullPath);
+
+                            buildExecutable.Start();
+                            await buildExecutable.WaitForExitAsync();
+
+                            await Exit(Array.Empty<string>());
+                        }
                     }
                     else
                     {
@@ -137,7 +183,7 @@ public static class CommandExecutor
                 }
             }
             else
-                throw new Exception($"Script \"{args[1]}\" not found");
+                throw new Exception($"Script \"{filename}\" not found");
         }
         else
         {

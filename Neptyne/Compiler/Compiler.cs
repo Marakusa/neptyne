@@ -344,7 +344,7 @@ public class Compiler
                     }
                     
                     assignValues = HandleAssignStatement(node, false, name, nameVariable.Type);
-                        
+                    
                     _currentFunction.Block.Add(new Statement($"{name}{CombineAssigns(assignValues)};"));
                     EndStatement();
                     break;
@@ -365,11 +365,20 @@ public class Compiler
                     {
                         if (node.Params[i].Type == TokenType.Name)
                         {
-                            var paramVariable = GetVariable(node.Params[i].Value);
-                            if (paramVariable == null)
-                                throw ThrowException($"Unexpected token '{node.Params[i].Value}'");
-                        
-                            parameters += paramVariable.Name;
+                            var assignVar = GetVariable(node.Params[i].Value);
+                            var assignFunc = _functions.Find(f => f.Name == node.Params[i].Value);
+                            var assignValues = new List<string>();
+                            
+                            if (assignVar != null)
+                            {
+                                assignValues = HandleAssignStatement(node, false, assignVar.Name, assignVar.Type);
+                            }
+                            if (assignFunc != null)
+                            {
+                                assignValues = HandleAssignStatement(node, false, assignFunc.Name, assignFunc.ReturnType);
+                            }
+                    
+                            parameters += CombineAssigns(assignValues);
 
                             i++;
 

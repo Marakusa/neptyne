@@ -18,7 +18,7 @@ public static class Program
 
         if (args.Length > 0)
         {
-            await CommandExecutor.Execute($"compile {args[0]}");
+            await CommandExecutor.Execute($"compile -R {args[0]}");
             Exit();
         }
         
