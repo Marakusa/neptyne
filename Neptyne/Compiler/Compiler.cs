@@ -28,6 +28,8 @@ public class Compiler
 
     private readonly List<Keyword> _statementKeywords = new();
 
+    private string _arrayInitParams = "";
+
     public string Compile(ParserToken abstractSyntaxTree)
     {
         _abstractSyntaxTree = abstractSyntaxTree.Params;
@@ -127,11 +129,11 @@ public class Compiler
 
                         if (!array)
                             _currentFunction.Block.Add(type == "string"
-                                ? new Statement($"char *{name};")
+                                ? new Statement($"char* {name};")
                                 : new Statement($"{type} {name};"));
                         else
                             _currentFunction.Block.Add(type == "string[]"
-                                ? new Statement($"char *{name}[1];")
+                                ? new Statement($"char* {name}[1];")
                                 : new Statement($"{type[..^2]} {name}[1];"));
                     }
                     else
@@ -143,129 +145,8 @@ public class Compiler
                 }
                 else if (node.Type == TokenType.AssignmentOperator)
                 {
-                    var arrayInitParams = "";
-                    var assignValues = new List<string>();
-
-                    node = Step();
-                    
-                    if (!array)
-                    {
-                        assignValues.Add("+");
-
-                        while (node.Type != TokenType.StatementTerminator)
-                        {
-                            if (node.Type == TokenType.Name)
-                            {
-                                var assignVariable = GetVariable(node.Value);
-                                if (assignVariable != null && type == assignVariable.Type)
-                                {
-                                    throw new NotImplementedException("variable assign");
-                                }
-
-                                var assignFunction = _functions.Find(f => f.Name == node.Value);
-                                if (assignFunction != null && type == assignFunction.ReturnType)
-                                {
-                                    node = Step();
-
-                                    if (assignFunction.Params.Count == 0)
-                                    {
-                                        if (node.Type == TokenType.Expression)
-                                            node = Step();
-
-                                        if (node.Type == TokenType.StatementTerminator)
-                                        {
-                                            if (_currentFunction.Variables.Find(f => f.Name == name) != null)
-                                                throw ThrowException($"Unexpected token '{name}'");
-
-                                            assignValues.Add($"{assignFunction.Name}()");
-                                            if (node.Type != TokenType.StatementTerminator)
-                                                node = CheckMathOperators(node, assignValues);
-                                            continue;
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (node.Type == TokenType.Expression)
-                                        {
-                                            string p = ParseParameters(node.Params, type);
-
-                                            node = Step();
-
-                                            if (_currentFunction.Variables.Find(f => f.Name == name) != null)
-                                                throw ThrowException($"Unexpected token '{name}'");
-
-                                            assignValues.Add($"{assignFunction.Name}({p})");
-                                            
-                                            if (node.Type != TokenType.StatementTerminator)
-                                                node = CheckMathOperators(node, assignValues);
-                                            continue;
-                                        }
-                                    }
-                                }
-
-                                throw ThrowException($"Unexpected token '{node.Value}'");
-                            }
-                            if (node.Type == TokenType.Operator)
-                            {
-                                if (node.Value == "sizeof")
-                                {
-                                    if (GetLiteralType(type) != LiteralType.Number)
-                                        throw ThrowException($"Can't convert from type '{type}' to a numeral type");
-
-                                    node = Step();
-                                    if (node.Type != TokenType.Expression)
-                                        throw ThrowException($"Unexpected token '{node.Value}'");
-
-                                    if (node.Params.Count != 1)
-                                        throw ThrowException($"Insufficient amount of parameters: 1 needed, {node.Params.Count} given");
-
-                                    if (node.Params[0].Type == TokenType.Name)
-                                    {
-                                        var variable = GetVariable(node.Params[0].Value);
-                                        if (variable == null || variable.Type == type)
-                                            throw ThrowException($"Unexpected token '{node.Params[0].Value}'");
-                                    }
-
-                                    assignValues.Add($"sizeof({node.Params[0].Value})");
-                                    node = Step();
-                                    if (node.Type != TokenType.StatementTerminator)
-                                        node = CheckMathOperators(node, assignValues);
-                                    continue;
-                                }
-                                throw ThrowException($"Unexpected token '{node.Value}'");
-                            }
-                            if (GetLiteralType(node.Type) == GetLiteralType(type))
-                            {
-                                var valueNode = node;
-
-                                assignValues.Add(type == "string"
-                                    ? $"\"{valueNode.Value}\""
-                                    : valueNode.Value);
-
-                                node = Step();
-                                if (node.Type != TokenType.StatementTerminator)
-                                    node = CheckMathOperators(node, assignValues);
-                                continue;
-                            }
-
-                            throw ThrowException($"Unexpected token '{node.Value}'");
-                        }
-                    }
-                    else
-                    {
-                        if (node.Type is TokenType.StatementTerminator or not TokenType.Brackets)
-                            throw ThrowException($"Unexpected token '{node.Value}'");
-
-                        var p = node.Params.Where(param => param.Type == TokenType.IntegerLiteral).Aggregate("", (current, param) => current + $"{param.Value}, ");
-                        
-                        if (p.Length > 0)
-                            p = p[..^2];
-                        
-                        arrayInitParams = p;
-                        node = Step();
-                        if (node.Type != TokenType.StatementTerminator)
-                            throw ThrowException($"; expected");
-                    }
+                    _arrayInitParams = "";
+                    var assignValues = HandleAssignStatement(node, array, name, type);
 
                     if (_currentFunction != null)
                     {
@@ -276,12 +157,12 @@ public class Compiler
 
                         if (!array)
                             _currentFunction.Block.Add(type == "string"
-                                ? new Statement($"char *{name}{CombineAssigns(assignValues)};")
+                                ? new Statement($"char* {name}{CombineAssigns(assignValues)};")
                                 : new Statement($"{type} {name}{CombineAssigns(assignValues)};"));
                         else
                             _currentFunction.Block.Add(type == "string[]"
-                                ? new Statement($"char *{name}[{arrayInitParams}]{CombineAssigns(assignValues)};")
-                                : new Statement($"{type[..^2]} {name}[{arrayInitParams}]{CombineAssigns(assignValues)};"));
+                                ? new Statement($"char* {name}[{_arrayInitParams}]{CombineAssigns(assignValues)};")
+                                : new Statement($"{type[..^2]} {name}[{_arrayInitParams}]{CombineAssigns(assignValues)};"));
                     }
                     else
                     {
@@ -430,7 +311,43 @@ public class Compiler
                 var nameVariable = GetVariable(node.Value);
                 if (nameVariable != null)
                 {
-                    throw new NotImplementedException("variable set");
+                    name = node.Value;
+                    node = Step();
+
+                    List<string> assignValues;
+                    var variable = GetVariable(name);
+                    var arrayIndex = "";
+                    
+                    if (node.Type == TokenType.Brackets && nameVariable.Type == "string")
+                    {
+                        arrayIndex = ParseParameters(node.Params, "int");
+                        node = Step();
+                        assignValues = HandleAssignStatement(node, true, name, nameVariable.Type);
+                            
+                        _currentFunction.Block.Add(new Statement($"{name}[{arrayIndex}]{CombineAssigns(assignValues)};"));
+                        EndStatement();
+                        break;
+                    }
+                    if (variable != null && variable.Type.EndsWith("[]"))
+                    {
+                        if (node.Type == TokenType.Brackets)
+                        {
+                            arrayIndex = ParseParameters(node.Params, "int");
+                            node = Step();
+                            assignValues = HandleAssignStatement(node, true, name, nameVariable.Type);
+                            
+                            _currentFunction.Block.Add(new Statement($"{name}[{arrayIndex}]{CombineAssigns(assignValues)};"));
+                            EndStatement();
+                            break;
+                        }
+                        throw ThrowException($"Unexpected token '{node.Value}'");
+                    }
+                    
+                    assignValues = HandleAssignStatement(node, false, name, nameVariable.Type);
+                        
+                    _currentFunction.Block.Add(new Statement($"{name}{CombineAssigns(assignValues)};"));
+                    EndStatement();
+                    break;
                 }
                 
                 var nameFunction = _functions.Find(f => f.Name == node.Value);
@@ -484,6 +401,7 @@ public class Compiler
                     }
 
                     _currentFunction.Block.Add(new Statement($"{nameFunction.Name}({parameters});"));
+                    EndStatement();
                 }
                 else
                     throw ThrowException($"Could not resolve symbol '{node.Value}'. Are you missing a library reference?");
@@ -491,6 +409,153 @@ public class Compiler
             default:
                 throw ThrowException($"Could not resolve symbol '{node.Value}'");
         }
+    }
+
+    private List<string> HandleAssignStatement(ParserToken node, bool array, string name, string type)
+    {
+        var assignValues = new List<string>();
+
+        node = Step();
+        
+        if (type == "string" && array || type == "char")
+        {
+            if (GetLiteralType(node.Type) == LiteralType.Character)
+            {
+                assignValues.Add($"'{node.Value}'");
+            }
+            else if (GetLiteralType(node.Type) == LiteralType.Number)
+            {
+                assignValues.Add(node.Value);
+            }
+            else
+                throw ThrowException($"Unexpected token '{node.Value}'");
+        }
+        else if (!array)
+        {
+            assignValues.Add("+");
+
+            while (node.Type != TokenType.StatementTerminator)
+            {
+                if (node.Type == TokenType.Name)
+                {
+                    var assignVariable = GetVariable(node.Value);
+                    if (assignVariable != null && type == assignVariable.Type)
+                    {
+                        throw new NotImplementedException("variable assign");
+                    }
+
+                    var assignFunction = _functions.Find(f => f.Name == node.Value);
+                    if (assignFunction != null && type == assignFunction.ReturnType)
+                    {
+                        node = Step();
+
+                        if (assignFunction.Params.Count == 0)
+                        {
+                            if (node.Type == TokenType.Expression)
+                                node = Step();
+
+                            if (node.Type == TokenType.StatementTerminator)
+                            {
+                                if (_currentFunction.Variables.Find(f => f.Name == name) != null)
+                                    throw ThrowException($"Unexpected token '{name}'");
+
+                                assignValues.Add($"{assignFunction.Name}()");
+                                if (node.Type != TokenType.StatementTerminator)
+                                    node = CheckMathOperators(node, assignValues);
+                                continue;
+                            }
+                        }
+                        else
+                        {
+                            if (node.Type == TokenType.Expression)
+                            {
+                                string p = ParseParameters(node.Params, type);
+
+                                node = Step();
+
+                                if (_currentFunction.Variables.Find(f => f.Name == name) == null)
+                                    throw ThrowException($"Unexpected token '{name}'");
+
+                                assignValues.Add($"{assignFunction.Name}({p})");
+
+                                if (node.Type != TokenType.StatementTerminator)
+                                    node = CheckMathOperators(node, assignValues);
+                                continue;
+                            }
+                        }
+                    }
+
+                    throw ThrowException($"Unexpected token '{node.Value}'");
+                }
+                if (node.Type == TokenType.Operator)
+                {
+                    if (node.Value == "sizeof")
+                    {
+                        if (GetLiteralType(type) != LiteralType.Number)
+                            throw ThrowException($"Can't convert from type '{type}' to a numeral type");
+
+                        node = Step();
+                        if (node.Type != TokenType.Expression)
+                            throw ThrowException($"Unexpected token '{node.Value}'");
+
+                        if (node.Params.Count != 1)
+                            throw ThrowException($"Insufficient amount of parameters: 1 needed, {node.Params.Count} given");
+
+                        if (node.Params[0].Type == TokenType.Name)
+                        {
+                            var variable = GetVariable(node.Params[0].Value);
+                            if (variable == null || variable.Type == type)
+                                throw ThrowException($"Unexpected token '{node.Params[0].Value}'");
+                        }
+
+                        assignValues.Add($"sizeof({node.Params[0].Value})");
+                        node = Step();
+                        if (node.Type != TokenType.StatementTerminator)
+                            node = CheckMathOperators(node, assignValues);
+                        continue;
+                    }
+                    throw ThrowException($"Unexpected token '{node.Value}'");
+                }
+                if (node.Type == TokenType.CStatement)
+                {
+                    assignValues.Add(node.Value.Substring(0, node.Value.Length - 1));
+                    break;
+                }
+                if (GetLiteralType(node.Type) == GetLiteralType(type))
+                {
+                    var valueNode = node;
+
+                    assignValues.Add(type == "string"
+                        ? $"\"{valueNode.Value}\""
+                        : valueNode.Value);
+
+                    node = Step();
+                    if (node.Type != TokenType.StatementTerminator)
+                        node = CheckMathOperators(node, assignValues);
+                    continue;
+                }
+
+                throw ThrowException($"Unexpected token '{node.Value}'");
+            }
+        }
+        else
+        {
+            if (node.Type is TokenType.StatementTerminator or not TokenType.Brackets)
+                throw ThrowException($"Unexpected token '{node.Value}'");
+
+            var p = node.Params.Where(param => param.Type == TokenType.IntegerLiteral)
+                .Aggregate("", (current, param) => current + $"{param.Value}, ");
+
+            if (p.Length > 0)
+                p = p[..^2];
+
+            _arrayInitParams = p;
+            node = Step();
+            if (node.Type != TokenType.StatementTerminator)
+                throw ThrowException($"; expected");
+        }
+
+        return assignValues;
     }
 
     private ParserToken CheckMathOperators(ParserToken node, List<string> assignValues)
@@ -523,6 +588,9 @@ public class Compiler
     private static string CombineAssigns(IReadOnlyList<string> assignValues)
     {
         var res = "";
+
+        if (assignValues.Count == 1)
+            return $" = {assignValues[0]}";
         
         for (var i = 0; i < assignValues.Count; i++)
         {
@@ -561,9 +629,10 @@ public class Compiler
                 else
                 {
                     var assignFunction = _functions.Find(f => f.Name == nodeParams[i].Value);
-                    if (assignFunction != null)
+                    if (assignFunction != null && i + 1 < nodeParams.Count && nodeParams[i + 1].Type == TokenType.Expression)
                     {
-                        p += $"{assignFunction.Name}({ParseParameters(assignFunction.ParamsTokens, type)}), ";
+                        i++;
+                        p += $"{assignFunction.Name}({ParseParameters(nodeParams[i].Params, type)}), ";
                     }
                     else
                         throw ThrowException($"Unexpected token '{nodeParams[i].Value}'");
@@ -657,6 +726,8 @@ public class Compiler
                 return LiteralType.Number;
             case TokenType.FloatLiteral:
                 return LiteralType.Float;
+            case TokenType.CharacterLiteral:
+                return LiteralType.Character;
         }
 
         throw ThrowException($"Invalid literal type '{type}'");

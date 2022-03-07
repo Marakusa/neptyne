@@ -42,7 +42,7 @@ public class Function
 
             for (var i = 0; i < Params.Count; i++)
             {
-                p += $"{(Params[i].Constant ? "const " : "")}{(Params[i].Type == "string" ? "char *" : Params[i].Type)} {Params[i].Name}";
+                p += $"{(Params[i].Constant ? "const " : "")}{(Params[i].Type == "string" ? "char*" : Params[i].Type)} {Params[i].Name}";
                 if (i + 1 < Params.Count)
                     p += ",";
             }
@@ -68,7 +68,7 @@ public class Function
     {
         var result = "";
         
-        result += $"{(ReturnType switch { "void" => "int", "string" => "char *", _ => ReturnType })} {Name}{GetParamsString()} {{\n";
+        result += $"{(ReturnType switch { "void" => "int", "string" => "char*", _ => ReturnType })} {Name}{GetParamsString()} {{\n";
         
         var containsReturn = false;
         foreach (var statement in Block)
