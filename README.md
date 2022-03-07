@@ -4,6 +4,7 @@ Neptyne is a simple programming language created just for fun and learning the c
 
 ### NOTICE: THIS PROJECT IS UNDER DEVELOPMENT AND CANNOT RUN ANY KIND OF COMPLEX CODE YET
 #### The example below is just a concept and may be changed over time
+#### TODO list: https://github.com/Marakusa/neptyne/projects/1
 
 ## Syntax example
 The syntax is a bit inspired from C and Python mixed.
