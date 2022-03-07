@@ -21,26 +21,33 @@ namespace Neptyne
                 try
                 {
                     await CommandExecutor.Execute($"compile -R {args[0]}");
+                    Exit();
+                    return;
                 }
                 catch (CompilerException ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.Message);
                     Console.ForegroundColor = defaultColor;
+                    Exit();
+                    return;
                 }
                 catch (DetailedException ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine(ex.Message);
                     Console.ForegroundColor = defaultColor;
+                    Exit();
+                    return;
                 }
                 catch (Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"{ex.Message} - Type \"help\" for more information.");
                     Console.ForegroundColor = defaultColor;
+                    Exit();
+                    return;
                 }
-                Exit();
             }
 
             Console.ForegroundColor = ConsoleColor.Gray;
