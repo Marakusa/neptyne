@@ -1,6 +1,7 @@
-namespace Neptyne.Compiler.Models;
-
-public enum Keyword
+namespace Neptyne.Compiler.Models
 {
-    Const, Readonly
+    public enum Keyword
+    {
+        Const, Readonly
+    }
 }

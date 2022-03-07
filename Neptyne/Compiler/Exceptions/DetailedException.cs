@@ -1,10 +1,11 @@
 using System;
 
-namespace Neptyne.Compiler.Exceptions;
-
-public class DetailedException : Exception
+namespace Neptyne.Compiler.Exceptions
 {
-    public DetailedException(string message) : base(message)
+    public class DetailedException : Exception
     {
+        public DetailedException(string message) : base(message)
+        {
+        }
     }
 }

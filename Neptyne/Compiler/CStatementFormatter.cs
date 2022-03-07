@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using Neptyne.Compiler.Models;
 
-namespace Neptyne.Compiler;
-
-public static class CStatementFormatter
+namespace Neptyne.Compiler
 {
-    public static string Format(IEnumerable<ParserToken> tokens)
+    public static class CStatementFormatter
     {
-        return string.Join(' ', tokens);
+        public static string Format(IEnumerable<ParserToken> tokens)
+        {
+            return string.Join(' ', tokens);
+        }
     }
 }

@@ -1,20 +1,21 @@
-namespace Neptyne.Compiler.Models;
-
-public class Variable
+namespace Neptyne.Compiler.Models
 {
-    public bool Readonly { get; }
-    
-    public bool Constant { get; }
-    
-    public string Type { get; }
-    
-    public string Name { get; }
-    
-    public Variable(bool isReadonly, string type, string name, bool constant = false)
+    public class Variable
     {
-        Readonly = isReadonly;
-        Type = type;
-        Name = name;
-        Constant = constant;
+        public bool Readonly { get; }
+
+        public bool Constant { get; }
+
+        public string Type { get; }
+
+        public string Name { get; }
+
+        public Variable(bool isReadonly, string type, string name, bool constant = false)
+        {
+            Readonly = isReadonly;
+            Type = type;
+            Name = name;
+            Constant = constant;
+        }
     }
 }
