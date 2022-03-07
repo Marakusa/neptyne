@@ -18,8 +18,29 @@ namespace Neptyne
 
             if (args.Length > 0)
             {
-                await CommandExecutor.Execute($"compile -R {args[0]}");
-                Exit();
+                try
+                {
+                    await CommandExecutor.Execute($"compile -R {args[0]}");
+                    Exit();
+                }
+                catch (CompilerException ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex.Message);
+                    Console.ForegroundColor = defaultColor;
+                }
+                catch (DetailedException ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine(ex.Message);
+                    Console.ForegroundColor = defaultColor;
+                }
+                catch (Exception ex)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine($"{ex.Message} - Type \"help\" for more information.");
+                    Console.ForegroundColor = defaultColor;
+                }
             }
 
             Console.ForegroundColor = ConsoleColor.Gray;
