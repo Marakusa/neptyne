@@ -1,4 +1,4 @@
-# ![LogoGithub](https://user-images.githubusercontent.com/29477753/155855309-2e2d8ff2-33a2-4717-9746-0a6ce814f7b8.svg)
+![LogoGithub](https://user-images.githubusercontent.com/29477753/157120167-e1b37d10-16be-4cf6-ab35-11352780bce3.svg)
 
 Neptyne is a simple programming language created just for fun and learning the compile process. The Neptyne compiler compiles Neptyne code to Assembly language.
 
