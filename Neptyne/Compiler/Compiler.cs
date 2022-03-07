@@ -65,7 +65,6 @@ namespace Neptyne.Compiler
                 return;
 
             var node = _abstractSyntaxTree[_current];
-            Console.WriteLine(node.Value + "\n: " + node.Type.ToString());
             switch (node.Type)
             {
                 case TokenType.StatementTerminator:
@@ -352,7 +351,6 @@ namespace Neptyne.Compiler
                     }
 
                     var nameFunction = _functions.Find(f => f.Name == node.Value);
-                    Console.WriteLine(nameFunction);
                     if (nameFunction != null)
                     {
                         node = Step();
