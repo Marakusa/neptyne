@@ -1,0 +1,4 @@
+/opt/clion/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/clion/bin/ninja/linux/ninja -G Ninja /home/markus/repos/neptyne
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/markus/repos/neptyne/cmake-build-debug
