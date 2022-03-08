@@ -1,6 +1,0 @@
-void out(string message) {
-    std.mov("rax", 4); // 4: Write
-    std.mov("rbx", 1); // 1: Exit
-    std.mov("rcx", message);
-    std.mov("rdx", message.length);
-}

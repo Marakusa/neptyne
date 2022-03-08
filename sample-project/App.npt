@@ -1,6 +1,0 @@
-bring System;
-
-void main: {
-    // Hello world app!
-    out("Hello world!");
-}

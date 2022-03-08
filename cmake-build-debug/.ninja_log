@@ -1,0 +1,5 @@
+# ninja log v5
+1	366	1646780429589353525	CMakeFiles/neptyne.dir/src/main.cpp.o	c5ddaff4a908307f
+1	182	1646780286667017252	CMakeFiles/neptyne.dir/src/logger.cpp.o	309838153aab632b
+0	16	1646780641711308994	CMakeFiles/neptyne.dir/src/builder.cpp.o	dab4e22024e10769
+16	83	1646780641774638932	neptyne	2351ca5b713c41f1
