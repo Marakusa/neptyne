@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,14 @@ namespace Neptyne
             {
                 try
                 {
-                    await CommandExecutor.Execute($"compile {args[0]}");
+                    if (File.Exists(args[0]))
+                    {
+                        await CommandExecutor.Execute($"compile {args[0]}");
+                    }
+                    else
+                    {
+                        await CommandExecutor.Execute(string.Join(" ", args));
+                    }
                     Exit();
                     return;
                 }
