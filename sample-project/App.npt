@@ -1,0 +1,7 @@
+bring System;
+
+int main: {
+    int a = 10;
+    out("%d", a);
+    return 0;
+}

@@ -20,7 +20,7 @@ namespace Neptyne
             {
                 try
                 {
-                    await CommandExecutor.Execute($"compile -R {args[0]}");
+                    await CommandExecutor.Execute($"compile {args[0]}");
                     Exit();
                     return;
                 }
