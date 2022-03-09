@@ -5,7 +5,6 @@
 #include <iostream>
 #include <filesystem>
 #include "builder.h"
-#include "logger.h"
 
 using namespace std;
 namespace fs = filesystem;
