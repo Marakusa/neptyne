@@ -3,6 +3,10 @@
 //
 
 #pragma once
-using namespace std;
 
-bool build(const string& file);
+
+class compiler {
+
+};
+
+void compile(const string& file);

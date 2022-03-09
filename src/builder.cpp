@@ -9,7 +9,7 @@
 using namespace std;
 namespace fs = filesystem;
 
-bool build(string file) {
+bool build(const string& file) {
     string path = fs::canonical(file);
     string input_filename = path.substr(path.find_last_of("/\\") + 1);
     string input_ext = path.substr(path.find_last_of('.'));
