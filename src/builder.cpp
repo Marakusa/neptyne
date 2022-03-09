@@ -2,14 +2,10 @@
 // Created by Markus Kannisto on 09/03/2022.
 //
 
-#include <iostream>
-#include <filesystem>
+#include "common_includes.h"
 #include "builder.h"
 #include "compiler/compiler.h"
 #include "compiler/InputScript.h"
-
-using namespace std;
-namespace fs = filesystem;
 
 bool build(const string &file) {
     InputScript script_file = InputScript(file);

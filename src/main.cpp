@@ -1,10 +1,6 @@
-#include <iostream>
-#include <filesystem>
+#include "common_includes.h"
 #include "builder.h"
 #include "logger.h"
-
-using namespace std;
-namespace fs = filesystem;
 
 int main(int argc, char* argv[]) {
     cout << "Neptyne v0.1.1" << endl;

@@ -4,11 +4,7 @@
 
 #pragma once
 
-#include <iostream>
-#include <filesystem>
-
-using namespace std;
-namespace fs = filesystem;
+#include "common_includes.h"
 
 class InputScript {
 public:
