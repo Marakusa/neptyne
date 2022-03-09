@@ -4,9 +4,10 @@
 
 #pragma once
 
+#include "InputScript.h"
 
 class compiler {
 
 };
 
-void compile(const string& file);
+void compile(const InputScript& script);

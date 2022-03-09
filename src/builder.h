@@ -5,4 +5,4 @@
 #pragma once
 using namespace std;
 
-bool build(const string& file);
+bool build(const string &file);

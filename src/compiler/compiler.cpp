@@ -5,10 +5,12 @@
 #include <iostream>
 #include "../utils/fileutils.h"
 #include "compiler.h"
+#include "InputScript.h"
 
 using namespace std;
 namespace fs = filesystem;
 
-void compile(const string& file) {
-    string code = read_file(file);
+void compile(const InputScript& script) {
+    string code = read_file(script.full_path);
+    cout << code << endl;
 }
