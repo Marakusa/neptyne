@@ -33,9 +33,9 @@
 
 ### JetBrains
 
-.cmake-build-debug
-.cmake-build-release
-.idea
+.cmake-build-debug/
+.cmake-build-release/
+.idea/
 
 # Gradle:
 .idea/gradle.xml
