@@ -5,9 +5,9 @@
 #include "../common_includes.h"
 #include "../utils/fileutils.h"
 #include "compiler.h"
-#include "InputScript.h"
+#include "NeptyneScript.h"
 
-void compile(const InputScript& script) {
+void compile(const NeptyneScript& script) {
     string code = read_file(script.full_path);
     cout << code << endl;
 }

@@ -6,7 +6,7 @@
 
 #include "common_includes.h"
 
-class InputScript {
+class NeptyneScript {
 public:
 
     string full_path;
@@ -17,7 +17,7 @@ public:
     string output_executable_path;
     string output_assembly_path;
 
-    InputScript(const string &file) {
+    NeptyneScript(const string &file) {
         full_path = fs::canonical(file);
         filename = full_path.substr(full_path.find_last_of("/\\") + 1);
         extension = filename.substr(filename.find_last_of('.'));

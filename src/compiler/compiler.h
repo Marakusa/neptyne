@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include "InputScript.h"
+#include "NeptyneScript.h"
 
 class compiler {
 
 };
 
-void compile(const InputScript& script);
+void compile(const NeptyneScript& script);

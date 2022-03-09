@@ -5,10 +5,10 @@
 #include "common_includes.h"
 #include "builder.h"
 #include "compiler/compiler.h"
-#include "compiler/InputScript.h"
+#include "compiler/NeptyneScript.h"
 
 bool build(const string &file) {
-    InputScript script_file = InputScript(file);
+    NeptyneScript script_file = NeptyneScript(file);
     cout << "Compile " << script_file.full_path << endl;
     cout << "Compile " << script_file.filename << endl;
     cout << "Compile " << script_file.extension << endl;
