@@ -1,8 +1,9 @@
 #include "common_includes.h"
 #include "builder.h"
 #include "logger.h"
+#include "compiler/CompilerException.h"
 
-int main(int argc, char* argv[]) {
+int main(int argc, char *argv[]) {
     cout << "Neptyne v0.1.1" << endl;
 
     try {
@@ -17,6 +18,9 @@ int main(int argc, char* argv[]) {
         } else {
             throw "Script not defined";
         }
+    }
+    catch (CompilerException &e) {
+        cout << e.get() << endl;
     }
     catch (const char *e) {
         Log("Error: %s", e);

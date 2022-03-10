@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <utility>
+
 #include "../common_includes.h"
 #include "TokenType.h"
 #include "NeptyneScript.h"
@@ -14,11 +16,11 @@ public:
     string value;
     int line;
     int column;
-    NeptyneScript *script_file;
+    NeptyneScript script_file;
 
-    Token(TokenType type, string &value, int line, int column, NeptyneScript *file) {
+    Token(TokenType type, string value, int line, int column, NeptyneScript &file) {
         this->type = type;
-        this->value = value;
+        this->value = std::move(value);
         this->line = line;
         this->column = column;
         this->script_file = file;

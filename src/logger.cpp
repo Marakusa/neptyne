@@ -7,7 +7,7 @@
 
 using namespace std;
 
-void Log(const char* format, ...) {
+void Log(const char *format, ...) {
     printf(format);
     cout << endl;
 }

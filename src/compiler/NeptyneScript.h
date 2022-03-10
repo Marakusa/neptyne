@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "common_includes.h"
+#include "../common_includes.h"
 
 class NeptyneScript {
 public:
@@ -26,4 +26,6 @@ public:
         output_executable_path = directory_path + name;
         output_assembly_path = output_executable_path + ".asm";
     }
+
+    NeptyneScript() {}
 };

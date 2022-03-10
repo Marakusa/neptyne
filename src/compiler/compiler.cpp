@@ -3,11 +3,13 @@
 //
 
 #include "../common_includes.h"
-#include "../utils/fileutils.h"
+#include "../utils/file_utils.h"
 #include "compiler.h"
 #include "NeptyneScript.h"
+#include "tokenizer.h"
 
-void compile(const NeptyneScript& script) {
+void compile(const NeptyneScript &script) {
     string code = read_file(script.full_path);
-    cout << code << endl;
+    NeptyneScript s = script;
+    vector<Token> tokens = tokenize(code, s);
 }

@@ -9,7 +9,7 @@ void out(const string format, ...): {
 
 string in(const string format, ...): {
     csta printf(format);
-    int size = sizeof(char) * 1024;
+    int size = sizeof(char)  *1024;
     string[] inputValue = [1];
     return csta fgets (inputValue, size, stdin);
 }
