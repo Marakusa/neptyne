@@ -67,16 +67,19 @@ vector<Token> tokenize(NeptyneScript &code_script) {
     for (i = 0; i < code.length(); i++) {
         current = code[i];
 
+        // Add tab offset so error displaying would appear right
         if (current == '\t') {
             tab_offset++;
         }
 
+        // Whitespace ignore
         if (std::regex_match(getString(current), whitespaceRegex)) {
             checkNextLine();
             continue;
         }
 
         switch (current) {
+            // Comments '//' and '/* ~~~ */'
             case '/': {
                 if (i + 1 >= code.length())
                     continue;
@@ -84,6 +87,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 incrementIndex();
 
                 switch (current) {
+                    // Single line comment '//'
                     case '/': {
                         while (i + 1 < code.length()) {
                             incrementIndex();
@@ -92,15 +96,18 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                         }
                         break;
                     }
+                    // Multiline comment '/* ~~~ */'
                     case '*': {
                         while (i + 1 < code.length()) {
                             incrementIndex();
 
+                            // Multiline comment end check '*/'
                             if (current != '*')
                                 continue;
 
                             incrementIndex();
 
+                            // Multiline comment end '*/'
                             if (current == '/')
                                 break;
                         }
@@ -112,7 +119,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Parentheses
+            // Parentheses '(' and ')'
             case '(': {
                 addToken(tokens, OpenParentheses);
                 break;
@@ -122,7 +129,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Braces
+            // Braces '{' and '}'
             case '{': {
                 addToken(tokens, OpenBraces);
                 break;
@@ -132,7 +139,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Brackets
+            // Brackets '[' and ']'
             case '[': {
                 addToken(tokens, OpenBrackets);
                 break;
@@ -192,11 +199,11 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Equals sign tokens
+            // Equals sign tokens '=' and '=='
             case '=': {
                 if (i + 1 < code.length())
                 {
-                    // Comparison operator
+                    // Comparison operator '=='
                     if (code[i + 1] == '=')
                     {
                         incrementIndex();
