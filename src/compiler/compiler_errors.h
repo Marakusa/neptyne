@@ -24,4 +24,4 @@ public:
     CompilerErrorType type;
 };
 
-void compilerError(CompilerErrorType code, const CompilerErrorInfo& error_info);
+void compilerError(CompilerErrorType code, const CompilerErrorInfo &error_info);

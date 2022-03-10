@@ -13,7 +13,7 @@ CompilerError::CompilerError(string error_code, string error_message, CompilerEr
 }
 
 map<CompilerErrorType, CompilerError> error_types = {
-        {UnexpectedToken, CompilerError("C1000", "Unexpected token '%v'", UnexpectedToken)},
+        {UnexpectedToken,    CompilerError("C1000", "Unexpected token '%v'", UnexpectedToken)},
         {TerminatorExpected, CompilerError("C1001", "; expected", TerminatorExpected)},
 };
 
@@ -50,7 +50,7 @@ const char *lineErrorPointer(string &result, int column) {
     result += "^~~~~~";
 }
 
-void compilerError(CompilerErrorType code, const CompilerErrorInfo& error_info) {
+void compilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) {
     // Get error from list
     CompilerError e = getErrorType(code);
 
@@ -67,7 +67,8 @@ void compilerError(CompilerErrorType code, const CompilerErrorInfo& error_info) 
     // Add code preview
     char line[8];
     lineNumber(line, error_info.line);
-    error_message += "\n" + convertToString(line, (int)strlen(line)) + "| " + error_info.file.code_lines[error_info.line - 1];
+    error_message +=
+            "\n" + convertToString(line, (int) strlen(line)) + "| " + error_info.file.code_lines[error_info.line - 1];
 
     // Offset error pointer
     string offsetPointer;

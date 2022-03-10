@@ -96,7 +96,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                         }
                         break;
                     }
-                    // Multiline comment '/* ~~~ */'
+                        // Multiline comment '/* ~~~ */'
                     case '*': {
                         while (i + 1 < code.length()) {
                             incrementIndex();
@@ -119,7 +119,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Parentheses '(' and ')'
+                // Parentheses '(' and ')'
             case '(': {
                 addToken(tokens, OpenParentheses);
                 break;
@@ -129,7 +129,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Braces '{' and '}'
+                // Braces '{' and '}'
             case '{': {
                 addToken(tokens, OpenBraces);
                 break;
@@ -139,7 +139,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Brackets '[' and ']'
+                // Brackets '[' and ']'
             case '[': {
                 addToken(tokens, OpenBrackets);
                 break;
@@ -149,11 +149,10 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // String literal
+                // String literal
             case '"': {
                 string value;
-                while (i + 1 < code.length())
-                {
+                while (i + 1 < code.length()) {
                     incrementIndex();
 
                     switch (current) {
@@ -174,7 +173,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Character literal
+                // Character literal
             case '\'': {
                 string value;
 
@@ -184,8 +183,7 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                     value += getString(current);
                     incrementIndex();
                     value += getString(current);
-                }
-                else {
+                } else {
                     value += getString(current);
                 }
 
@@ -199,13 +197,11 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 break;
             }
 
-            // Equals sign tokens '=' and '=='
+                // Equals sign tokens '=' and '=='
             case '=': {
-                if (i + 1 < code.length())
-                {
+                if (i + 1 < code.length()) {
                     // Comparison operator '=='
-                    if (code[i + 1] == '=')
-                    {
+                    if (code[i + 1] == '=') {
                         incrementIndex();
                         addToken(tokens, EqualityOperator, "==");
                         continue;

@@ -18,7 +18,7 @@ public:
         value = std::move(value_);
     }
 
-    NeptyneScript& file;
+    NeptyneScript &file;
     int line;
     int column;
     string value;
