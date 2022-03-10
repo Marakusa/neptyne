@@ -5,10 +5,12 @@
 #include <regex>
 #include "../common_includes.h"
 #include "tokenizer.h"
+#include "compiler_errors.h"
 
 int line, column, i;
 char current;
 string code;
+NeptyneScript script; // NOLINT(cert-err58-cpp)
 
 void increment_index() {
     i++;
@@ -27,20 +29,25 @@ void check_next_line() {
     }
 }
 
-void add_token(vector<Token> &tokens, NeptyneScript &current_script, TokenType type) {
-    tokens.emplace_back(OpenParentheses, get_string(current), line, column, current_script);
+void add_token(vector<Token> &tokens, TokenType type) {
+    tokens.emplace_back(OpenParentheses, getString(current), line, column, script);
 }
 
-void add_token(vector<Token> &tokens, NeptyneScript &current_script, TokenType type, const string &value) {
-    tokens.emplace_back(OpenParentheses, value, line, column, current_script);
+void add_token(vector<Token> &tokens, TokenType type, const string &value) {
+    tokens.emplace_back(OpenParentheses, value, line, column, script);
 }
 
-vector<Token> tokenize(const string &input_code, NeptyneScript &script) {
+CompilerErrorInfo getErrorInfo() {
+    return CompilerErrorInfo(script, line, column, getString(current));
+}
+
+vector<Token> tokenize(const string &input_code, NeptyneScript &code_script) {
     line = 1;
     column = 0;
     current = 0;
     code = input_code;
     i = -1;
+    script = code_script;
 
     vector<Token> tokens;
 
@@ -52,7 +59,7 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &script) {
     for (i = -1; i < code.length(); i++) {
         increment_index();
 
-        if (std::regex_match(get_string(current), whitespaceRegex)) {
+        if (std::regex_match(getString(current), whitespaceRegex)) {
             check_next_line();
             continue;
         }
@@ -93,30 +100,83 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &script) {
                 break;
             }
 
+            // Parentheses
             case '(': {
-                add_token(tokens, script, OpenParentheses);
+                add_token(tokens, OpenParentheses);
                 break;
             }
             case ')': {
-                add_token(tokens, script, CloseParentheses);
+                add_token(tokens, CloseParentheses);
                 break;
             }
 
+            // Braces
             case '{': {
-                add_token(tokens, script, OpenBraces);
+                add_token(tokens, OpenBraces);
                 break;
             }
             case '}': {
-                add_token(tokens, script, CloseBraces);
+                add_token(tokens, CloseBraces);
                 break;
             }
 
+            // Brackets
             case '[': {
-                add_token(tokens, script, OpenBrackets);
+                add_token(tokens, OpenBrackets);
                 break;
             }
             case ']': {
-                add_token(tokens, script, CloseBrackets);
+                add_token(tokens, CloseBrackets);
+                break;
+            }
+
+            // String literal
+            case '"': {
+                string value;
+                while (i + 1 < input_code.length())
+                {
+                    increment_index();
+
+                    switch (current) {
+                        case '\\': {
+                            value += getString(current);
+                            increment_index();
+                            value += getString(current);
+                        }
+                        case '"': {
+                            add_token(tokens, StringLiteral, value);
+                            break;
+                        }
+                        default: {
+                            value += getString(current);
+                        }
+                    }
+                }
+                break;
+            }
+
+            // Character literal
+            case '\'': {
+                string value;
+
+                increment_index();
+
+                if (current == '\\') {
+                    value += getString(current);
+                    increment_index();
+                    value += getString(current);
+                }
+                else {
+                    value += getString(current);
+                }
+
+                increment_index();
+
+                if (current == '\'') {
+                    add_token(tokens, CharacterLiteral, value);
+                    continue;
+                }
+                compilerError(UnexpectedToken, getErrorInfo());
                 break;
             }
         }

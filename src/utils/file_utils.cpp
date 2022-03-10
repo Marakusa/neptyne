@@ -4,7 +4,7 @@
 
 #include "file_utils.h"
 
-auto read_file(string_view path) -> string {
+auto readFile(string_view path) -> string {
     constexpr auto read_size = size_t(4096);
     auto stream = ifstream(path.data());
     stream.exceptions(ios_base::badbit);

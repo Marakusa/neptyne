@@ -6,4 +6,6 @@
 
 #include "../common_includes.h"
 
-std::string get_string(char x);
+std::string getString(char x);
+
+void replaceAll(std::string& str, const std::string& from, const std::string& to);

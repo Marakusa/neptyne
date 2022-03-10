@@ -7,4 +7,4 @@
 #include "../common_includes.h"
 #include <fstream>
 
-auto read_file(string_view path) -> string;
+auto readFile(string_view path) -> string;
