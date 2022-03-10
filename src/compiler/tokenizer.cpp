@@ -43,10 +43,10 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &script) {
 
     vector<Token> tokens;
 
-    const regex numberRegex {R"([0-9])"};
-    const regex floatRegex {R"([+-]?([0-9]*[.])?[0-9]+)"};
-    const regex nameRegex {R"~([a-zA-Z0-9_])~"};
-    const regex whitespaceRegex {R"~(\s)~"};
+    const regex numberRegex{R"([0-9])"};
+    const regex floatRegex{R"([+-]?([0-9]*[.])?[0-9]+)"};
+    const regex nameRegex{R"~([a-zA-Z0-9_])~"};
+    const regex whitespaceRegex{R"~(\s)~"};
 
     for (i = -1; i < code.length(); i++) {
         increment_index();
@@ -56,45 +56,68 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &script) {
             continue;
         }
 
-        if (current == '/') {
-            if (i + 1 >= input_code.length())
-                continue;
+        switch (current) {
+            case '/': {
+                if (i + 1 >= input_code.length())
+                    continue;
 
-            increment_index();
+                increment_index();
 
-            switch (current) {
-                case '/': {
-                    while (i + 1 < input_code.length()) {
-                        increment_index();
-                        check_next_line();
+                switch (current) {
+                    case '/': {
+                        while (i + 1 < input_code.length()) {
+                            increment_index();
+                            check_next_line();
+                            break;
+                        }
                         break;
                     }
-                    break;
-                }
-                case '*': {
-                    while (i + 1 < input_code.length()) {
-                        increment_index();
+                    case '*': {
+                        while (i + 1 < input_code.length()) {
+                            increment_index();
 
-                        if (current != '*')
-                            continue;
+                            if (current != '*')
+                                continue;
 
-                        increment_index();
+                            increment_index();
 
-                        if (current == '/')
-                            break;
+                            if (current == '/')
+                                break;
+                        }
+                        break;
                     }
-                    break;
+                    default:
+                        break;
                 }
-                default: {
-                    throw "";
-                }
+                break;
             }
-        }
-        else if (current == '(') {
-            add_token(tokens, script, OpenParentheses);
-        }
-        else if (current == ')') {
-            add_token(tokens, script, CloseParentheses);
+
+            case '(': {
+                add_token(tokens, script, OpenParentheses);
+                break;
+            }
+            case ')': {
+                add_token(tokens, script, CloseParentheses);
+                break;
+            }
+
+            case '{': {
+                add_token(tokens, script, OpenBraces);
+                break;
+            }
+            case '}': {
+                add_token(tokens, script, CloseBraces);
+                break;
+            }
+
+            case '[': {
+                add_token(tokens, script, OpenBrackets);
+                break;
+            }
+            case ']': {
+                add_token(tokens, script, CloseBrackets);
+                break;
+            }
         }
     }
 
