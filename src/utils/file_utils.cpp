@@ -11,7 +11,7 @@ auto read_file(string_view path) -> string {
 
     auto out = string();
     auto buf = string(read_size, '\0');
-    while (stream.read( &buf[0], read_size)) {
+    while (stream.read(&buf[0], read_size)) {
         out.append(buf, 0, stream.gcount());
     }
     out.append(buf, 0, stream.gcount());

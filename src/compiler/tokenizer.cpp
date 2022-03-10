@@ -30,6 +30,7 @@ void check_next_line() {
 void add_token(vector<Token> &tokens, NeptyneScript &current_script, TokenType type) {
     tokens.emplace_back(OpenParentheses, get_string(current), line, column, current_script);
 }
+
 void add_token(vector<Token> &tokens, NeptyneScript &current_script, TokenType type, const string &value) {
     tokens.emplace_back(OpenParentheses, value, line, column, current_script);
 }
