@@ -8,12 +8,12 @@
 #include "NeptyneScript.h"
 #include "tokenizer.h"
 
-void compile(const NeptyneScript &script) {
-    string code = readFile(script.full_path);
+void Compile(const NeptyneScript &script) {
+    string code = ReadFile(script.full_path_);
     NeptyneScript s = script;
-    s.code = code;
+    s.code_ = code;
     vector<string> lines;
-    split(lines, code, "\n");
-    s.code_lines = lines;
-    vector<Token> tokens = tokenize(s);
+	Split(lines, code, "\n");
+    s.code_lines_ = lines;
+    vector<Token> tokens = Tokenize(s);
 }

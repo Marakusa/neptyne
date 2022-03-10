@@ -4,14 +4,14 @@
 
 #include "file_utils.h"
 
-auto readFile(string_view path) -> string {
-    constexpr auto read_size = size_t(4096);
+auto ReadFile(string_view path) -> string {
+    constexpr auto kReadSize = size_t(4096);
     auto stream = ifstream(path.data());
     stream.exceptions(ios_base::badbit);
 
     auto out = string();
-    auto buf = string(read_size, '\0');
-    while (stream.read(&buf[0], read_size)) {
+    auto buf = string(kReadSize, '\0');
+    while (stream.read(&buf[0], kReadSize)) {
         out.append(buf, 0, stream.gcount());
     }
     out.append(buf, 0, stream.gcount());

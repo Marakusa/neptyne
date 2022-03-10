@@ -4,12 +4,12 @@
 
 #include "string_utils.h"
 
-string getString(char x) {
+string GetString(char x) {
     string s(1, x);
     return s;
 }
 
-string convertToString(char *a, int size) {
+string ConvertToString(char *a, int size) {
     string s;
     for (int i = 0; i < size; i++) {
         s += a[i];
@@ -17,7 +17,7 @@ string convertToString(char *a, int size) {
     return s;
 }
 
-void replaceAll(string &str, const string &from, const string &to) {
+void ReplaceAll(string &str, const string &from, const string &to) {
     if (from.empty())
         return;
     size_t start_pos = 0;
@@ -27,7 +27,7 @@ void replaceAll(string &str, const string &from, const string &to) {
     }
 }
 
-void split(std::vector<std::string> &result, const std::string &s, const std::string &del) {
+void Split(std::vector<std::string> &result, const std::string &s, const std::string &del) {
     unsigned int start = 0;
     unsigned int end = s.find(del);
 

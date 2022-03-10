@@ -7,10 +7,10 @@
 #include <vector>
 #include "../common_includes.h"
 
-std::string getString(char x);
+std::string GetString(char x);
 
-std::string convertToString(char *a, int size);
+std::string ConvertToString(char *a, int size);
 
-void replaceAll(std::string &str, const std::string &from, const std::string &to);
+void ReplaceAll(std::string &str, const std::string &from, const std::string &to);
 
-void split(std::vector<std::string> &result, const std::string &s, const std::string &del);
+void Split(std::vector<std::string> &result, const std::string &s, const std::string &del);

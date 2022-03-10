@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
             string f = string(argv[1]);
             if (fs::exists(f)) {
                 Log("Build started");
-                build(f);
+              Build(f);
             } else {
                 throw "Script not found";
             }
@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
         }
     }
     catch (CompilerException &e) {
-        cout << e.get() << endl;
+        cout << e.Get() << endl;
     }
     catch (const char *e) {
         Log("Error: %s", e);

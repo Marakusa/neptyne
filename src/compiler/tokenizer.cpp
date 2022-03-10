@@ -12,54 +12,54 @@ char current;
 string code;
 NeptyneScript script; // NOLINT(cert-err58-cpp)
 
-void incrementIndex() {
+void IncrementIndex() {
     i++;
     current = code[i];
 }
 
-void nextLine() {
+void NextLine() {
     line++;
     line_begin_index = i + 1;
     tab_offset = 0;
 }
 
-void checkNextLine() {
+void CheckNextLine() {
     if (current == '\n') {
-        nextLine();
+	    NextLine();
     }
 }
 
-int getColumn() {
+int GetColumn() {
     return i - line_begin_index + 1 + tab_offset;
 }
 
-void addToken(vector<Token> &tokens, TokenType type) {
-    tokens.emplace_back(OpenParentheses, getString(current), line, getColumn(), script);
+void AddToken(vector<Token> &tokens, TokenType type) {
+    tokens.emplace_back(OPEN_PARENTHESES, GetString(current), line, GetColumn(), script);
 }
 
-void addToken(vector<Token> &tokens, TokenType type, const string &value) {
-    tokens.emplace_back(OpenParentheses, value, line, getColumn(), script);
+void AddToken(vector<Token> &tokens, TokenType type, const string &value) {
+    tokens.emplace_back(OPEN_PARENTHESES, value, line, GetColumn(), script);
 }
 
-CompilerErrorInfo getErrorInfo() {
-    return CompilerErrorInfo(script, line, getColumn(), getString(current));
+CompilerErrorInfo GetErrorInfo() {
+    return CompilerErrorInfo(script, line, GetColumn(), GetString(current));
 }
 
-vector<Token> tokenize(NeptyneScript &code_script) {
+vector<Token> Tokenize(NeptyneScript &code_script) {
     line = 1;
     line_begin_index = 0;
     current = 0;
-    code = code_script.code;
+    code = code_script.code_;
     i = 0;
     script = code_script;
     tab_offset = 0;
 
     vector<Token> tokens;
 
-    const regex numberRegex{R"([0-9])"};
-    const regex floatRegex{R"([+-]?([0-9]*[.])?[0-9]+)"};
-    const regex nameRegex{R"~([a-zA-Z0-9_])~"};
-    const regex whitespaceRegex{R"~(\s)~"};
+    const regex kNumberRegex{R"([0-9])"};
+    const regex kFloatRegex{R"([+-]?([0-9]*[.])?[0-9]+)"};
+    const regex kNameRegex{R"~([a-zA-Z0-9_])~"};
+    const regex kWhitespaceRegex{R"~(\s)~"};
 
     cout << i << endl;
     cout << code.length() << endl;
@@ -73,8 +73,8 @@ vector<Token> tokenize(NeptyneScript &code_script) {
         }
 
         // Whitespace ignore
-        if (std::regex_match(getString(current), whitespaceRegex)) {
-            checkNextLine();
+        if (std::regex_match(GetString(current), kWhitespaceRegex)) {
+	        CheckNextLine();
             continue;
         }
 
@@ -83,15 +83,15 @@ vector<Token> tokenize(NeptyneScript &code_script) {
             case '/': {
                 if (i + 1 >= code.length())
                     continue;
-
-                incrementIndex();
+	
+	            IncrementIndex();
 
                 switch (current) {
                     // Single line comment '//'
                     case '/': {
                         while (i + 1 < code.length()) {
-                            incrementIndex();
-                            checkNextLine();
+	                        IncrementIndex();
+	                        CheckNextLine();
                             break;
                         }
                         break;
@@ -99,13 +99,13 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                         // Multiline comment '/* ~~~ */'
                     case '*': {
                         while (i + 1 < code.length()) {
-                            incrementIndex();
+	                        IncrementIndex();
 
                             // Multiline comment end check '*/'
                             if (current != '*')
                                 continue;
-
-                            incrementIndex();
+	
+	                        IncrementIndex();
 
                             // Multiline comment end '*/'
                             if (current == '/')
@@ -121,31 +121,31 @@ vector<Token> tokenize(NeptyneScript &code_script) {
 
                 // Parentheses '(' and ')'
             case '(': {
-                addToken(tokens, OpenParentheses);
+	            AddToken(tokens, OPEN_PARENTHESES);
                 break;
             }
             case ')': {
-                addToken(tokens, CloseParentheses);
+	            AddToken(tokens, CLOSE_PARENTHESES);
                 break;
             }
 
                 // Braces '{' and '}'
             case '{': {
-                addToken(tokens, OpenBraces);
+	            AddToken(tokens, OPEN_BRACES);
                 break;
             }
             case '}': {
-                addToken(tokens, CloseBraces);
+	            AddToken(tokens, CLOSE_BRACES);
                 break;
             }
 
                 // Brackets '[' and ']'
             case '[': {
-                addToken(tokens, OpenBrackets);
+	            AddToken(tokens, OPEN_BRACKETS);
                 break;
             }
             case ']': {
-                addToken(tokens, CloseBrackets);
+	            AddToken(tokens, CLOSE_BRACKETS);
                 break;
             }
 
@@ -153,20 +153,20 @@ vector<Token> tokenize(NeptyneScript &code_script) {
             case '"': {
                 string value;
                 while (i + 1 < code.length()) {
-                    incrementIndex();
+	                IncrementIndex();
 
                     switch (current) {
                         case '\\': {
-                            value += getString(current);
-                            incrementIndex();
-                            value += getString(current);
+                            value += GetString(current);
+	                        IncrementIndex();
+                            value += GetString(current);
                         }
                         case '"': {
-                            addToken(tokens, StringLiteral, value);
+	                        AddToken(tokens, STRING_LITERAL, value);
                             break;
                         }
                         default: {
-                            value += getString(current);
+                            value += GetString(current);
                         }
                     }
                 }
@@ -176,24 +176,24 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 // Character literal
             case '\'': {
                 string value;
-
-                incrementIndex();
+	
+	            IncrementIndex();
 
                 if (current == '\\') {
-                    value += getString(current);
-                    incrementIndex();
-                    value += getString(current);
+                    value += GetString(current);
+	                IncrementIndex();
+                    value += GetString(current);
                 } else {
-                    value += getString(current);
+                    value += GetString(current);
                 }
-
-                incrementIndex();
+	
+	            IncrementIndex();
 
                 if (current == '\'') {
-                    addToken(tokens, CharacterLiteral, value);
+	                AddToken(tokens, CHARACTER_LITERAL, value);
                     continue;
                 }
-                compilerError(UnexpectedToken, getErrorInfo());
+              CompilerError(UNEXPECTED_TOKEN, GetErrorInfo());
                 break;
             }
 
@@ -202,16 +202,15 @@ vector<Token> tokenize(NeptyneScript &code_script) {
                 if (i + 1 < code.length()) {
                     // Comparison operator '=='
                     if (code[i + 1] == '=') {
-                        incrementIndex();
-                        addToken(tokens, EqualityOperator, "==");
+	                    IncrementIndex();
+	                    AddToken(tokens, EQUALITY_OPERATOR, "==");
                         continue;
                     }
                 }
-                addToken(tokens, AssignmentOperator, getString(current));
+	            AddToken(tokens, ASSIGNMENT_OPERATOR, GetString(current));
             }
 
-            default:
-                compilerError(UnexpectedToken, getErrorInfo());
+            default:CompilerError(UNEXPECTED_TOKEN, GetErrorInfo());
                 break;
         }
     }

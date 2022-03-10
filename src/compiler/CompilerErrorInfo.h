@@ -11,17 +11,17 @@
 
 class CompilerErrorInfo {
 public:
-    CompilerErrorInfo(NeptyneScript &file_, int line_, int column_, string value_) : file(file_) {
-        file = file_;
-        line = line_;
-        column = column_;
-        value = std::move(value_);
+    CompilerErrorInfo(NeptyneScript &file, int line, int column, string value) : file_(file) {
+        file = file;
+        line = line;
+        column = column;
+        value = std::move(value);
     }
 
-    NeptyneScript &file;
-    int line;
-    int column;
-    string value;
+    NeptyneScript &file_;
+    int line_;
+    int column_;
+    string value_;
 };
 
 

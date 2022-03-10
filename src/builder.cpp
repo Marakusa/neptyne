@@ -7,9 +7,9 @@
 #include "compiler/compiler.h"
 #include "compiler/NeptyneScript.h"
 
-bool build(const string &file) {
+bool Build(const string &file) {
     NeptyneScript script_file = NeptyneScript(file);
-    cout << "Compile " << script_file.full_path << endl;
-    compile(script_file);
+    cout << "Compile " << script_file.full_path_ << endl;
+	Compile(script_file);
     return true;
 }

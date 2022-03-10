@@ -6,4 +6,4 @@
 
 #include "NeptyneScript.h"
 
-void compile(const NeptyneScript &script);
+void Compile(const NeptyneScript &script);

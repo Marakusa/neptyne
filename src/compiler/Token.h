@@ -12,17 +12,17 @@
 
 class Token {
 public:
-    TokenType type;
-    string value;
-    int line;
-    int column;
-    NeptyneScript script_file;
+    TokenType type_;
+    string value_;
+    int line_;
+    int column_;
+    NeptyneScript script_file_;
 
     Token(TokenType type, string value, int line, int column, NeptyneScript &file) {
-        this->type = type;
-        this->value = std::move(value);
-        this->line = line;
-        this->column = column;
-        this->script_file = file;
+        this->type_ = type;
+        this->value_ = std::move(value);
+        this->line_ = line;
+        this->column_ = column;
+        this->script_file_ = file;
     }
 };
