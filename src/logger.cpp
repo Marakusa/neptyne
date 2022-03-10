@@ -8,6 +8,6 @@
 using namespace std;
 
 void Log(const char *format, ...) {
-    printf(format);
-    cout << endl;
+	printf(format);
+	cout << endl;
 }

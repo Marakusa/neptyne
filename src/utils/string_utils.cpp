@@ -5,37 +5,37 @@
 #include "string_utils.h"
 
 string GetString(char x) {
-    string s(1, x);
-    return s;
+	string s(1, x);
+	return s;
 }
 
 string ConvertToString(char *a, int size) {
-    string s;
-    for (int i = 0; i < size; i++) {
-        s += a[i];
-    }
-    return s;
+	string s;
+	for (int i = 0; i < size; i++) {
+		s += a[i];
+	}
+	return s;
 }
 
 void ReplaceAll(string &str, const string &from, const string &to) {
-    if (from.empty())
-        return;
-    size_t start_pos = 0;
-    while ((start_pos = str.find(from, start_pos)) != string::npos) {
-        str.replace(start_pos, from.length(), to);
-        start_pos += to.length();
-    }
+	if (from.empty())
+		return;
+	size_t start_pos = 0;
+	while ((start_pos = str.find(from, start_pos)) != string::npos) {
+		str.replace(start_pos, from.length(), to);
+		start_pos += to.length();
+	}
 }
 
 void Split(std::vector<std::string> &result, const std::string &s, const std::string &del) {
-    unsigned int start = 0;
-    unsigned int end = s.find(del);
-
-    while (end != -1) {
-        result.push_back(s.substr(start, end - start));
-        start = end + del.size();
-        end = s.find(del, start);
-    }
-
-    result.push_back(s.substr(start, end - start));
+	unsigned int start = 0;
+	unsigned int end = s.find(del);
+	
+	while (end != -1) {
+		result.push_back(s.substr(start, end - start));
+		start = end + del.size();
+		end = s.find(del, start);
+	}
+	
+	result.push_back(s.substr(start, end - start));
 }

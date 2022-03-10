@@ -11,18 +11,18 @@
 #include "NeptyneScript.h"
 
 class Token {
-public:
-    TokenType type_;
-    string value_;
-    int line_;
-    int column_;
-    NeptyneScript script_file_;
-
-    Token(TokenType type, string value, int line, int column, NeptyneScript &file) {
-        this->type_ = type;
-        this->value_ = std::move(value);
-        this->line_ = line;
-        this->column_ = column;
-        this->script_file_ = file;
-    }
+ public:
+  TokenType type_;
+  string value_;
+  int line_;
+  int column_;
+  NeptyneScript script_file_;
+  
+  Token(TokenType type, string value, int line, int column, NeptyneScript &file) {
+	  this->type_ = type;
+	  this->value_ = std::move(value);
+	  this->line_ = line;
+	  this->column_ = column;
+	  this->script_file_ = file;
+  }
 };

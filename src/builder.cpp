@@ -8,8 +8,8 @@
 #include "compiler/NeptyneScript.h"
 
 bool Build(const string &file) {
-    NeptyneScript script_file = NeptyneScript(file);
-    cout << "Compile " << script_file.full_path_ << endl;
+	NeptyneScript script_file = NeptyneScript(file);
+	cout << "Compile " << script_file.full_path_ << endl;
 	Compile(script_file);
-    return true;
+	return true;
 }

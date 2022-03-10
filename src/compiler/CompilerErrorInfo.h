@@ -4,24 +4,23 @@
 
 #pragma once
 
-
 #include <utility>
 
 #include "NeptyneScript.h"
 
 class CompilerErrorInfo {
-public:
-    CompilerErrorInfo(NeptyneScript &file, int line, int column, string value) : file_(file) {
-        file = file;
-        line = line;
-        column = column;
-        value = std::move(value);
-    }
-
-    NeptyneScript &file_;
-    int line_;
-    int column_;
-    string value_;
+ public:
+  CompilerErrorInfo(NeptyneScript &file, int line, int column, string value) : file_(file) {
+	  file = file;
+	  line = line;
+	  column = column;
+	  value = std::move(value);
+  }
+  
+  NeptyneScript &file_;
+  int line_;
+  int column_;
+  string value_;
 };
 
 
