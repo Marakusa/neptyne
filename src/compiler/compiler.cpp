@@ -11,5 +11,9 @@
 void compile(const NeptyneScript &script) {
     string code = readFile(script.full_path);
     NeptyneScript s = script;
-    vector<Token> tokens = tokenize(code, s);
+    s.code = code;
+    vector<string> lines;
+    split(lines, code, "\n");
+    s.code_lines = lines;
+    vector<Token> tokens = tokenize(s);
 }

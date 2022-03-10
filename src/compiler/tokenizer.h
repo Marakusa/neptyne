@@ -8,4 +8,4 @@
 #include "../common_includes.h"
 #include "Token.h"
 
-vector<Token> tokenize(const string &input_code, NeptyneScript &script);
+vector<Token> tokenize(NeptyneScript &code_script);

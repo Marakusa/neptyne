@@ -7,47 +7,52 @@
 #include "tokenizer.h"
 #include "compiler_errors.h"
 
-int line, column, i;
+int line, line_begin_index, i, tab_offset;
 char current;
 string code;
 NeptyneScript script; // NOLINT(cert-err58-cpp)
 
-void increment_index() {
+void incrementIndex() {
     i++;
-    column++;
     current = code[i];
 }
 
-void next_line() {
+void nextLine() {
     line++;
-    column = 0;
+    line_begin_index = i + 1;
+    tab_offset = 0;
 }
 
-void check_next_line() {
+void checkNextLine() {
     if (current == '\n') {
-        next_line();
+        nextLine();
     }
 }
 
-void add_token(vector<Token> &tokens, TokenType type) {
-    tokens.emplace_back(OpenParentheses, getString(current), line, column, script);
+int getColumn() {
+    return i - line_begin_index + 1 + tab_offset;
 }
 
-void add_token(vector<Token> &tokens, TokenType type, const string &value) {
-    tokens.emplace_back(OpenParentheses, value, line, column, script);
+void addToken(vector<Token> &tokens, TokenType type) {
+    tokens.emplace_back(OpenParentheses, getString(current), line, getColumn(), script);
+}
+
+void addToken(vector<Token> &tokens, TokenType type, const string &value) {
+    tokens.emplace_back(OpenParentheses, value, line, getColumn(), script);
 }
 
 CompilerErrorInfo getErrorInfo() {
-    return CompilerErrorInfo(script, line, column, getString(current));
+    return CompilerErrorInfo(script, line, getColumn(), getString(current));
 }
 
-vector<Token> tokenize(const string &input_code, NeptyneScript &code_script) {
+vector<Token> tokenize(NeptyneScript &code_script) {
     line = 1;
-    column = 0;
+    line_begin_index = 0;
     current = 0;
-    code = input_code;
-    i = -1;
+    code = code_script.code;
+    i = 0;
     script = code_script;
+    tab_offset = 0;
 
     vector<Token> tokens;
 
@@ -56,38 +61,45 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &code_script) {
     const regex nameRegex{R"~([a-zA-Z0-9_])~"};
     const regex whitespaceRegex{R"~(\s)~"};
 
-    for (i = -1; i < code.length(); i++) {
-        increment_index();
+    cout << i << endl;
+    cout << code.length() << endl;
+    cout << (i < code.length()) << endl;
+    for (i = 0; i < code.length(); i++) {
+        current = code[i];
+
+        if (current == '\t') {
+            tab_offset++;
+        }
 
         if (std::regex_match(getString(current), whitespaceRegex)) {
-            check_next_line();
+            checkNextLine();
             continue;
         }
 
         switch (current) {
             case '/': {
-                if (i + 1 >= input_code.length())
+                if (i + 1 >= code.length())
                     continue;
 
-                increment_index();
+                incrementIndex();
 
                 switch (current) {
                     case '/': {
-                        while (i + 1 < input_code.length()) {
-                            increment_index();
-                            check_next_line();
+                        while (i + 1 < code.length()) {
+                            incrementIndex();
+                            checkNextLine();
                             break;
                         }
                         break;
                     }
                     case '*': {
-                        while (i + 1 < input_code.length()) {
-                            increment_index();
+                        while (i + 1 < code.length()) {
+                            incrementIndex();
 
                             if (current != '*')
                                 continue;
 
-                            increment_index();
+                            incrementIndex();
 
                             if (current == '/')
                                 break;
@@ -102,49 +114,49 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &code_script) {
 
             // Parentheses
             case '(': {
-                add_token(tokens, OpenParentheses);
+                addToken(tokens, OpenParentheses);
                 break;
             }
             case ')': {
-                add_token(tokens, CloseParentheses);
+                addToken(tokens, CloseParentheses);
                 break;
             }
 
             // Braces
             case '{': {
-                add_token(tokens, OpenBraces);
+                addToken(tokens, OpenBraces);
                 break;
             }
             case '}': {
-                add_token(tokens, CloseBraces);
+                addToken(tokens, CloseBraces);
                 break;
             }
 
             // Brackets
             case '[': {
-                add_token(tokens, OpenBrackets);
+                addToken(tokens, OpenBrackets);
                 break;
             }
             case ']': {
-                add_token(tokens, CloseBrackets);
+                addToken(tokens, CloseBrackets);
                 break;
             }
 
             // String literal
             case '"': {
                 string value;
-                while (i + 1 < input_code.length())
+                while (i + 1 < code.length())
                 {
-                    increment_index();
+                    incrementIndex();
 
                     switch (current) {
                         case '\\': {
                             value += getString(current);
-                            increment_index();
+                            incrementIndex();
                             value += getString(current);
                         }
                         case '"': {
-                            add_token(tokens, StringLiteral, value);
+                            addToken(tokens, StringLiteral, value);
                             break;
                         }
                         default: {
@@ -159,26 +171,45 @@ vector<Token> tokenize(const string &input_code, NeptyneScript &code_script) {
             case '\'': {
                 string value;
 
-                increment_index();
+                incrementIndex();
 
                 if (current == '\\') {
                     value += getString(current);
-                    increment_index();
+                    incrementIndex();
                     value += getString(current);
                 }
                 else {
                     value += getString(current);
                 }
 
-                increment_index();
+                incrementIndex();
 
                 if (current == '\'') {
-                    add_token(tokens, CharacterLiteral, value);
+                    addToken(tokens, CharacterLiteral, value);
                     continue;
                 }
                 compilerError(UnexpectedToken, getErrorInfo());
                 break;
             }
+
+            // Equals sign tokens
+            case '=': {
+                if (i + 1 < code.length())
+                {
+                    // Comparison operator
+                    if (code[i + 1] == '=')
+                    {
+                        incrementIndex();
+                        addToken(tokens, EqualityOperator, "==");
+                        continue;
+                    }
+                }
+                addToken(tokens, AssignmentOperator, getString(current));
+            }
+
+            default:
+                compilerError(UnexpectedToken, getErrorInfo());
+                break;
         }
     }
 

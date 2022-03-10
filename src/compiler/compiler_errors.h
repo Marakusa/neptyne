@@ -10,6 +10,7 @@
 #include "CompilerErrorInfo.h"
 
 enum CompilerErrorType {
+    Unidentified,
     UnexpectedToken,
     TerminatorExpected,
 };

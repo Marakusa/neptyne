@@ -8,7 +8,6 @@
 
 class NeptyneScript {
 public:
-
     string full_path;
     string filename;
     string extension;
@@ -16,6 +15,9 @@ public:
     string directory_path;
     string output_executable_path;
     string output_assembly_path;
+
+    string code;
+    vector<string> code_lines;
 
     NeptyneScript(const string &file) {
         full_path = fs::canonical(file);
