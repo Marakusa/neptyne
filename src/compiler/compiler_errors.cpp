@@ -8,10 +8,16 @@
 
 class CompilerError GetErrorType(CompilerErrorType type) {
 	switch (type) {
-		case UNEXPECTED_TOKEN:return {"NPTC1001", "Unexpected token '%v'", type};
-		case TERMINATOR_EXPECTED:return {"NPTC1002", "Unexpected token '%v'", type};
-		case CANNOT_RESOLVE_SYMBOL:return {"NPTC1003", "Cannot resolve symbol '%v'", type};
-		case INVALID_NUMBER_LITERAL:return {"NPTC1004", "Invalid number literal", type};
+		// Tokenizer errors
+		case UNEXPECTED_TOKEN:return {"NPT1001", "Unexpected token '%v'", type};
+		case TERMINATOR_EXPECTED:return {"NPT1002", "Unexpected token '%v'", type};
+		case CANNOT_RESOLVE_SYMBOL:return {"NPT1003", "Cannot resolve symbol '%v'", type};
+		case INVALID_NUMBER_LITERAL:return {"NPT1004", "Invalid number literal", type};
+		
+		// Statement errors
+		case INVALID_BRING_STATEMENT_PLACEMENT:return {"NPT1101", "Bring statements can only be declared outside all"
+																   " declaration bodies", type};
+		
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}
 }
