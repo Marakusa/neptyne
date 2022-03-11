@@ -17,7 +17,7 @@ const regex kDoubleRegex{R"([+-]?([0-9]*[.])?[0-9]+)"};
 const regex kNameRegex{R"~([a-zA-Z0-9_])~"};
 const regex kWhitespaceRegex{R"~(\s)~"};
 
-const vector<string> types {
+const vector<string> types{
 	"bool",
 	"byte",
 	"char",
@@ -33,7 +33,7 @@ const vector<string> types {
 	"void"
 };
 
-const vector<string> keywords {
+const vector<string> keywords{
 	"const",
 	"readonly",
 	"bring",
@@ -58,7 +58,7 @@ void AddToken(TokenType type);
 void AddToken(TokenType type, const string &value);
 CompilerErrorInfo GetErrorInfo();
 
-TokenType GetTokenTyke(const string& value);
+TokenType GetTokenTyke(const string &value);
 
 vector<Token> Tokenize(NeptyneScript &code_script) {
 	line = 1;
@@ -375,8 +375,7 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 						IncrementIndex();
 						AddToken(PARAMETER_PACK, "...");
 						continue;
-					}
-					else if (regex_match(ConvertToString(code[i + 1]), kNumberRegex)) {
+					} else if (regex_match(ConvertToString(code[i + 1]), kNumberRegex)) {
 						TokenizeNumberLiteral();
 						continue;
 					}
@@ -397,7 +396,8 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 					string value;
 					value += ConvertToString(current);
 					
-					while (i + 1 < code.length() && regex_match(ConvertToString(code[i + 1]), kNameRegex) && regex_match(ConvertToString(code[i + 1]), kNumberRegex)) {
+					while (i + 1 < code.length() && regex_match(ConvertToString(code[i + 1]), kNameRegex)
+						&& regex_match(ConvertToString(code[i + 1]), kNumberRegex)) {
 						IncrementIndex();
 						value += ConvertToString(current);
 					}
@@ -432,8 +432,7 @@ void TokenizeNumberLiteral() {
 	value += ConvertToString(current);
 	while (i + 1 < code.length() && (regex_match(ConvertToString(code[i + 1]), kNameRegex) ||
 		regex_match(ConvertToString(code[i + 1]), kNumberRegex) ||
-		regex_match(ConvertToString(code[i + 1]), kDoubleRegex)))
-	{
+		regex_match(ConvertToString(code[i + 1]), kDoubleRegex))) {
 		// Integer literal '0'
 		if (regex_match(ConvertToString(code[i + 1]), kNumberRegex)) {
 			IncrementIndex();
@@ -483,11 +482,9 @@ void TokenizeNumberLiteral() {
 	
 	if (is_float) {
 		AddToken(FLOAT_LITERAL, value);
-	}
-	else if (is_double) {
+	} else if (is_double) {
 		AddToken(DOUBLE_LITERAL, value);
-	}
-	else {
+	} else {
 		AddToken(INTEGER_LITERAL, value);
 	}
 }
@@ -533,17 +530,14 @@ CompilerErrorInfo GetErrorInfo() {
 }
 
 // Get the token type of value and return it
-TokenType GetTokenTyke(const string& value) {
+TokenType GetTokenTyke(const string &value) {
 	if (value == "true" || value == "false") {
 		return BOOLEAN_LITERAL;
-	}
-	else if (find(types.begin(), types.end(), value) != types.end()) {
-		return IDENTIFIER;
-	}
-	else if (find(keywords.begin(), keywords.end(), value) != keywords.end()) {
+	} else if (find(types.begin(), types.end(), value) != types.end()) {
+		return VALUE_TYPE;
+	} else if (find(keywords.begin(), keywords.end(), value) != keywords.end()) {
 		return KEYWORD;
-	}
-	else if (value == "null") {
+	} else if (value == "null") {
 		return NULL_VALUE;
 	}
 	
