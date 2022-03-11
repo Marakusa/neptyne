@@ -19,7 +19,7 @@ class NeptyneScript {
   string code_;
   vector<string> code_lines_;
   
-  NeptyneScript(const string &file) {
+  explicit NeptyneScript(const string &file) {
 	  full_path_ = fs::canonical(file);
 	  filename_ = full_path_.substr(full_path_.find_last_of("/\\") + 1);
 	  extension_ = filename_.substr(filename_.find_last_of('.'));
@@ -29,5 +29,5 @@ class NeptyneScript {
 	  output_assembly_path_ = output_executable_path_ + ".asm";
   }
   
-  NeptyneScript() {}
+  NeptyneScript() = default;
 };

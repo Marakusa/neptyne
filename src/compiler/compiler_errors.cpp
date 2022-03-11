@@ -10,6 +10,8 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 	switch (type) {
 		case UNEXPECTED_TOKEN:return {"NPTC1001", "Unexpected token '%v'", type};
 		case TERMINATOR_EXPECTED:return {"NPTC1002", "Unexpected token '%v'", type};
+		case CANNOT_RESOLVE_SYMBOL:return {"NPTC1003", "Cannot resolve symbol '%v'", type};
+		case INVALID_NUMBER_LITERAL:return {"NPTC1004", "Invalid number literal", type};
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}
 }

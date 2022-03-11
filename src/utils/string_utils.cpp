@@ -4,25 +4,26 @@
 
 #include "string_utils.h"
 
-string GetString(char x) {
-	string s(1, x);
-	return s;
+string ConvertToString(char s) {
+	string res;
+	res += s;
+	return res;
 }
 
-string ConvertToString(char *a, int size) {
-	string s;
+string ConvertToString(char *s, int size) {
+	string res;
 	for (int i = 0; i < size; i++) {
-		s += a[i];
+		res += s[i];
 	}
-	return s;
+	return res;
 }
 
-void ReplaceAll(string &str, const string &from, const string &to) {
+void ReplaceAll(string &s, const string &from, const string &to) {
 	if (from.empty())
 		return;
 	size_t start_pos = 0;
-	while ((start_pos = str.find(from, start_pos)) != string::npos) {
-		str.replace(start_pos, from.length(), to);
+	while ((start_pos = s.find(from, start_pos)) != string::npos) {
+		s.replace(start_pos, from.length(), to);
 		start_pos += to.length();
 	}
 }
