@@ -7,6 +7,7 @@
 #include "compiler.h"
 #include "models/NeptyneScript.h"
 #include "tokenizer.h"
+#include "parser.h"
 
 void Compile(const NeptyneScript &script) {
 	// Read script file
@@ -21,4 +22,8 @@ void Compile(const NeptyneScript &script) {
 	
 	// Tokenize the script
 	vector<Token> tokens = Tokenize(s);
+	
+	// Parse tokens into a syntax tree
+	ParserToken root_token = ParserToken(ROOT, s.name_, 1, 1, s);
+	ParseToSyntaxTree(root_token, tokens, s);
 }
