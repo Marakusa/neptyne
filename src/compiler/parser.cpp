@@ -8,6 +8,7 @@ void ParseToSyntaxTree(ParserToken root, vector<Token> &input_tokens, NeptyneScr
 	int index = 0;
 	while (index < input_tokens.size()) {
 		root.parameters_.push_back(Walk(index, input_tokens, input_script));
+		index++;
 	}
 }
 
