@@ -45,5 +45,7 @@ enum TokenType {
   COMMA,
   VALUE_TYPE,
   PARAMETER_PACK,
-  NULL_VALUE
+  NULL_VALUE,
+  
+  EXPRESSION
 };

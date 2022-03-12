@@ -10,4 +10,3 @@
 #include "models/ParserToken.h"
 
 void ParseToSyntaxTree(ParserToken root, vector<Token> &input_tokens, NeptyneScript &input_script);
-ParserToken Walk(int &index, vector<struct Token> &tokens, NeptyneScript &script);

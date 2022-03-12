@@ -10,8 +10,9 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 	switch (type) {
 		// Tokenizer errors
 		case UNEXPECTED_TOKEN:return {"NPT1001", "Unexpected token '%v'", type};
-		case TERMINATOR_EXPECTED:return {"NPT1002", "Unexpected token '%v'", type};
-		case CANNOT_RESOLVE_SYMBOL:return {"NPT1003", "Cannot resolve symbol '%v'", type};
+		case CANNOT_RESOLVE_SYMBOL:return {"NPT1002", "Cannot resolve symbol '%v'", type};
+		case TERMINATOR_EXPECTED:return {"NPT1003", "; expected", type};
+		case SYMBOL_EXPECTED:return {"NPT1004", "%v expected", type};
 		case INVALID_NUMBER_LITERAL:return {"NPT1004", "Invalid number literal", type};
 			
 			// Statement errors
