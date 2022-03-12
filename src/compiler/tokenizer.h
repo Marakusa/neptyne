@@ -6,6 +6,6 @@
 
 #include <vector>
 #include "../common_includes.h"
-#include "Token.h"
+#include "models/Token.h"
 
 vector<Token> Tokenize(NeptyneScript &code_script);

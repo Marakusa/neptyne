@@ -4,7 +4,7 @@
 
 #include <cstring>
 #include "compiler_errors.h"
-#include "CompilerErrorInfo.h"
+#include "models/CompilerErrorInfo.h"
 
 class CompilerError GetErrorType(CompilerErrorType type) {
 	switch (type) {

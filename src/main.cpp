@@ -1,7 +1,7 @@
 #include "common_includes.h"
 #include "builder.h"
 #include "logger.h"
-#include "compiler/CompilerException.h"
+#include "compiler/models/CompilerException.h"
 
 int main(int argc, char *argv[]) {
 	cout << "Neptyne v0.1.1" << endl;

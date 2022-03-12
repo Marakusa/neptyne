@@ -5,7 +5,7 @@
 #include "../common_includes.h"
 #include "../utils/file_utils.h"
 #include "compiler.h"
-#include "NeptyneScript.h"
+#include "models/NeptyneScript.h"
 #include "tokenizer.h"
 
 void Compile(const NeptyneScript &script) {

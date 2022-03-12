@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "../common_includes.h"
+#include "../../common_includes.h"
 #include "TokenType.h"
 #include "NeptyneScript.h"
 

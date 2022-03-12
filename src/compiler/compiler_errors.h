@@ -6,8 +6,8 @@
 
 #include <map>
 #include "../common_includes.h"
-#include "NeptyneScript.h"
-#include "CompilerErrorInfo.h"
+#include "models/NeptyneScript.h"
+#include "models/CompilerErrorInfo.h"
 
 enum CompilerErrorType {
   UNASSIGNED,

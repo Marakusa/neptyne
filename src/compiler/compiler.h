@@ -4,6 +4,6 @@
 
 #pragma once
 
-#include "NeptyneScript.h"
+#include "models/NeptyneScript.h"
 
 void Compile(const NeptyneScript &script);
