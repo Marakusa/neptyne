@@ -396,8 +396,8 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 					string value;
 					value += ConvertToString(current);
 					
-					while (i + 1 < code.length() && regex_match(ConvertToString(code[i + 1]), kNameRegex)
-						&& regex_match(ConvertToString(code[i + 1]), kNumberRegex)) {
+					while (i + 1 < code.length() && (regex_match(ConvertToString(code[i + 1]), kNameRegex)
+						|| regex_match(ConvertToString(code[i + 1]), kNumberRegex))) {
 						IncrementIndex();
 						value += ConvertToString(current);
 					}
