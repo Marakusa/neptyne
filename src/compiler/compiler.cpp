@@ -10,20 +10,20 @@
 #include "parser.h"
 
 void Compile(const NeptyneScript &script) {
-	// Read script file
+	// Read parser_script file
 	string code = ReadFile(script.full_path_);
 	NeptyneScript s = script;
 	s.code_ = code;
 	
-	// Split script to lines
+	// Split parser_script to lines
 	vector<string> lines;
 	Split(lines, code, "\n");
 	s.code_lines_ = lines;
 	
-	// Tokenize the script
+	// Tokenize the parser_script
 	vector<Token> tokens = Tokenize(s);
 	
-	// Parse tokens into a syntax tree
+	// Parse parser_input_tokens into a syntax tree
 	ParserToken root_token = ParserToken(ROOT, s.name_, 1, 1, s);
 	ParseToSyntaxTree(root_token, tokens, s);
 }

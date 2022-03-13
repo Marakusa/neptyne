@@ -5,18 +5,19 @@ This table contains all the keywords. These keywords cannot be used in any ident
 
 :::row:::
     :::column:::
+        [alias](alias)  
         [bring](bring)  
         [const](const)  
         [else](else)  
-        [for](for)  
     :::column-end:::
     :::column:::
+        [for](for)  
         [if](if)  
         [readonly](readonly)  
         [return](return)  
-        [sizeof](sizeof)  
     :::column-end:::
     :::column:::
+        [sizeof](sizeof)  
         [while](while)  
     :::column-end:::
 :::row-end:::

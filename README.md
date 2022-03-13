@@ -12,7 +12,7 @@ Neptyne is a simple programming language created just for fun and learning the c
 ## Syntax example
 The syntax is a bit inspired from C and Python mixed.
 ```c
-// This will include a script file here
+// This will include a parser_script file here
 bring System;
 
 void main: {

@@ -57,8 +57,8 @@ void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) 
 	// Form an error message
 	string e_prefix = "[nptc] ";
 	string code_suffix = ": ";
-	string e_suffix = ": (Line " + to_string(error_info.line_) + ", Col " + to_string(error_info.column_) + ")\n\t\t";
-	string error_message = e_prefix + e.code_ + code_suffix + error_info.file_.full_path_ + e_suffix + message;
+	string e_suffix = ": (Line " + to_string(error_info.line_) + ", Col " + to_string(error_info.column_) + ")\n";
+	string error_message = e_prefix + e.code_ + code_suffix + error_info.file_.full_path_ + e_suffix;
 	
 	// Add code preview
 	char line[8];
@@ -70,6 +70,9 @@ void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) 
 	string offset_pointer;
 	LineErrorPointer(offset_pointer, error_info.column_);
 	error_message += "\n        | " + offset_pointer;
+	
+	// Add the error message
+	error_message += "\n\t\t| " + message;
 	
 	// Add bottom line
 	error_message += "\n--------------------------------------------------";

@@ -10,7 +10,7 @@
 int line, line_begin_index, i, tab_offset;
 char current;
 string code;
-NeptyneScript script; // NOLINT(cert-err58-cpp)
+NeptyneScript parser_script; // NOLINT(cert-err58-cpp)
 
 const regex kNumberRegex{R"([0-9])"};
 const regex kDoubleRegex{R"([+-]?([0-9]*[.])?[0-9]+)"};
@@ -45,7 +45,7 @@ const vector<string> keywords{
 	"return"
 };
 
-vector<Token> tokens;
+vector<Token> parser_input_tokens;
 
 void TokenizeNumberLiteral();
 
@@ -68,9 +68,9 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 	tab_offset = 0;
 	
 	code = code_script.code_;
-	script = code_script;
+	parser_script = code_script;
 	
-	tokens.clear();
+	parser_input_tokens.clear();
 	
 	for (i = 0; i < code.length(); i++) {
 		current = code[i];
@@ -212,7 +212,7 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 				continue;
 			}
 				
-				// Equals sign tokens '=' and '=='
+				// Equals sign parser_input_tokens '=' and '=='
 			case '=': {
 				if (i + 1 < code.length()) {
 					// Comparison operator '=='
@@ -412,7 +412,7 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 		}
 	}
 	
-	return tokens;
+	return parser_input_tokens;
 }
 
 // Tokenize the current number literal
@@ -509,24 +509,24 @@ void CheckNextLine() {
 	}
 }
 
-// Get the current column inside the given script file
+// Get the current column inside the given parser_script file
 int GetColumn() {
 	return i - line_begin_index + 1 + tab_offset;
 }
 
-// Add a token to the tokens list
+// Add a token to the parser_input_tokens list
 void AddToken(TokenType type) {
-	tokens.emplace_back(type, ConvertToString(current), line, GetColumn(), script);
+	parser_input_tokens.emplace_back(type, ConvertToString(current), line, GetColumn(), parser_script);
 }
 
-// Add a token to the tokens list with the given value
+// Add a token to the parser_input_tokens list with the given value
 void AddToken(TokenType type, const string &value) {
-	tokens.emplace_back(type, value, line, GetColumn(), script);
+	parser_input_tokens.emplace_back(type, value, line, GetColumn(), parser_script);
 }
 
 // Gets the character info of the current position of the tokenizer
 CompilerErrorInfo GetErrorInfo() {
-	return {script, line, GetColumn(), ConvertToString(current)};
+	return {parser_script, line, GetColumn(), ConvertToString(current)};
 }
 
 // Get the token type of value and return it
