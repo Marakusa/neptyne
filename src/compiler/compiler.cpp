@@ -8,6 +8,7 @@
 #include "models/NeptyneScript.h"
 #include "tokenizer.h"
 #include "parser.h"
+#include "models/assembly/AssemblyScript.h"
 
 void Compile(const NeptyneScript &script) {
 	// Read parser_script file
@@ -26,4 +27,7 @@ void Compile(const NeptyneScript &script) {
 	// Parse parser_input_tokens into a syntax tree
 	ParserToken root_token = ParserToken(ROOT, s.name_, 1, 1, s);
 	ParseToSyntaxTree(root_token, tokens, s);
+	
+	// Compile code into functions and statements
+	AssemblyScript assembly_script = AssemblyScript();
 }
