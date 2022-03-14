@@ -1,4 +1,7 @@
+const string message = "Hello world!\10\0";
+const int messageLength = 14;
+
 void main: {
-	int a = 5;
-	return a;
+    int a = 10;
+	return 0;
 }

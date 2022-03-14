@@ -11,8 +11,10 @@
 
 class AssemblyScript {
 public:
-  AssemblyScript() = default;
+  AssemblyScript() {
+	  AssemblyFunction start_function = AssemblyFunction("start");
+	  functions_.push_back(start_function);
+  }
   vector<AssemblyFunction> functions_;
-  vector<AssemblyStatement> statements_;
   vector<AssemblyVariable> variables_;
 };

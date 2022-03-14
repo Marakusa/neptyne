@@ -1,14 +1,17 @@
 #!/bin/sh
 
 # Call nasm assembler
-./linux/nasm -w+all -f elf64 -o test.o test.asm
+./linux/nasm -w+all -f elf64 -o $1.o $1.asm
 
-# Call linker
-ld -o test test.o
+if test -f "$1.o"; then
+    # Call linker
+    ld -s -o $1 $1.o
 
-./test
+    if test -f "$1"; then
+        ./$1
+    fi
 
-# Remove object files and executables
-rm test.o
-rm test
-
+    # Remove object files and executables
+    #rm $1.o
+    #rm $1
+fi

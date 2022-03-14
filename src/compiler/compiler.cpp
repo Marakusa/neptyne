@@ -29,5 +29,8 @@ void Compile(const NeptyneScript &script) {
 	ParseToSyntaxTree(root_token, tokens, s);
 	
 	// Compile code into functions and statements
+	
+	
+	
 	AssemblyScript assembly_script = AssemblyScript();
 }
