@@ -11,7 +11,7 @@
 
 class AssemblyFunction {
  public:
-  explicit AssemblyFunction(const string& function_name) {
+  AssemblyFunction(const string& function_name) {
 	  name_ = "_";
 	  name_ += function_name;
   }

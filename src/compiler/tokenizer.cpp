@@ -88,44 +88,49 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 		
 		// Comments '//' and '/* ~~~ */'
 		if (current == '/') {
-			if (i + 1 >= code.length())
-				continue;
-			
-			// No increment because '/' is also used as a division operator
-			
-			switch (code[i + 1]) {
-				// Single line comment '//'
-				case '/': {
-					IncrementIndex();
-					
-					while (i + 1 < code.length()) {
+			if (i + 1 < code.length()) {
+				// No increment because '/' is also used as a division operator
+				
+				switch (code[i + 1]) {
+					// Single line comment '//'
+					case '/': {
 						IncrementIndex();
-						CheckNextLine();
+						
+						while (i + 1 < code.length()) {
+							IncrementIndex();
+							if (current == '\n') {
+								NextLine();
+								break;
+							}
+						}
 						break;
 					}
-					break;
-				}
-					// Multiline comment '/* ~~~ */'
-				case '*': {
-					IncrementIndex();
-					
-					while (i + 1 < code.length()) {
+						// Multiline comment '/* ~~~ */'
+					case '*': {
 						IncrementIndex();
 						
-						// Multiline comment end check '*/'
-						if (current != '*')
-							continue;
-						
-						IncrementIndex();
-						
-						// Multiline comment end '*/'
-						if (current == '/')
-							break;
+						while (i + 1 < code.length()) {
+							IncrementIndex();
+							
+							// Multiline comment end check '*/'
+							if (current != '*')
+								continue;
+							
+							IncrementIndex();
+							
+							// Multiline comment end '*/'
+							if (current == '/')
+								break;
+						}
+						break;
 					}
-					break;
+					default: {
+						IncrementIndex();
+						break;
+					}
 				}
-				default:break;
 			}
+			continue;
 		}
 		
 		switch (current) {
@@ -165,24 +170,17 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 				while (i + 1 < code.length()) {
 					IncrementIndex();
 					
-					switch (current) {
-						// Character escapes
-						case '\\': {
-							value += ConvertToString(current);
-							IncrementIndex();
-							value += ConvertToString(current);
-						}
-							
-							// End of string literal
-						case '"': {
-							AddToken(STRING_LITERAL, value);
-							break;
-						}
-							
-							// String character
-						default: {
-							value += ConvertToString(current);
-						}
+					string s = ConvertToString(current);
+					if (s == "\\") {
+						value += s;
+						IncrementIndex();
+						value += ConvertToString(current);
+					}
+					else if (s == "\"") {
+						AddToken(STRING_LITERAL, value);
+					}
+					else {
+						value += ConvertToString(current);
 					}
 				}
 				continue;

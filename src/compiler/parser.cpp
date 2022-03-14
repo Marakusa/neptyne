@@ -31,6 +31,8 @@ void ParseToSyntaxTree(ParserToken root, vector<Token> &input_tokens, NeptyneScr
 ParserToken Walk() {
 	Token token = p_input_tokens[parser_index];
 	
+	cout << token.value_ << endl;
+	
 	switch (token.type_) {
 		case OPEN_PARENTHESES: {
 			token = NextToken();

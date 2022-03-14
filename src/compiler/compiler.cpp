@@ -30,7 +30,5 @@ void Compile(const NeptyneScript &script) {
 	
 	// Compile code into functions and statements
 	
-	
-	
-	AssemblyScript assembly_script = AssemblyScript();
+	//AssemblyScript assembly_script = AssemblyScript();
 }
