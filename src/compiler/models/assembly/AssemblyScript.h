@@ -12,7 +12,7 @@
 class AssemblyScript {
 public:
   AssemblyScript() {
-	  AssemblyFunction start_function = AssemblyFunction("start");
+	  AssemblyFunction start_function = AssemblyFunction("void", "start");
 	  functions_.push_back(start_function);
   }
   vector<AssemblyFunction> functions_;

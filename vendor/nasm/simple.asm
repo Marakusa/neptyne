@@ -1,6 +1,4 @@
 section .data
-	message:	db "Hello world!",10,0
-	message_L:	equ $-message
 
 section .text
 	global 	_start
@@ -15,7 +13,7 @@ _main:
 	push    rbp                     ; Save address of previous stack frame
 	mov     rbp, rsp                ; Address of current stack frame
 		
-	mov  	DWORD [rbp-0x8], 0x0a
+	mov  	DWORD [rbp-0x8], 99
 
     mov     eax, 0					  ; Set return value from this function to 0
 	pop		rbp						  ; Cleanup the stack

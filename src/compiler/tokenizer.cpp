@@ -97,11 +97,12 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 						IncrementIndex();
 						
 						while (i + 1 < code.length()) {
-							IncrementIndex();
+							current = code[i];
 							if (current == '\n') {
 								NextLine();
 								break;
 							}
+							IncrementIndex();
 						}
 						break;
 					}
@@ -110,17 +111,26 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 						IncrementIndex();
 						
 						while (i + 1 < code.length()) {
-							IncrementIndex();
+							current = code[i];
+							if (current == '\n') {
+								NextLine();
+								IncrementIndex();
+								continue;
+							}
 							
 							// Multiline comment end check '*/'
-							if (current != '*')
+							if (current != '*') {
+								IncrementIndex();
 								continue;
+							}
 							
 							IncrementIndex();
 							
 							// Multiline comment end '*/'
 							if (current == '/')
 								break;
+							
+							IncrementIndex();
 						}
 						break;
 					}

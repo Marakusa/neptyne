@@ -17,6 +17,9 @@ enum CompilerErrorType {
   SYMBOL_EXPECTED,
   INVALID_NUMBER_LITERAL,
   INVALID_BRING_STATEMENT_PLACEMENT,
+  EXPECTED_UNQUALIFIED_ID,
+  EXPECTED_EXPRESSION,
+  EXPECTED_FUNCTION_BODY,
 };
 
 class CompilerError {
@@ -32,4 +35,4 @@ class CompilerError {
   CompilerErrorType type_;
 };
 
-void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info);
+void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info, int offset = 0);

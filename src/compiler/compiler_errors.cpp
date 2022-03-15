@@ -20,6 +20,11 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 			return {"NPT1101", "Bring statements can only be declared outside all"
 			                   " declaration bodies", type};
 		
+			// The rest of the compiler errors
+		case EXPECTED_UNQUALIFIED_ID:return {"NPT1201", "Expected unqualified-id", type};
+		case EXPECTED_EXPRESSION:return {"NPT1202", "Expected expression", type};
+		case EXPECTED_FUNCTION_BODY:return {"NPT1203", "Expected function body after function declarator", type};
+		
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}
 }
@@ -46,7 +51,7 @@ const char *LineErrorPointer(string &result, int column) {
 	result += "^~~~~~";
 }
 
-void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) {
+void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info, int offset) {
 	// Get error from list
 	class CompilerError e = GetErrorType(code);
 	
@@ -57,7 +62,7 @@ void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) 
 	// Form an error message
 	string e_prefix = "[nptc] ";
 	string code_suffix = ": ";
-	string e_suffix = ": (Line " + to_string(error_info.line_) + ", Col " + to_string(error_info.column_) + ")\n";
+	string e_suffix = ": (Line " + to_string(error_info.line_) + ", Col " + to_string(error_info.column_ + offset) + ")\n";
 	string error_message = e_prefix + e.code_ + code_suffix + error_info.file_.full_path_ + e_suffix;
 	
 	// Add code preview
@@ -68,7 +73,7 @@ void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) 
 	
 	// Offset error pointer
 	string offset_pointer;
-	LineErrorPointer(offset_pointer, error_info.column_);
+	LineErrorPointer(offset_pointer, error_info.column_ + offset);
 	error_message += "\n        | " + offset_pointer;
 	
 	// Add the error message

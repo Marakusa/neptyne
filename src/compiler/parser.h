@@ -9,4 +9,4 @@
 #include "models/Token.h"
 #include "models/ParserToken.h"
 
-void ParseToSyntaxTree(ParserToken root, vector<Token> &input_tokens, NeptyneScript &input_script);
+void ParseToSyntaxTree(ParserToken &root, vector<Token> &input_tokens, NeptyneScript &input_script);
