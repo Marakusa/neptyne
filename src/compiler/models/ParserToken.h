@@ -25,3 +25,5 @@ class ParserToken {
 	  this->script_file_ = file;
   }
 };
+
+static ParserToken kNullToken = *new ParserToken(NULL_VALUE, "", 0, 0, kNullScript);

@@ -1,8 +1,8 @@
 /*const string message = "Hello world!\10\0";
 const int messageLength = 14;*/
-byte a = 0;
 
 void main: {
+    byte a = 33;
     //int a = 10;
 	//return 0;
 }

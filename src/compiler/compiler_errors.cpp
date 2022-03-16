@@ -25,6 +25,12 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 		case EXPECTED_EXPRESSION:return {"NPT1202", "Expected expression", type};
 		case EXPECTED_FUNCTION_BODY:return {"NPT1203", "Expected function body after function declarator", type};
 		case OUTSIDE_THE_RANGE:return {"NPT1204", "The value %v is outside the range of the given type", type};
+		case FUNCTION_DECLARATION_NOT_ALLOWED:return {"NPT1205", "Function declaration is not allowed here", type};
+		case VARIABLE_DECLARATION_NOT_ALLOWED:return {"NPT1206", "Variable declaration is not allowed here", type};
+		case FUNCTION_DEFINITION_NOT_ALLOWED:return {"NPT1207", "Function definition is not allowed here", type};
+		case VARIABLE_DEFINITION_NOT_ALLOWED:return {"NPT1208", "Variable definition is not allowed here", type};
+		case DEFINITION_NOT_ALLOWED:return {"NPT1209", "Variable or function definition is not allowed here", type};
+		case VARIABLE_EXISTS:return {"NPT1210", "Variable or function named %v already exists", type};
 		
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}

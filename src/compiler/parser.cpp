@@ -59,6 +59,7 @@ ParserToken Walk() {
 				
 				while (token.type_ != CLOSE_BRACES) {
 					node.parameters_.push_back(Walk());
+					NextToken(token);
 					token = p_input_tokens[parser_index];
 					if (parser_index + 1 >= p_input_tokens.size() && token.type_ != CLOSE_BRACES)
 						CompilerError(SYMBOL_EXPECTED, GetErrorInfo("}"));

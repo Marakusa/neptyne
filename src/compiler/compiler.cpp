@@ -18,16 +18,20 @@
 int compiler_index = 0;
 AssemblyScript assemblyScript;
 NeptyneScript neptyneScript;
+AssemblyFunction *currentFunction;
 
 CompilerErrorInfo GetErrorInfo(ParserToken &token);
 
 ParserToken Increment(vector<ParserToken> &tokens, CompilerErrorType fail, char v = 0);
 bool CheckIncrement(vector<ParserToken> &tokens);
 
-void CompilerStep(vector<ParserToken> tokens, ParserToken parent);
+void CompilerStep(vector<ParserToken> tokens, ParserToken *parent);
 bool EndStatement(vector<ParserToken> &tokens, bool scope = false);
 
 bool EqualType(vector<ParserToken>& expression_tokens, const string& type);
+
+void DefineVariable(const AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
+					ParserToken& name_token, bool declaration);
 
 void Compile(const NeptyneScript &script) {
 	// Read parser_script file
@@ -51,12 +55,23 @@ void Compile(const NeptyneScript &script) {
 	assemblyScript = AssemblyScript();
 	compiler_index = 0;
 	while (compiler_index < root_token.parameters_.size()) {
-		CompilerStep(root_token.parameters_, root_token);
+		CompilerStep(root_token.parameters_, &root_token);
 		compiler_index++;
+	}
+	
+	for (auto & function : assemblyScript.functions_) {
+		if (function.name_ != "_start") {
+			compiler_index = 0;
+			currentFunction = &function;
+			while (compiler_index < function.scope_tokens_.size()) {
+				CompilerStep(function.scope_tokens_, &function.scope_);
+				compiler_index++;
+			}
+		}
 	}
 }
 
-void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
+void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 	if (compiler_index >= tokens.size()) {
 		return;
 	}
@@ -74,6 +89,7 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 				break;
 			}
 			string name_value = token.value_;
+			ParserToken name_token = token;
 			
 			token = Increment(tokens, TERMINATOR_EXPECTED);
 			// Check if is declaration or a function
@@ -83,18 +99,20 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 					if (token.type_ != SCOPE) {
 						CompilerError(EXPECTED_FUNCTION_BODY, GetErrorInfo(token));
 						break;
-					}
-					else {
+					} else {
+						const ParserToken &scope = token;
 						if (EndStatement(tokens, true)) {
 							// Function declaration
-							AssemblyFunction func = AssemblyFunction(type, name_value);
-							assemblyScript.functions_.push_back(func);
-							break;
+							AssemblyFunction func = AssemblyFunction(type, name_value, scope);
+							if (parent->type_ == ROOT) {
+								assemblyScript.functions_.push_back(func);
+							} else {
+								CompilerError(FUNCTION_DEFINITION_NOT_ALLOWED, GetErrorInfo(token));
+							}
 						}
 						break;
 					}
-				}
-				else if (token.type_ == EXPRESSION) {
+				} else if (token.type_ == EXPRESSION) {
 					// TODO: Implement function parameters
 					throw "Function parameters not implemented yet";
 					/*token = Increment(tokens, SYMBOL_EXPECTED, ':');
@@ -111,7 +129,7 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 				if (EndStatement(tokens)) {
 					// Variable declaration
 					AssemblyVariable var = AssemblyVariable(type, name_value);
-					assemblyScript.variables_.push_back(var);
+					DefineVariable(var, token, parent, name_token, true);
 					break;
 				}
 				break;
@@ -121,6 +139,7 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 			
 			token = Increment(tokens, EXPECTED_EXPRESSION);
 			
+			// Variable definition expression
 			vector<ParserToken> expression_tokens;
 			while (compiler_index < tokens.size() && token.type_ != STATEMENT_TERMINATOR) {
 				expression_tokens.push_back(token);
@@ -140,8 +159,9 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 			
 			if (EqualType(expression_tokens, type)) {
 				if (EndStatement(tokens)) {
+					// Variable definition
 					AssemblyVariable var = AssemblyVariable(type, name_value, expression_tokens);
-					assemblyScript.variables_.push_back(var);
+					DefineVariable(var, token, parent, name_token, false);
 					break;
 				}
 			}
@@ -158,13 +178,63 @@ struct AssemblyVariableFinder {
   string name;
 };
 
-string GetDeclarationType(ParserToken& token) {
-	auto v = find_if(assemblyScript.variables_.begin(), assemblyScript.variables_.end(), AssemblyVariableFinder(token.value_));
+struct AssemblyFunctionFinder {
+  explicit AssemblyFunctionFinder(string  n) : name(std::move(n)) { }
+  bool operator () ( const AssemblyFunction & el) const  { return el.name_ == name; }
+ private:
+  string name;
+};
+
+string GetDeclarationType(ParserToken& token, bool throwErrorOnNull) {
+	if (currentFunction != nullptr) {
+		// Check local variables
+		auto v = find_if(currentFunction->variables_.begin(), currentFunction->variables_.end(),
+						 AssemblyVariableFinder(token.value_));
+		if (v != currentFunction->variables_.end()) {
+			return v->type_;
+		}
+	}
+	
+	// Check global variables
+	auto v = find_if(assemblyScript.variables_.begin(), assemblyScript.variables_.end(),
+					 AssemblyVariableFinder(token.value_));
 	if (v != assemblyScript.variables_.end()) {
 		return v->type_;
 	}
-	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(token));
+	
+	// Check global functions
+	auto f = find_if(assemblyScript.functions_.begin(), assemblyScript.functions_.end(),
+					 AssemblyFunctionFinder(token.value_));
+	if (f != assemblyScript.functions_.end()) {
+		return f->return_type_;
+	}
+	
+	if (throwErrorOnNull)
+		CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(token));
 	return "";
+}
+
+void DefineVariable(const AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
+                    ParserToken& name_token, bool declaration) {
+	if (GetDeclarationType(name_token, false).empty()) {
+		if (parent->type_ == ROOT) {
+			assemblyScript.variables_.push_back(variable);
+		}
+		else if (parent->type_ == SCOPE) {
+			currentFunction->variables_.push_back(variable);
+		}
+		else {
+			if (declaration) {
+				CompilerError(VARIABLE_DECLARATION_NOT_ALLOWED, GetErrorInfo(token));
+			}
+			else {
+				CompilerError(VARIABLE_DEFINITION_NOT_ALLOWED, GetErrorInfo(token));
+			}
+		}
+	}
+	else {
+		CompilerError(VARIABLE_EXISTS, GetErrorInfo(token));
+	}
 }
 
 bool EqualType(vector<ParserToken>& expression_tokens, const string& type) {
@@ -173,7 +243,7 @@ bool EqualType(vector<ParserToken>& expression_tokens, const string& type) {
 	string t;
 	switch (expression_tokens[i].type_) {
 		case NAME: {
-			t = GetDeclarationType(expression_tokens[i]);
+			t = GetDeclarationType(expression_tokens[i], true);
 			break;
 		}
 		case STRING_LITERAL: {
