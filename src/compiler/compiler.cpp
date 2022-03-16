@@ -2,6 +2,8 @@
 // Created by Markus Kannisto on 09/03/2022.
 //
 
+#include <algorithm>
+#include <utility>
 #include "../common_includes.h"
 #include "../utils/file_utils.h"
 #include "compiler.h"
@@ -23,7 +25,9 @@ ParserToken Increment(vector<ParserToken> &tokens, CompilerErrorType fail, char 
 bool CheckIncrement(vector<ParserToken> &tokens);
 
 void CompilerStep(vector<ParserToken> tokens, ParserToken parent);
-bool EndStatement(vector<ParserToken> &tokens);
+bool EndStatement(vector<ParserToken> &tokens, bool scope = false);
+
+bool EqualType(vector<ParserToken>& expression_tokens, const string& type);
 
 void Compile(const NeptyneScript &script) {
 	// Read parser_script file
@@ -77,11 +81,11 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 				if (token.type_ == COLON) {
 					token = Increment(tokens, EXPECTED_FUNCTION_BODY);
 					if (token.type_ != SCOPE) {
-						CompilerError(EXPECTED_FUNCTION_BODY, GetErrorInfo(token), (int)token.value_.length());
+						CompilerError(EXPECTED_FUNCTION_BODY, GetErrorInfo(token));
 						break;
 					}
 					else {
-						if (EndStatement(tokens)) {
+						if (EndStatement(tokens, true)) {
 							// Function declaration
 							AssemblyFunction func = AssemblyFunction(type, name_value);
 							assemblyScript.functions_.push_back(func);
@@ -117,15 +121,148 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken parent) {
 			
 			token = Increment(tokens, EXPECTED_EXPRESSION);
 			
-			if (EndStatement(tokens)) {
-			
+			vector<ParserToken> expression_tokens;
+			while (compiler_index < tokens.size() && token.type_ != STATEMENT_TERMINATOR) {
+				expression_tokens.push_back(token);
+				token = Increment(tokens, TERMINATOR_EXPECTED);
+				if (token.type_ != COMMA && token.type_ != STATEMENT_TERMINATOR) {
+					CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+					break;
+				}
+				if (token.type_ != STATEMENT_TERMINATOR)
+					token = Increment(tokens, TERMINATOR_EXPECTED);
 			}
 			
+			if (expression_tokens.empty() && token.type_ == STATEMENT_TERMINATOR) {
+				CompilerError(EXPECTED_EXPRESSION, GetErrorInfo(token));
+				break;
+			}
+			
+			if (EqualType(expression_tokens, type)) {
+				if (EndStatement(tokens)) {
+					AssemblyVariable var = AssemblyVariable(type, name_value, expression_tokens);
+					assemblyScript.variables_.push_back(var);
+					break;
+				}
+			}
+			
+			CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
 			break;
 	}
 }
 
-bool EndStatement(vector<ParserToken> &tokens) {
+struct AssemblyVariableFinder {
+  explicit AssemblyVariableFinder(string  n) : name(std::move(n)) { }
+  bool operator () ( const AssemblyVariable & el) const  { return el.name_ == name; }
+ private:
+  string name;
+};
+
+string GetDeclarationType(ParserToken& token) {
+	auto v = find_if(assemblyScript.variables_.begin(), assemblyScript.variables_.end(), AssemblyVariableFinder(token.value_));
+	if (v != assemblyScript.variables_.end()) {
+		return v->type_;
+	}
+	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(token));
+	return "";
+}
+
+bool EqualType(vector<ParserToken>& expression_tokens, const string& type) {
+	int i = 0;
+	
+	string t;
+	switch (expression_tokens[i].type_) {
+		case NAME: {
+			t = GetDeclarationType(expression_tokens[i]);
+			break;
+		}
+		case STRING_LITERAL: {
+			t = "string";
+			break;
+		}
+		case INTEGER_LITERAL:
+		case CHARACTER_LITERAL: {
+			t = "int";
+			break;
+		}
+		case BOOLEAN_LITERAL: {
+			t = "bool";
+			break;
+		}
+		case FLOAT_LITERAL: {
+			t = "float";
+			break;
+		}
+		case DOUBLE_LITERAL: {
+			t = "double";
+			break;
+		}
+		default:break;
+	}
+	if (t.empty()) return false;
+	
+	if (type == "bool") {
+		if (t == "bool") {
+			return true;
+		}
+	}
+	else if (type == "byte") {
+		if (t == "byte") {
+			return true;
+		}
+		else if (t == "int" || t == "long" || t == "short" || t == "uint" || t == "ulong" || t == "ushort") {
+			if (expression_tokens[i].type_ == INTEGER_LITERAL) {
+				int iv = stoi(expression_tokens[i].value_);
+				if (iv >= 0 && iv <= 255) {
+					return true;
+				}
+				else {
+					CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_tokens[i]));
+					return false;
+				}
+			}
+			CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(expression_tokens[i]));
+			return false;
+		}
+	}
+	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(expression_tokens[i]));
+	return false;
+	
+	
+	/*switch (expression_tokens[i].type_) {
+		case "byte":
+			break;
+		case "char":
+			break;
+		case "double":
+			break;
+		case "float":
+			break;
+		case "int":
+			break;
+		case "long":
+			break;
+		case "short":
+			break;
+		case "string":
+			break;
+		case "uint":
+			break;
+		case "ulong":
+			break;
+		case "ushort":
+			break;
+		case "void":
+			break;
+		default:
+		
+	}
+	if (expression_tokens[i].type_ == type) {
+	
+	}*/
+}
+
+bool EndStatement(vector<ParserToken> &tokens, bool scope) {
 	ParserToken token = tokens[compiler_index];
 	
 	if (token.type_ == STATEMENT_TERMINATOR)
@@ -134,10 +271,15 @@ bool EndStatement(vector<ParserToken> &tokens) {
 	if (compiler_index - 1 >= 0)
 		token = tokens[compiler_index - 1];
 	
-	Increment(tokens, TERMINATOR_EXPECTED);
-	if (token.type_ != STATEMENT_TERMINATOR) {
-		CompilerError(TERMINATOR_EXPECTED, GetErrorInfo(token), (int)token.value_.length());
-		return false;
+	if (!scope) {
+		Increment(tokens, TERMINATOR_EXPECTED);
+		if (token.type_ != STATEMENT_TERMINATOR) {
+			CompilerError(TERMINATOR_EXPECTED, GetErrorInfo(token));
+			return false;
+		}
+	}
+	else {
+		compiler_index++;
 	}
 	return true;
 }

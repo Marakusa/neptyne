@@ -1,6 +1,6 @@
 /*const string message = "Hello world!\10\0";
 const int messageLength = 14;*/
-int a;
+byte a = 0;
 
 void main: {
     //int a = 10;

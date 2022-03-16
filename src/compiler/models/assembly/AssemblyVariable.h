@@ -12,32 +12,30 @@ class AssemblyVariable {
 	  type_ = variable_type;
 	  name_ = "_v_";
 	  name_ += variable_name;
-	  value_ = "";
 	  keywords_ = vector<string>();
   }
   AssemblyVariable(const string& variable_type, const string& variable_name, vector<string> variable_keywords) {
 	  type_ = variable_type;
 	  name_ = "_v_";
 	  name_ += variable_name;
-	  value_ = "";
 	  keywords_ = std::move(variable_keywords);
   }
-  AssemblyVariable(const string& variable_type, const string& variable_name, const string& variable_value) {
+  AssemblyVariable(const string& variable_type, const string& variable_name, vector<ParserToken>& initial_value_expression) {
 	  type_ = variable_type;
 	  name_ = "_v_";
 	  name_ += variable_name;
-	  value_ = variable_value;
+	  initial_value_expression_ = initial_value_expression;
 	  keywords_ = vector<string>();
   }
-  AssemblyVariable(const string& variable_type, const string& variable_name, const string& variable_value, vector<string> variable_keywords) {
+  AssemblyVariable(const string& variable_type, const string& variable_name, vector<ParserToken>& initial_value_expression, vector<string> variable_keywords) {
 	  type_ = variable_type;
 	  name_ = "_v_";
 	  name_ += variable_name;
-	  value_ = variable_value;
+	  initial_value_expression_ = initial_value_expression;
 	  keywords_ = std::move(variable_keywords);
   }
   vector<string> keywords_;
   string type_;
   string name_;
-  string value_;
+  vector<ParserToken> initial_value_expression_;
 };

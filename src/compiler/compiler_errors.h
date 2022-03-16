@@ -20,6 +20,7 @@ enum CompilerErrorType {
   EXPECTED_UNQUALIFIED_ID,
   EXPECTED_EXPRESSION,
   EXPECTED_FUNCTION_BODY,
+  OUTSIDE_THE_RANGE,
 };
 
 class CompilerError {
@@ -35,4 +36,4 @@ class CompilerError {
   CompilerErrorType type_;
 };
 
-void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info, int offset = 0);
+void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info);
