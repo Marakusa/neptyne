@@ -19,7 +19,7 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 		case INVALID_BRING_STATEMENT_PLACEMENT:
 			return {"NPT1101", "Bring statements can only be declared outside all"
 			                   " declaration bodies", type};
-		
+			
 			// The rest of the compiler errors
 		case EXPECTED_UNQUALIFIED_ID:return {"NPT1201", "Expected unqualified-id", type};
 		case EXPECTED_EXPRESSION:return {"NPT1202", "Expected expression", type};

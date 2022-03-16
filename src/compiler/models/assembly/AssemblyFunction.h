@@ -12,7 +12,7 @@
 
 class AssemblyFunction {
  public:
-  AssemblyFunction(const string& return_type, const string& function_name, vector<AssemblyVariable> parameters =
+  AssemblyFunction(const string &return_type, const string &function_name, vector<AssemblyVariable> parameters =
   vector<AssemblyVariable>()) {
 	  return_type_ = return_type;
 	  name_ = "_";
@@ -21,8 +21,8 @@ class AssemblyFunction {
 	  scope_ = kNullToken;
 	  scope_tokens_ = vector<ParserToken>();
   }
-  AssemblyFunction(const string& return_type, const string& function_name, ParserToken scope,
-      vector<AssemblyVariable> parameters = vector<AssemblyVariable>()) {
+  AssemblyFunction(const string &return_type, const string &function_name, ParserToken scope,
+                   vector<AssemblyVariable> parameters = vector<AssemblyVariable>()) {
 	  return_type_ = return_type;
 	  name_ = "_";
 	  name_ += function_name;

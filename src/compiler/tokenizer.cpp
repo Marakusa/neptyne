@@ -185,11 +185,9 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 						value += s;
 						IncrementIndex();
 						value += ConvertToString(current);
-					}
-					else if (s == "\"") {
+					} else if (s == "\"") {
 						AddToken(STRING_LITERAL, value);
-					}
-					else {
+					} else {
 						value += ConvertToString(current);
 					}
 				}

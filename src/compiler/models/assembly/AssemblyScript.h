@@ -10,7 +10,7 @@
 #include "AssemblyVariable.h"
 
 class AssemblyScript {
-public:
+ public:
   AssemblyScript() {
 	  AssemblyFunction start_function = AssemblyFunction("void", "start");
 	  functions_.push_back(start_function);
