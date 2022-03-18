@@ -20,6 +20,7 @@ class AssemblyFunction {
 	  parameters_ = std::move(parameters);
 	  scope_ = kNullToken;
 	  scope_tokens_ = vector<ParserToken>();
+	  has_return_statement_ = false;
   }
   AssemblyFunction(const string &return_type, const string &function_name, ParserToken scope,
                    vector<AssemblyVariable> parameters = vector<AssemblyVariable>()) {
@@ -29,6 +30,7 @@ class AssemblyFunction {
 	  parameters_ = std::move(parameters);
 	  scope_ = std::move(scope);
 	  scope_tokens_ = scope_.parameters_;
+	  has_return_statement_ = false;
   }
   string return_type_;
   string name_;
@@ -37,4 +39,30 @@ class AssemblyFunction {
   ParserToken scope_ = kNullToken;
   vector<ParserToken> scope_tokens_;
   vector<AssemblyVariable> variables_;
+  bool has_return_statement_;
+  
+  void Mov(const string &to, const string &from) {
+	  statements_.emplace_back("mov", to, from);
+  }
+  void Int(const string &interrupt_number) {
+	  statements_.emplace_back("int", interrupt_number);
+  }
+  void Call(AssemblyFunction function) {
+	  statements_.emplace_back("call", function.name_);
+  }
+  void Push(const string &target) {
+	  statements_.emplace_back("push", target);
+  }
+  void Pop(const string &target) {
+	  statements_.emplace_back("push", target);
+  }
+  void Ret() {
+	  statements_.emplace_back("ret");
+  }
+  
+  void DefineVariable(const string& to, const AssemblyVariable &variable) {
+	  // TODO: Make expression thingy
+	  string from = variable.initial_value_expression_[0].value_;
+	  Mov(to, from);
+  }
 };

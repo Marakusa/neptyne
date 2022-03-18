@@ -20,6 +20,8 @@ AssemblyScript assemblyScript;
 NeptyneScript neptyneScript;
 AssemblyFunction *currentFunction;
 
+int scope_memory_size_offset = 0;
+
 CompilerErrorInfo GetErrorInfo(ParserToken &token);
 
 ParserToken Increment(vector<ParserToken> &tokens, CompilerErrorType fail, char v = 0);
@@ -34,6 +36,8 @@ void DefineVariable(const AssemblyVariable &variable, ParserToken &token, Parser
                     ParserToken &name_token, bool declaration);
 
 void Compile(const NeptyneScript &script) {
+	CompilerErrorsReset();
+	
 	// Read parser_script file
 	string code = ReadFile(script.full_path_);
 	neptyneScript = script;
@@ -54,6 +58,7 @@ void Compile(const NeptyneScript &script) {
 	// Compile code into functions and statements
 	assemblyScript = AssemblyScript();
 	compiler_index = 0;
+	scope_memory_size_offset = 0;
 	while (compiler_index < root_token.parameters_.size()) {
 		CompilerStep(root_token.parameters_, &root_token);
 		compiler_index++;
@@ -61,6 +66,7 @@ void Compile(const NeptyneScript &script) {
 	
 	for (auto &function : assemblyScript.functions_) {
 		if (function.name_ != "_start") {
+			scope_memory_size_offset = 0;
 			compiler_index = 0;
 			currentFunction = &function;
 			while (compiler_index < function.scope_tokens_.size()) {
@@ -69,6 +75,13 @@ void Compile(const NeptyneScript &script) {
 			}
 		}
 	}
+	
+	if (CompilerHasErrors())
+		throw "Compiling failed with errors...";
+	
+	string result;
+	assemblyScript.Form(result);
+	cout << "====================" << endl << result << endl << "====================" << endl;
 }
 
 void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
@@ -77,7 +90,7 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 	}
 	ParserToken token = tokens[compiler_index];
 	switch (token.type_) {
-		case VALUE_TYPE:
+		case VALUE_TYPE: {
 			// Set type
 			string type = token.value_;
 			
@@ -168,19 +181,27 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 			
 			CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
 			break;
+		}
+		case RETURN_STATEMENT: {
+			if (currentFunction == nullptr) {
+				CompilerError(RETURN_STATEMENT_NO_OUTSIDE, GetErrorInfo(token));
+				break;
+			}
+			break;
+		}
 	}
 }
 
 struct AssemblyVariableFinder {
   explicit AssemblyVariableFinder(string n) : name(std::move(n)) {}
-  bool operator()(const AssemblyVariable &el) const { return el.name_ == name; }
+  bool operator()(const AssemblyVariable &el) const { return el.name_ == "_v_" + name; }
  private:
   string name;
 };
 
 struct AssemblyFunctionFinder {
   explicit AssemblyFunctionFinder(string n) : name(std::move(n)) {}
-  bool operator()(const AssemblyFunction &el) const { return el.name_ == name; }
+  bool operator()(const AssemblyFunction &el) const { return el.name_ == "_" + name; }
  private:
   string name;
 };
@@ -214,22 +235,44 @@ string GetDeclarationType(ParserToken &token, bool throwErrorOnNull) {
 	return "";
 }
 
+int get_type_size(string type) {
+	if (type == "bool" || type == "byte") {
+		return 1;
+	}
+	else if (type == "short" || type == "ushort") {
+		return 2;
+	}
+	else if (type == "int" || type == "uint" || type == "float" || type == "char") {
+		return 4;
+	}
+	else if (type == "long" || type == "ulong" || type == "double") {
+		return 8;
+	}
+	else {
+		throw "Type size not set for " + type;
+	}
+}
+
 void DefineVariable(const AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
                     ParserToken &name_token, bool declaration) {
 	if (GetDeclarationType(name_token, false).empty()) {
 		if (parent->type_ == ROOT) {
 			assemblyScript.variables_.push_back(variable);
+			// TODO: Define outside function
 		} else if (parent->type_ == SCOPE) {
 			currentFunction->variables_.push_back(variable);
+			scope_memory_size_offset += get_type_size(variable.type_);
+			string to = "DWORD [rbp-" + to_string(scope_memory_size_offset) + "]";
+			currentFunction->DefineVariable(to, variable);
 		} else {
 			if (declaration) {
-				CompilerError(VARIABLE_DECLARATION_NOT_ALLOWED, GetErrorInfo(token));
+				CompilerError(VARIABLE_DECLARATION_NOT_ALLOWED, GetErrorInfo(name_token));
 			} else {
-				CompilerError(VARIABLE_DEFINITION_NOT_ALLOWED, GetErrorInfo(token));
+				CompilerError(VARIABLE_DEFINITION_NOT_ALLOWED, GetErrorInfo(name_token));
 			}
 		}
 	} else {
-		CompilerError(VARIABLE_EXISTS, GetErrorInfo(token));
+		CompilerError(VARIABLE_EXISTS, GetErrorInfo(name_token));
 	}
 }
 

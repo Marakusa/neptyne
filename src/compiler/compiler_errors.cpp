@@ -31,6 +31,8 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 		case VARIABLE_DEFINITION_NOT_ALLOWED:return {"NPT1208", "Variable definition is not allowed here", type};
 		case DEFINITION_NOT_ALLOWED:return {"NPT1209", "Variable or function definition is not allowed here", type};
 		case VARIABLE_EXISTS:return {"NPT1210", "Variable or function named %v already exists", type};
+		case RETURN_STATEMENT_NO_OUTSIDE:return {"NPT1211", "Return statement cannot be placed outside a function",
+												 type};
 		
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}
@@ -58,7 +60,11 @@ const char *LineErrorPointer(string &result, int column) {
 	result += "^~~~~~";
 }
 
+bool compilerErrorOccurred = false;
+
 void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) {
+	compilerErrorOccurred = true;
+	
 	// Get error from list
 	class CompilerError e = GetErrorType(code);
 	
@@ -91,4 +97,12 @@ void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) 
 	
 	// Print error to console
 	cout << error_message << endl;
+}
+
+void CompilerErrorsReset() {
+	compilerErrorOccurred = false;
+}
+
+bool CompilerHasErrors() {
+	return compilerErrorOccurred;
 }

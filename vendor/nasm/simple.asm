@@ -13,7 +13,7 @@ _main:
 	push    rbp                     ; Save address of previous stack frame
 	mov     rbp, rsp                ; Address of current stack frame
 		
-	mov  	DWORD [rbp-0x8], 99
+	mov  	DWORD [rbp-0x1], 21
 
     mov     eax, 0					  ; Set return value from this function to 0
 	pop		rbp						  ; Cleanup the stack

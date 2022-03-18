@@ -27,7 +27,11 @@ enum CompilerErrorType {
   VARIABLE_DEFINITION_NOT_ALLOWED,
   DEFINITION_NOT_ALLOWED,
   VARIABLE_EXISTS,
+  RETURN_STATEMENT_NO_OUTSIDE,
 };
+
+void CompilerErrorsReset();
+bool CompilerHasErrors();
 
 class CompilerError {
  public:
