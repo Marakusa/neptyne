@@ -65,4 +65,11 @@ class AssemblyFunction {
 	  string from = variable.initial_value_expression_[0].value_;
 	  Mov(to, from);
   }
+  
+  void SetReturnValue(string value) {
+	  has_return_statement_ = true;
+	  Mov("eax", value);
+	  Pop("rbp");
+	  Ret();
+  }
 };

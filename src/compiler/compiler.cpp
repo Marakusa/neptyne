@@ -35,6 +35,8 @@ bool EqualType(vector<ParserToken> &expression_tokens, const string &type);
 void DefineVariable(const AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
                     ParserToken &name_token, bool declaration);
 
+void GetExpressionTokens(vector<ParserToken> tokens, vector<ParserToken> &expression_tokens);
+
 void Compile(const NeptyneScript &script) {
 	CompilerErrorsReset();
 	
@@ -154,17 +156,7 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 			
 			// Variable definition expression
 			vector<ParserToken> expression_tokens;
-			while (compiler_index < tokens.size() && token.type_ != STATEMENT_TERMINATOR) {
-				expression_tokens.push_back(token);
-				token = Increment(tokens, TERMINATOR_EXPECTED);
-				if (token.type_ != COMMA && token.type_ != STATEMENT_TERMINATOR) {
-					CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
-					break;
-				}
-				if (token.type_ != STATEMENT_TERMINATOR)
-					token = Increment(tokens, TERMINATOR_EXPECTED);
-			}
-			
+			GetExpressionTokens(tokens, expression_tokens);
 			if (expression_tokens.empty() && token.type_ == STATEMENT_TERMINATOR) {
 				CompilerError(EXPECTED_EXPRESSION, GetErrorInfo(token));
 				break;
@@ -187,8 +179,42 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				CompilerError(RETURN_STATEMENT_NO_OUTSIDE, GetErrorInfo(token));
 				break;
 			}
+			token = Increment(tokens, EXPECTED_UNQUALIFIED_ID);
+			
+			// Variable definition expression
+			vector<ParserToken> expression_tokens;
+			GetExpressionTokens(tokens, expression_tokens);
+			if (expression_tokens.empty() && token.type_ == STATEMENT_TERMINATOR) {
+				CompilerError(EXPECTED_EXPRESSION, GetErrorInfo(token));
+				break;
+			}
+			
+			if (EqualType(expression_tokens, currentFunction->return_type_)) {
+				if (EndStatement(tokens)) {
+					currentFunction->has_return_statement_ = true;
+					// TODO: Array combine
+					currentFunction->SetReturnValue(expression_tokens[0].value_);
+					break;
+				}
+			}
+			
 			break;
 		}
+	}
+}
+
+void GetExpressionTokens(vector<ParserToken> tokens, vector<ParserToken> &expression_tokens) {
+	ParserToken token = tokens[compiler_index];
+	expression_tokens = vector<ParserToken>();
+	while (compiler_index < tokens.size() && token.type_ != STATEMENT_TERMINATOR) {
+		expression_tokens.push_back(token);
+		token = Increment(tokens, TERMINATOR_EXPECTED);
+		if (token.type_ != COMMA && token.type_ != STATEMENT_TERMINATOR) {
+			CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+			break;
+		}
+		if (token.type_ != STATEMENT_TERMINATOR)
+			token = Increment(tokens, TERMINATOR_EXPECTED);
 	}
 }
 
@@ -383,8 +409,6 @@ bool EndStatement(vector<ParserToken> &tokens, bool scope) {
 			CompilerError(TERMINATOR_EXPECTED, GetErrorInfo(token));
 			return false;
 		}
-	} else {
-		compiler_index++;
 	}
 	return true;
 }
