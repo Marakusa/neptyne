@@ -3,9 +3,9 @@
 //
 
 #include <regex>
-#include "../common_includes.h"
+#include "../../common_includes.h"
 #include "tokenizer.h"
-#include "compiler_errors.h"
+#include "../nptc_compiler_errors/compiler_errors.h"
 
 int line, line_begin_index, i, tab_offset;
 char current;

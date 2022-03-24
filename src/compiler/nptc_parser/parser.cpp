@@ -5,8 +5,8 @@
 #include "parser.h"
 
 #include <utility>
-#include "models/CompilerErrorInfo.h"
-#include "compiler_errors.h"
+#include "../nptc_compiler_errors/models/CompilerErrorInfo.h"
+#include "../nptc_compiler_errors/compiler_errors.h"
 
 int parser_index;
 vector<Token> p_input_tokens;

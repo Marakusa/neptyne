@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "NeptyneScript.h"
+#include "../../nptc_compiler/models/NeptyneScript.h"
 
 class CompilerErrorInfo {
  public:

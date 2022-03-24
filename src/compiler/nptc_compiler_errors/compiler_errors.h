@@ -5,8 +5,8 @@
 #pragma once
 
 #include <map>
-#include "../common_includes.h"
-#include "models/NeptyneScript.h"
+#include "../../common_includes.h"
+#include "../nptc_compiler/models/NeptyneScript.h"
 #include "models/CompilerErrorInfo.h"
 
 enum CompilerErrorType {

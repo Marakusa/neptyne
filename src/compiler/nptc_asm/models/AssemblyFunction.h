@@ -60,9 +60,10 @@ class AssemblyFunction {
 	  statements_.emplace_back("ret");
   }
   
-  void DefineVariable(const string& to, const AssemblyVariable &variable) {
+  void DefineVariable(const string& to, AssemblyVariable variable) {
 	  // TODO: Make expression thingy
 	  string from = variable.initial_value_expression_[0].value_;
+	  variable.SetAssemblyRef(to);
 	  Mov(to, from);
   }
   

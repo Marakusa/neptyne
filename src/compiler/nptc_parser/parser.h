@@ -5,8 +5,8 @@
 #pragma once
 
 #include <vector>
-#include "../common_includes.h"
-#include "models/Token.h"
+#include "../../common_includes.h"
+#include "../nptc_tokenizer/models/Token.h"
 #include "models/ParserToken.h"
 
 void ParseToSyntaxTree(ParserToken &root, vector<Token> &input_tokens, NeptyneScript &input_script);

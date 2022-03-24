@@ -4,9 +4,9 @@
 
 #pragma once
 
-#include "../../common_includes.h"
-#include "TokenType.h"
-#include "NeptyneScript.h"
+#include "../../../common_includes.h"
+#include "../../nptc_tokenizer/models/TokenType.h"
+#include "../../nptc_compiler/models/NeptyneScript.h"
 
 class ParserToken {
  public:

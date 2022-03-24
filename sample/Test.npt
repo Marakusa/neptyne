@@ -1,9 +1,9 @@
 /*const string message = "Hello world!\10\0";
 const int messageLength = 14;*/
 
-void main: {
+int main: {
     byte a = 33;
-    byte b = 33;
+    int b = 31;
 
-	return 1;
+	return b;
 }

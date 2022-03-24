@@ -4,8 +4,8 @@
 
 #include "common_includes.h"
 #include "builder.h"
-#include "compiler/compiler.h"
-#include "compiler/models/NeptyneScript.h"
+#include "compiler/nptc_compiler/compiler.h"
+#include "compiler/nptc_compiler/models/NeptyneScript.h"
 
 bool Build(const string &file) {
 	NeptyneScript script_file = NeptyneScript(file);

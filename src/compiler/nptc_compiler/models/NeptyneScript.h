@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../common_includes.h"
+#include "../../../common_includes.h"
 
 class NeptyneScript {
  public:
