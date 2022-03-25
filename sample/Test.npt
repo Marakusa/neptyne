@@ -2,7 +2,7 @@
 const int messageLength = 14;*/
 
 int main: {
-    byte a = 33;
+    byte a = 33 + 10;
     int b = 31;
 
 	return b;
