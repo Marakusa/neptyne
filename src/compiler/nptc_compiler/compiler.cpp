@@ -440,3 +440,7 @@ bool CheckIncrement(vector<ParserToken> &tokens) {
 CompilerErrorInfo GetErrorInfo(ParserToken &token) {
 	return {neptyneScript, token.line_, token.column_, token.value_};
 }
+
+void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens) {
+
+}
