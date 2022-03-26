@@ -277,6 +277,35 @@ string GetDeclarationType(ParserToken &token, bool throwErrorOnNull) {
 	return "";
 }
 
+string GetAssemblyNameOfVariable(ParserToken &token) {
+	if (currentFunction != nullptr) {
+		// Check local variables
+		auto v = find_if(currentFunction->variables_.begin(), currentFunction->variables_.end(),
+		                 AssemblyVariableFinder(token.value_));
+		if (v != currentFunction->variables_.end()) {
+			return v->asm_ref_;
+		}
+	}
+	
+	// Check global variables
+	auto v = find_if(assemblyScript.variables_.begin(), assemblyScript.variables_.end(),
+	                 AssemblyVariableFinder(token.value_));
+	if (v != assemblyScript.variables_.end()) {
+		return v->name_;
+	}
+	
+	// Check global functions
+	auto f = find_if(assemblyScript.functions_.begin(), assemblyScript.functions_.end(),
+	                 AssemblyFunctionFinder(token.value_));
+	if (f != assemblyScript.functions_.end()) {
+		// TODO: Functions on binary expression trees
+		return f->name_;
+	}
+	
+	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(token));
+	return "";
+}
+
 int get_type_size(string type) {
 	if (type == "bool" || type == "byte") {
 		return 1;
@@ -441,6 +470,23 @@ CompilerErrorInfo GetErrorInfo(ParserToken &token) {
 	return {neptyneScript, token.line_, token.column_, token.value_};
 }
 
-void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens) {
+AssemblyVariable GetVariable(string name) {
+	if (currentFunction != nullptr) {
+		return currentFunction->variables_
+	}
+}
 
+void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, string expression_type) {
+	if (expression_tokens.size() == 1) {
+		if (expression_tokens[0].type_ == NAME) {
+			if (expression_type == GetDeclarationType(expression_tokens[0])) {
+				currentFunction->Mov("eax", GetAssemblyNameOfVariable(expression_tokens[0]));
+				return;
+			}
+			else {
+				CompilerError(VARIABLE_DOESNT_EXIST, )
+			}
+		}
+		else if ()
+	}
 }
