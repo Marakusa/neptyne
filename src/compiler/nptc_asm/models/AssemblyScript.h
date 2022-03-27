@@ -37,7 +37,7 @@ class AssemblyScript {
 	  }
 	  
 	  // Stringify functions
-	  for (auto & i : functions_) {
+	  for (auto &i : functions_) {
 		  AssemblyFunction *function = &i;
 		  
 		  // Function name
@@ -45,9 +45,9 @@ class AssemblyScript {
 		  
 		  // Function init
 		  if (function->name_ != "_start")
-	          result += "\tpush rbp\n\tmov rbp, rsp\n";
+			  result += "\tpush rbp\n\tmov rbp, rsp\n";
 		  
-		  for (auto & statement : function->statements_) {
+		  for (auto &statement : function->statements_) {
 			  AssemblyStatement *s = &statement;
 			  result += "\t" + s->instruction_ + " " + s->param_1_;
 			  if (!s->param_2_.empty())

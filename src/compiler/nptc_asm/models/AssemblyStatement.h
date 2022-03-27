@@ -8,7 +8,7 @@
 
 class AssemblyStatement {
  public:
-  explicit AssemblyStatement(const string& instruction, const string& param_1 = "", const string& param_2 = "") {
+  explicit AssemblyStatement(const string &instruction, const string &param_1 = "", const string &param_2 = "") {
 	  instruction_ = instruction;
 	  param_1_ = param_1;
 	  param_2_ = param_2;

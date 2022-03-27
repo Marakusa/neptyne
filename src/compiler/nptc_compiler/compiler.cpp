@@ -36,7 +36,7 @@ void DefineVariable(AssemblyVariable &variable, ParserToken &token, ParserToken 
 
 void GetExpressionTokens(vector<ParserToken> tokens, vector<ParserToken> &expression_tokens);
 
-void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string& expression_type);
+void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string &expression_type);
 
 struct AssemblyVariableFinder {
   explicit AssemblyVariableFinder(string n) : name(std::move(n)) {}
@@ -219,6 +219,8 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 			
 			break;
 		}
+		default: CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+			break;
 	}
 }
 
@@ -237,7 +239,7 @@ void GetExpressionTokens(vector<ParserToken> tokens, vector<ParserToken> &expres
 	}
 }
 
-string GetDeclarationType(ParserToken &token, bool throwErrorOnNull) {
+string GetDeclarationType(ParserToken &token, bool throw_error_on_null) {
 	if (currentFunction != nullptr) {
 		// Check local variables
 		auto v = find_if(currentFunction->variables_.begin(), currentFunction->variables_.end(),
@@ -261,7 +263,7 @@ string GetDeclarationType(ParserToken &token, bool throwErrorOnNull) {
 		return f->return_type_;
 	}
 	
-	if (throwErrorOnNull)
+	if (throw_error_on_null)
 		CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(token));
 	return "";
 }
@@ -295,20 +297,16 @@ string GetAssemblyNameOfVariable(ParserToken &token) {
 	return "";
 }
 
-int get_type_size(string type) {
+int GetTypeSize(string type) {
 	if (type == "bool" || type == "byte") {
 		return 1;
-	}
-	else if (type == "short" || type == "ushort") {
+	} else if (type == "short" || type == "ushort") {
 		return 2;
-	}
-	else if (type == "int" || type == "uint" || type == "float" || type == "char") {
+	} else if (type == "int" || type == "uint" || type == "float" || type == "char") {
 		return 4;
-	}
-	else if (type == "long" || type == "ulong" || type == "double") {
+	} else if (type == "long" || type == "ulong" || type == "double") {
 		return 8;
-	}
-	else {
+	} else {
 		throw "Type size not set for " + type;
 	}
 }
@@ -321,7 +319,7 @@ void DefineVariable(AssemblyVariable &variable, ParserToken &token, ParserToken 
 			// TODO: Define outside function
 		} else if (parent->type_ == SCOPE) {
 			currentFunction->variables_.push_back(variable);
-			scope_memory_size_offset += get_type_size(variable.type_);
+			scope_memory_size_offset += GetTypeSize(variable.type_);
 			string to = "DWORD [rbp-" + to_string(scope_memory_size_offset) + "]";
 			currentFunction->DefineVariable(to, currentFunction->variables_[currentFunction->variables_.size() - 1]);
 		} else {
@@ -457,26 +455,23 @@ CompilerErrorInfo GetErrorInfo(ParserToken &token) {
 	return {neptyneScript, token.line_, token.column_, token.value_};
 }
 
-void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string& expression_type) {
+void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string &expression_type) {
 	if (expression_tokens.size() == 1) {
 		if (expression_tokens[0].type_ == NAME) {
 			if (expression_type == GetDeclarationType(expression_tokens[0], false)) {
 				currentFunction->Mov("eax", GetAssemblyNameOfVariable(expression_tokens[0]));
 				return;
-			}
-			else {
+			} else {
 				CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(expression_tokens[0]));
 				return;
 			}
-		}
-		else if (EqualType(expression_tokens[0], expression_type)) {
+		} else if (EqualType(expression_tokens[0], expression_type)) {
 			currentFunction->Mov("eax", expression_tokens[0].value_);
 			return;
 		}
 		CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(expression_tokens[0]));
 		return;
-	}
-	else {
+	} else {
 		// TODO: Multiple elements
 		throw "Not implemented";
 	}

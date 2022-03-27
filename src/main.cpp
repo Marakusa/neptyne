@@ -10,9 +10,20 @@ int main(int argc, char *argv[]) {
 		if (argc > 1) {
 			string f = string(argv[1]);
 			if (fs::exists(f)) {
-				Log("Build started");
-				Build(f);
+				if (!fs::is_directory(f)) {
+					Log("Build started");
+					Build(f);
+				} else {
+					if (fs::exists(f + "/Project.nptp")) {
+						Log("Project build started");
+						Build(f + "/Project.nptp");
+					} else {
+						cout << "Project.nptp not found in directory: " << f << endl;
+						throw "Project.nptp not found in directory";
+					}
+				}
 			} else {
+				cout << "Script not found: " << f << endl;
 				throw "Script not found";
 			}
 		} else {

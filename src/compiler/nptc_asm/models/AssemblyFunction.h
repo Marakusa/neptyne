@@ -47,7 +47,7 @@ class AssemblyFunction {
   void Int(const string &interrupt_number) {
 	  statements_.emplace_back("int", interrupt_number);
   }
-  void Call(AssemblyFunction function) {
+  void Call(const AssemblyFunction &function) {
 	  statements_.emplace_back("call", function.name_);
   }
   void Push(const string &target) {
@@ -60,7 +60,7 @@ class AssemblyFunction {
 	  statements_.emplace_back("ret");
   }
   
-  void DefineVariable(const string& to, AssemblyVariable& variable) {
+  void DefineVariable(const string &to, AssemblyVariable &variable) {
 	  variable.SetAssemblyRef(to);
 	  Mov(to, "eax");
   }

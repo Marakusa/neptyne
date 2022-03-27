@@ -17,7 +17,7 @@ const regex kDoubleRegex{R"([+-]?([0-9]*[.])?[0-9]+)"};
 const regex kNameRegex{R"~([a-zA-Z0-9_])~"};
 const regex kWhitespaceRegex{R"~(\s)~"};
 
-const vector<string> types{
+const vector<string> kTypes{
 	"bool",
 	"byte",
 	"char",
@@ -33,7 +33,7 @@ const vector<string> types{
 	"void"
 };
 
-const vector<string> keywords{
+const vector<string> kEywords{
 	"const",
 	"readonly",
 	"bring",
@@ -539,9 +539,9 @@ CompilerErrorInfo GetErrorInfo() {
 TokenType GetTokenTyke(const string &value) {
 	if (value == "true" || value == "false") {
 		return BOOLEAN_LITERAL;
-	} else if (find(types.begin(), types.end(), value) != types.end()) {
+	} else if (find(kTypes.begin(), kTypes.end(), value) != kTypes.end()) {
 		return VALUE_TYPE;
-	} else if (find(keywords.begin(), keywords.end(), value) != keywords.end()) {
+	} else if (find(kEywords.begin(), kEywords.end(), value) != kEywords.end()) {
 		return KEYWORD;
 	} else if (value == "null") {
 		return NULL_VALUE;
