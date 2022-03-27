@@ -3,7 +3,7 @@
 //
 
 #include <regex>
-#include "../../common_includes.h"
+#include "../../common/common.h"
 #include "tokenizer.h"
 #include "../nptc_compiler_errors/compiler_errors.h"
 

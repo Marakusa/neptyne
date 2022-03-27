@@ -5,7 +5,7 @@
 #pragma once
 
 #include <map>
-#include "../../common_includes.h"
+#include "../../common/common.h"
 #include "../nptc_compiler/models/NeptyneScript.h"
 #include "models/CompilerErrorInfo.h"
 
@@ -28,6 +28,7 @@ enum CompilerErrorType {
   DEFINITION_NOT_ALLOWED,
   VARIABLE_EXISTS,
   RETURN_STATEMENT_NO_OUTSIDE,
+  VARIABLE_DOESNT_EXIST
 };
 
 void CompilerErrorsReset();

@@ -5,7 +5,7 @@
 #pragma once
 
 #include <vector>
-#include "../../common_includes.h"
+#include "../../common/common.h"
 #include "models/Token.h"
 
 vector<Token> Tokenize(NeptyneScript &code_script);

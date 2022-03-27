@@ -4,7 +4,7 @@
 
 #include <algorithm>
 #include <utility>
-#include "../../common_includes.h"
+#include "../../common/common.h"
 #include "../../utils/file_utils.h"
 #include "compiler.h"
 #include "models/NeptyneScript.h"
@@ -29,12 +29,14 @@ bool CheckIncrement(vector<ParserToken> &tokens);
 void CompilerStep(vector<ParserToken> tokens, ParserToken *parent);
 bool EndStatement(vector<ParserToken> &tokens, bool scope = false);
 
-bool EqualType(vector<ParserToken> &expression_tokens, const string &type);
+bool EqualType(ParserToken &expression_token, const string &type);
 
-void DefineVariable(const AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
+void DefineVariable(AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
                     ParserToken &name_token, bool declaration);
 
 void GetExpressionTokens(vector<ParserToken> tokens, vector<ParserToken> &expression_tokens);
+
+void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string& expression_type);
 
 struct AssemblyVariableFinder {
   explicit AssemblyVariableFinder(string n) : name(std::move(n)) {}
@@ -175,12 +177,11 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				break;
 			}
 			
-			if (EqualType(expression_tokens, type)) {
-				if (EndStatement(tokens)) {
-					// Variable definition
-					AssemblyVariable var = AssemblyVariable(type, name_value, expression_tokens);
-					DefineVariable(var, token, parent, name_token, false);
-				}
+			HandleBinaryExpressionTree(expression_tokens, type);
+			if (EndStatement(tokens)) {
+				// Variable definition
+				AssemblyVariable var = AssemblyVariable(type, name_value, expression_tokens);
+				DefineVariable(var, token, parent, name_token, false);
 			}
 			
 			break;
@@ -202,30 +203,18 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 			}
 			
 			if (currentFunction->return_type_ == "void") {
-				currentFunction->has_return_statement_ = true;
-				currentFunction->SetReturnValue("0");
-				break;
-			}
-			
-			if (EqualType(expression_tokens, currentFunction->return_type_)) {
-				if (EndStatement(tokens)) {
+				if (token.type_ == STATEMENT_TERMINATOR) {
 					currentFunction->has_return_statement_ = true;
-					// TODO: Array combine
-					if (expression_tokens[0].type_ == NAME) {
-						// Check local variables
-						auto v = find_if(currentFunction->variables_.begin(), currentFunction->variables_.end(),
-						                 AssemblyVariableFinder(token.value_));
-						if (v != currentFunction->variables_.end()) {
-							currentFunction->SetReturnValue(v->asm_ref_);
-						}
-						else {
-							CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
-						}
-					}
-					else
-						currentFunction->SetReturnValue(expression_tokens[0].value_);
+					currentFunction->Mov("eax", "0");
+					currentFunction->Return();
 					break;
 				}
+			}
+			
+			HandleBinaryExpressionTree(expression_tokens, currentFunction->return_type_);
+			if (EndStatement(tokens)) {
+				currentFunction->has_return_statement_ = true;
+				currentFunction->Return();
 			}
 			
 			break;
@@ -324,7 +313,7 @@ int get_type_size(string type) {
 	}
 }
 
-void DefineVariable(const AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
+void DefineVariable(AssemblyVariable &variable, ParserToken &token, ParserToken *parent,
                     ParserToken &name_token, bool declaration) {
 	if (GetDeclarationType(name_token, false).empty()) {
 		if (parent->type_ == ROOT) {
@@ -334,7 +323,7 @@ void DefineVariable(const AssemblyVariable &variable, ParserToken &token, Parser
 			currentFunction->variables_.push_back(variable);
 			scope_memory_size_offset += get_type_size(variable.type_);
 			string to = "DWORD [rbp-" + to_string(scope_memory_size_offset) + "]";
-			currentFunction->DefineVariable(to, variable);
+			currentFunction->DefineVariable(to, currentFunction->variables_[currentFunction->variables_.size() - 1]);
 		} else {
 			if (declaration) {
 				CompilerError(VARIABLE_DECLARATION_NOT_ALLOWED, GetErrorInfo(name_token));
@@ -347,13 +336,11 @@ void DefineVariable(const AssemblyVariable &variable, ParserToken &token, Parser
 	}
 }
 
-bool EqualType(vector<ParserToken> &expression_tokens, const string &type) {
-	int i = 0;
-	
+bool EqualType(ParserToken &expression_token, const string &type) {
 	string t;
-	switch (expression_tokens[i].type_) {
+	switch (expression_token.type_) {
 		case NAME: {
-			t = GetDeclarationType(expression_tokens[i], true);
+			t = GetDeclarationType(expression_token, true);
 			break;
 		}
 		case STRING_LITERAL: {
@@ -385,32 +372,32 @@ bool EqualType(vector<ParserToken> &expression_tokens, const string &type) {
 	if (t.empty()) return false;
 	
 	if (type == "bool" && t == "bool") {
-		if (expression_tokens[i].type_ == NAME) {
+		if (expression_token.type_ == NAME) {
 			return true;
 		}
 		
 		return true;
 	} else if (type == "byte" && t == "int") {
-		if (expression_tokens[i].type_ == NAME) {
+		if (expression_token.type_ == NAME) {
 			return true;
 		}
 		
-		long long num_val = stoll(expression_tokens[i].value_);
+		long long num_val = stoll(expression_token.value_);
 		if (num_val >= 0 && num_val <= 255)
 			return true;
 		
-		CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_tokens[i]));
+		CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
 		return false;
 	} else if (type == "int" && t == "int") {
-		if (expression_tokens[i].type_ == NAME) {
+		if (expression_token.type_ == NAME) {
 			return true;
 		}
 		
-		long long num_val = stoll(expression_tokens[i].value_);
+		long long num_val = stoll(expression_token.value_);
 		if (num_val >= -2147483648 && num_val <= 2147483647)
 			return true;
 		
-		CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_tokens[i]));
+		CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
 		return false;
 	}
 	
@@ -426,7 +413,7 @@ bool EqualType(vector<ParserToken> &expression_tokens, const string &type) {
 	ushort
 	void*/
 	
-	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(expression_tokens[i]));
+	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(expression_token));
 	return false;
 }
 
@@ -470,23 +457,27 @@ CompilerErrorInfo GetErrorInfo(ParserToken &token) {
 	return {neptyneScript, token.line_, token.column_, token.value_};
 }
 
-AssemblyVariable GetVariable(string name) {
-	if (currentFunction != nullptr) {
-		return currentFunction->variables_
-	}
-}
-
-void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, string expression_type) {
+void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string& expression_type) {
 	if (expression_tokens.size() == 1) {
 		if (expression_tokens[0].type_ == NAME) {
-			if (expression_type == GetDeclarationType(expression_tokens[0])) {
+			if (expression_type == GetDeclarationType(expression_tokens[0], false)) {
 				currentFunction->Mov("eax", GetAssemblyNameOfVariable(expression_tokens[0]));
 				return;
 			}
 			else {
-				CompilerError(VARIABLE_DOESNT_EXIST, )
+				CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(expression_tokens[0]));
+				return;
 			}
 		}
-		else if ()
+		else if (EqualType(expression_tokens[0], expression_type)) {
+			currentFunction->Mov("eax", expression_tokens[0].value_);
+			return;
+		}
+		CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(expression_tokens[0]));
+		return;
+	}
+	else {
+		// TODO: Multiple elements
+		throw "Not implemented";
 	}
 }

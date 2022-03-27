@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../common_includes.h"
+#include "../common/common.h"
 #include <fstream>
 
 auto ReadFile(string_view path) -> string;

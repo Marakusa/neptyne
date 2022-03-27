@@ -5,7 +5,7 @@
 #pragma once
 
 #include <vector>
-#include "../common_includes.h"
+#include "../common/common.h"
 
 std::string ConvertToString(char s);
 

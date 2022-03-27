@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "../../../common_includes.h"
+#include "../../../common/common.h"
 #include "../../nptc_tokenizer/models/TokenType.h"
 #include "../../nptc_compiler/models/NeptyneScript.h"
 

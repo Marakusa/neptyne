@@ -1,6 +1,6 @@
-#include "common_includes.h"
-#include "builder.h"
-#include "logger.h"
+#include "common/common.h"
+#include "builder/builder.h"
+#include "logger/logger.h"
 #include "compiler/nptc_compiler_errors/models/CompilerException.h"
 
 int main(int argc, char *argv[]) {

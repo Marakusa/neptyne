@@ -6,7 +6,7 @@
 
 #include <iostream>
 #include <filesystem>
-#include "utils/string_utils.h"
+#include "../utils/string_utils.h"
 
 using namespace std;
 namespace fs = filesystem;

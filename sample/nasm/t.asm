@@ -13,7 +13,7 @@ _main:
 	push rbp
 	mov rbp, rsp
 	mov DWORD [rbp-1], 33
-	mov DWORD [rbp-2], 12
+	mov DWORD [rbp-5], 12
 	mov eax, DWORD [rbp-1]
 	pop rbp
 	ret

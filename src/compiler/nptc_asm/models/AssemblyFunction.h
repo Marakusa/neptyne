@@ -6,7 +6,7 @@
 
 #include <utility>
 
-#include "../../../common_includes.h"
+#include "../../../common/common.h"
 #include "AssemblyStatement.h"
 #include "AssemblyVariable.h"
 
@@ -54,22 +54,19 @@ class AssemblyFunction {
 	  statements_.emplace_back("push", target);
   }
   void Pop(const string &target) {
-	  statements_.emplace_back("push", target);
+	  statements_.emplace_back("pop", target);
   }
   void Ret() {
 	  statements_.emplace_back("ret");
   }
   
-  void DefineVariable(const string& to, AssemblyVariable variable) {
-	  // TODO: Make expression thingy
-	  string from = variable.initial_value_expression_[0].value_;
+  void DefineVariable(const string& to, AssemblyVariable& variable) {
 	  variable.SetAssemblyRef(to);
-	  Mov(to, from);
+	  Mov(to, "eax");
   }
   
-  void SetReturnValue(string value) {
+  void Return() {
 	  has_return_statement_ = true;
-	  Mov("eax", value);
 	  Pop("rbp");
 	  Ret();
   }
