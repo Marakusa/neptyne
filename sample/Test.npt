@@ -1,6 +1,3 @@
-/*const string message = "Hello world!\10\0";
-const int messageLength = 14;*/
-
 int main: {
     int a = 33;
     int b = a;

@@ -1,4 +1,4 @@
-name:Sample Project
+name:Sample
 version:0.1.0
 description:This is a sample project to introduce Neptyne.
 executable:Test.npt

@@ -98,7 +98,34 @@ void Compile(const NeptyneScript &script) {
 	
 	string result;
 	assemblyScript.Form(result);
-	cout << "====================" << endl << result << endl << "====================" << endl;
+	//cout << "====================" << endl << result << endl << "====================" << endl;
+	
+	fs::remove_all(script.directory_path_);
+	fs::remove_all(script.obj_directory_path_);
+	fs::create_directories(script.directory_path_);
+	fs::create_directories(script.obj_directory_path_);
+	
+	// Write asm file
+	ofstream asm_file;
+	asm_file.open(script.output_assembly_path_);
+	asm_file << result;
+	asm_file.close();
+	
+	// Write binaries
+#ifdef _WIN32
+	//system("");
+	cout << "Compiling in Windows is not supported yet" << endl;
+#endif
+#ifdef TARGET_OS_MAC
+	//system("");
+	cout << "Compiling in macOS is not supported yet" << endl;
+#endif
+#ifdef __linux__
+	string e = "vendor/nasm/linux.sh \"" + script.output_assembly_path_ + "\" \"" + script.output_obj_path_ + "\" \""
+		+ script.output_executable_path_ + "\"";
+	system(e.c_str());
+	cout << "Compiling in Linux is not supported yet" << endl;
+#endif
 }
 
 void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {

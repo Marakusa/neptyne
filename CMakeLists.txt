@@ -33,6 +33,6 @@ add_executable(
         src/compiler/nptc_asm/models/AssemblyScript.h
         src/compiler/nptc_asm/models/AssemblyFunction.h
         src/compiler/nptc_asm/models/AssemblyStatement.h
-        src/compiler/nptc_asm/models/AssemblyVariable.h src/compiler/nptc_project/project_parser.cpp src/compiler/nptc_project/project_parser.h)
+        src/compiler/nptc_asm/models/AssemblyVariable.h src/compiler/nptc_project/project_parser.cpp src/compiler/nptc_project/project_parser.h src/compiler/nptc_compiler/models/NeptyneProject.h)
 
 file(COPY vendor DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

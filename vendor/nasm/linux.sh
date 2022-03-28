@@ -1,11 +1,9 @@
 #!/bin/sh
 
 # Call nasm assembler
-./linux/nasm -w+all -f elf64 -o "$2/$1.o" "$1.asm"
+./vendor/nasm/linux/nasm -w+all -f elf64 -o "$2" "$1"
 
-if test -f "$2/$1.o"; then
+if test -f "$2"; then
     # Call linker
-    ld -s -o "$2/$1" "$2/$1.o"
-    # Cleanup
-    rm "$2/$1.o"
+    ld -s -o "$3" "$2"
 fi

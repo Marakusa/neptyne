@@ -13,8 +13,10 @@ class NeptyneScript {
   string extension_;
   string name_;
   string directory_path_;
+  string obj_directory_path_;
   string output_executable_path_;
   string output_assembly_path_;
+  string output_obj_path_;
   
   string code_;
   vector<string> code_lines_;
@@ -26,8 +28,10 @@ class NeptyneScript {
 		  extension_ = filename_.substr(filename_.find_last_of('.'));
 		  name_ = filename_.substr(0, filename_.length() - extension_.length());
 		  directory_path_ = full_path_.substr(0, full_path_.find_last_of("/\\") + 1);
+		  obj_directory_path_ = directory_path_;
 		  output_executable_path_ = directory_path_ + name_;
-		  output_assembly_path_ = output_executable_path_ + ".asm";
+		  output_assembly_path_ = obj_directory_path_ + name_ + ".asm";
+		  output_obj_path_ = obj_directory_path_ + name_ + ".obj";
 	  }
   }
   

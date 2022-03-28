@@ -14,30 +14,3 @@ string in(const string format, ...): {
     return csta fgets (inputValue, size, stdin);
 }
 
-long len(const string s): {
-    long length = sizeof(s);
-    return length;
-}
-
-string substring(string input, int position, int length): {
-    string output;
-    int i;
-    
-    output = csta malloc(length + 1);
-    
-    /*if output == null: {
-        out("Unable to allocate memory.");
-        csta exit(1);
-    }
-    
-    for i = 0; i < length; i++: {
-        // output[i] => *(p + i)
-        // input[position - 1] => *(input + position - 1)
-        output[i] = input[position - 1];
-        input++;  
-    }*/
-    
-    output[i] = '\0';
-
-    return output;
-}
