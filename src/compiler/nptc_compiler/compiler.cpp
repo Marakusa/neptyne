@@ -246,8 +246,10 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 			
 			break;
 		}
-		default: CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+		default: {
+			CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
 			break;
+		}
 	}
 }
 

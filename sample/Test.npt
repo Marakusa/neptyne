@@ -1,6 +1,10 @@
+bring System;
+
 int main: {
     int a = 33;
     int b = a;
+
+    out(b);
 
 	return b;
 }

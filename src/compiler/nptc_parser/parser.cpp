@@ -41,9 +41,12 @@ ParserToken Walk() {
 				
 				while (token.type_ != CLOSE_PARENTHESES) {
 					node.parameters_.push_back(Walk());
-					token = p_input_tokens[parser_index];
 					if (parser_index + 1 >= p_input_tokens.size())
 						CompilerError(SYMBOL_EXPECTED, GetErrorInfo(")"));
+					else {
+						NextToken(token);
+					}
+					token = p_input_tokens[parser_index];
 				}
 				
 				return node;
