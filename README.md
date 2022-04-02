@@ -1,6 +1,3 @@
-# NOTE: Old C# compiler before C++ rewrite on [this branch](https://github.com/Marakusa/neptyne/tree/old-csharp)
-
-
 ![LogoGithub](https://user-images.githubusercontent.com/29477753/157120167-e1b37d10-16be-4cf6-ab35-11352780bce3.svg)
 
 Neptyne is a simple programming language created just for fun and learning the compile process. The Neptyne compiler compiles Neptyne code to Assembly language.
