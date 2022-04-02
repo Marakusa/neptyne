@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Call nasm assembler
-./vendor/nasm/linux/nasm -w+all -f elf64 -o "$2" "$1"
+"$4"/vendor/nasm/linux/nasm -w+all -f elf64 -o "$2" "$1"
 
 if test -f "$2"; then
     # Call linker

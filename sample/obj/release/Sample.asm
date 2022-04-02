@@ -12,10 +12,16 @@ _start:
 _main:
 	push rbp
 	mov rbp, rsp
-	mov eax, 33
+	mov eax, 112
 	mov DWORD [rbp-4], eax
 	mov eax, DWORD [rbp-4]
 	mov DWORD [rbp-8], eax
+	mov eax, DWORD [rbp-8]
+	mov ecx, eax
+	mov eax, 4
+	mov ebx, 1
+	mov edx, 1
+	int 80h
 	mov eax, DWORD [rbp-8]
 	pop rbp
 	ret 

@@ -1,10 +1,8 @@
-bring System;
-
 int main: {
-    int a = 33;
+    int a = 112;
     int b = a;
 
-    //out(b);
+    out(b);
 
-	return b;
+    return b;
 }

@@ -37,6 +37,9 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 		case RETURN_STATEMENT_NO_OUTSIDE:
 			return {"NPT1215", "Return statement cannot be placed outside a function",
 			        type};
+		case INVALID_SCOPE_FOR_CALL:
+			return {"NPT1216", "Call statement cannot be placed outside a function scope",
+			        type};
 		
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}

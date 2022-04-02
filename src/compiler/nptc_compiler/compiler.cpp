@@ -121,10 +121,10 @@ void Compile(const NeptyneScript &script) {
 	cout << "Compiling in macOS is not supported yet" << endl;
 #endif
 #ifdef __linux__
-	string e = "vendor/nasm/linux.sh \"" + script.output_assembly_path_ + "\" \"" + script.output_obj_path_ + "\" \""
-		+ script.output_executable_path_ + "\"";
+	string e = string(getSelfPath()) + "vendor/nasm/linux.sh \"" + script.output_assembly_path_ + "\" \"" + script
+		.output_obj_path_ + "\" \""
+		+ script.output_executable_path_ + "\" \"" + string(getSelfPath()) + "\"";
 	system(e.c_str());
-	cout << "Compiling in Linux is not supported yet" << endl;
 #endif
 }
 
@@ -244,6 +244,51 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				currentFunction->Return();
 			}
 			
+			break;
+		}
+		case KEYWORD: {
+			if (token.value_ == "bring") {
+				token = Increment(tokens, UNEXPECTED_TOKEN);
+			}
+			else {
+				CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+			}
+			break;
+		}
+		case NAME: {
+			if (token.value_ == "out") {
+				if (currentFunction == nullptr) {
+					CompilerError(INVALID_SCOPE_FOR_CALL, GetErrorInfo(token));
+					break;
+				}
+				
+				token = Increment(tokens, UNEXPECTED_TOKEN);
+				
+				if (token.type_ != EXPRESSION) {
+					CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+					break;
+				}
+				
+				// Variable definition expression
+				HandleBinaryExpressionTree(token.parameters_, "any");
+				
+				// Send to stdout
+				currentFunction->Mov("ecx", "eax");
+				currentFunction->Mov("eax", "4");
+				currentFunction->Mov("ebx", "1");
+				currentFunction->Mov("edx", "1");
+				currentFunction->Int("80h");
+				
+				token = Increment(tokens, TERMINATOR_EXPECTED);
+				
+				if (token.type_ != STATEMENT_TERMINATOR) {
+					CompilerError(TERMINATOR_EXPECTED, GetErrorInfo(token));
+					break;
+				}
+			}
+			else {
+				CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+			}
 			break;
 		}
 		default: {
@@ -487,14 +532,14 @@ CompilerErrorInfo GetErrorInfo(ParserToken &token) {
 void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const string &expression_type) {
 	if (expression_tokens.size() == 1) {
 		if (expression_tokens[0].type_ == NAME) {
-			if (expression_type == GetDeclarationType(expression_tokens[0], false)) {
+			if (expression_type == "any" || expression_type == GetDeclarationType(expression_tokens[0], false)) {
 				currentFunction->Mov("eax", GetAssemblyNameOfVariable(expression_tokens[0]));
 				return;
 			} else {
 				CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(expression_tokens[0]));
 				return;
 			}
-		} else if (EqualType(expression_tokens[0], expression_type)) {
+		} else if (expression_type == "any" || EqualType(expression_tokens[0], expression_type)) {
 			currentFunction->Mov("eax", expression_tokens[0].value_);
 			return;
 		}

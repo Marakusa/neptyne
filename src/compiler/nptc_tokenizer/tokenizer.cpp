@@ -33,7 +33,7 @@ const vector<string> kTypes{
 	"void"
 };
 
-const vector<string> kEywords{
+const vector<string> kKeywords{
 	"const",
 	"readonly",
 	"bring",
@@ -42,7 +42,11 @@ const vector<string> kEywords{
 	"while",
 	"for",
 	"sizeof",
-	"return"
+	"return",
+	"fluid",
+	"ptr",
+	"ditch",
+	"dur"
 };
 
 vector<Token> parser_input_tokens;
@@ -541,7 +545,7 @@ TokenType GetTokenTyke(const string &value) {
 		return BOOLEAN_LITERAL;
 	} else if (find(kTypes.begin(), kTypes.end(), value) != kTypes.end()) {
 		return VALUE_TYPE;
-	} else if (find(kEywords.begin(), kEywords.end(), value) != kEywords.end()) {
+	} else if (find(kKeywords.begin(), kKeywords.end(), value) != kKeywords.end()) {
 		return KEYWORD;
 	} else if (value == "null") {
 		return NULL_VALUE;

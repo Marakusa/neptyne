@@ -1,0 +1,58 @@
+// This script has some examples of future features of Neptyne
+
+void main: {
+
+    // # Pointers and references
+
+    // Points to a variables memory address
+    int a = 102;      // Define a variable
+
+    // Define a pointer with a specified type
+    // Variables address is referenced with an ampersand `&` operator
+    int* b = &a;      // Define a pointer and reference the `a` variable
+
+    // Pointers can point to another pointer
+    // `ptr` keyword can also be used for defining a pointer
+    int ptr c = b;    // Define a pointer and point to another pointer
+
+
+
+    // # Fluid variables
+
+    // Normal variables cannot be reassigned
+    // Fluid variables are reassignable
+    // The `fluid` keyword can also appear before type: `fluid int`
+
+    int fluid d = 44; // Define a fluid variable
+    d = 12;           // Reassign variable doesn't throw errors
+
+
+
+    // # Durable variables and ditching
+
+    // Used to define variables into the heap memory and store there until they are ditched
+    // Durable variables doesn't have a garbage collector, so you have to make it yourself
+    // Also durable variables are fluid variables, so no `fluid` keyword is needed
+    dur int e = 20;   // Define a durable variable
+    // Ditching variables remove them from the memory
+    // NOTE: Only durable variables can be ditched!
+    ditch e;          // Ditch the `e` durable variable
+
+
+
+    // # Smart pointers
+
+    int fluid f = 97; // Define a fluid variable
+    int ptr@ g = f;   // Define a smart pointer
+    f = 22;           // Variable `f` is reassigned here
+                      // The variable `f` is automatically freed here,
+                      // so the `g` smart pointer is not valid here anymore
+
+    dur int h = 55;   // Define a durable variable
+    g = h;            // Invalid smart pointers can be reassigned
+    h = 64;           // Variable `h` is reassigned here
+                      // The durable variable `h` is still valid here,
+                      // so is the `g` smart pointer
+    ditch h;          // Ditch the `h` variable and free it from the memory
+                      // The `g` smart pointer is not valid here anymore
+}

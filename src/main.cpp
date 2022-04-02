@@ -3,8 +3,17 @@
 #include "logger/logger.h"
 #include "compiler/nptc_compiler_errors/models/CompilerException.h"
 
+fs::path selfPath;
+
+fs::path getSelfPath() {
+	return selfPath;
+}
+
 int main(int argc, char *argv[]) {
-	cout << "Neptyne v0.1.1" << endl;
+	cout << "Neptyne v0.1.2" << endl;
+	
+	selfPath = argv[0];
+	selfPath = selfPath.remove_filename();
 	
 	try {
 		if (argc > 1) {

@@ -10,3 +10,5 @@
 
 using namespace std;
 namespace fs = filesystem;
+
+fs::path getSelfPath();
