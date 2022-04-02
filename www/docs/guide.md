@@ -1,1 +1,0 @@
-# Neptyne Beginners Guide
