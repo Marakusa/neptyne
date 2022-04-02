@@ -1,3 +1,6 @@
+<h1 align="center">⚠️⚠️⚠️ [DEPRECATED] REWRITE ON <a href="https://github.com/Marakusa/neptyne/tree/main">THIS BRANCH</a> ⚠️⚠️⚠️</h1>
+
+
 ![LogoGithub](https://user-images.githubusercontent.com/29477753/157120167-e1b37d10-16be-4cf6-ab35-11352780bce3.svg)
 
 Neptyne is a simple programming language created just for fun and learning the compile process. The Neptyne compiler compiles Neptyne code to Assembly language.
