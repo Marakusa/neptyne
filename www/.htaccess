@@ -1,0 +1,6 @@
+RewriteEngine On
+RewriteRule ^documentation$ documentation.php [L]
+RewriteRule ^documentation/(.*)$ documentation.php?path=$1 [L]
+RewriteRule ^download$ download.php [L]
+RewriteRule ^index$ index.php [L]
+RewriteRule ^news$ news.php [L]

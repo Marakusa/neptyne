@@ -1,0 +1,18 @@
+:root {
+    --background: #050613;
+    --background2: #06061a;
+    --color: #dadcfc;
+    --toggle-back: #1b123c;
+    --code: #202442;
+}
+
+a {
+    color: var(--color2);
+}
+
+header {
+    background-color: var(--background2);
+}
+header .logo {
+    background-image: url('../images/LogoWhite.svg');
+}

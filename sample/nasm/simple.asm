@@ -1,20 +1,14 @@
 section .data
+	message db 'The character is: %c', 10, 0
 
 section .text
-	global 	_start
+	extern printf   ; If you need other functions, list them in a similar way
+	global _start
 
 _start:
-	call    _main
-	mov     eax, 1                  ; syscall = 1 == exit
-	mov     ebx, 0                  ; fd = 0 == stdin
-	int     80h                     ; Call kernel
-
-_main:
-	push    rbp                     ; Save address of previous stack frame
-	mov     rbp, rsp                ; Address of current stack frame
-		
-	mov  	DWORD [rbp-0x1], 21
-
-    mov     eax, 0					  ; Set return value from this function to 0
-	pop		rbp						  ; Cleanup the stack
-	ret								  ; Return
+    mov eax, 0x21  ; The '!' character
+    push rax
+    push message
+    call printf
+    add esp, 8     ; Restore stack - 4 bytes for eax, and 4 bytes for 'message'
+    ret
