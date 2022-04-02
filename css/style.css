@@ -1,0 +1,431 @@
+:root {
+    --white: #f3f2ff;
+    --color1: #151e6a;
+    --color2: #0056ff;
+    --color3: #422feb;
+    --color4: #363a6b;
+    --color5: #252fb8;
+    --promote: #1b1336;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Fredoka', sans-serif;
+    background-color: var(--background);
+    color: var(--color);
+}
+
+@media (max-width: 700px) {
+    .logo {
+        flex: none;
+    }
+    header {
+        flex-direction: column;
+    }
+    header a {
+        width: 100%;
+        text-align: center;
+    }
+    .promote {
+        top: 270px !important;
+    }
+}
+
+header {
+    width: 100%;
+    height: auto;
+    min-height: 70px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    z-index: 10;
+}
+header .logo {
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 185px;
+    height: 50px;
+    margin: 5px 10px 5px 0;
+}
+header a {
+    user-select: none;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: 10px;
+    text-decoration-line: none;
+    color: var(--color);
+    transition: 0.1s;
+    border-bottom: dashed 0 var(--color2);
+    white-space: nowrap;
+}
+header a:hover {
+    border-bottom: solid 4px var(--color2);
+}
+
+.page {
+    position: absolute;
+    width: 100%;
+    top: 70px;
+    left: 0;
+    right: 0;
+}
+.page-content {
+    background-color: var(--background);
+}
+
+.promote-bg {
+    background-color: var(--promote);
+    position: fixed;
+    background-image: url('../images/Promote.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+    top: 70px;
+    bottom: 200px;
+    left: 0;
+    right: 0;
+    z-index: -1;
+}
+.promote {
+    color: var(--white);
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 800px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    user-select: none;
+}
+.promote .header-text {
+    height: 100px;
+    top: 25%;
+    position: relative;
+    text-align: center;
+}
+.promote .header-text h1 {
+    font-size: 50px;
+}
+.promote .promote-buttons {
+    display: inline-flex;
+    flex-direction: row;
+}
+.promote .promote-buttons button {
+    margin: 5px;
+}
+
+button {
+    border: solid var(--color3) 1px;
+    border-radius: 5px;
+    background-color: var(--color1);
+    color: var(--white);
+    padding: 10px 40px;
+    margin: auto;
+    display: block;
+    cursor: pointer;
+    transition: 0.1s;
+}
+button:hover {
+    border-color: var(--color3);
+    background-color: var(--color5);
+}
+button:active {
+    border-color: var(--color3);
+    background-color: var(--color2);
+}
+
+.horizontal-guide {
+    max-width: 1000px;
+    margin: auto;
+    display: flex;
+    padding: 20px;
+}
+.horizontal-guide div {
+    border-top: dashed 0 var(--color1);
+    padding: 10px;
+    width: 23.40426%;
+    float: left;
+    margin-right: 2.12766%;
+    transition: 0.1s;
+}
+.horizontal-guide div:hover {
+    border-top: solid 5px var(--color3);
+}
+.horizontal-guide div h2 {
+    margin: 5px 0;
+}
+.horizontal-guide div a {
+    padding: 10px 10px 10px 0;
+    width: 100%;
+}
+
+.header-text div pre code {
+    text-align: start;
+    float: left;
+    width: calc(100% - 30px);
+    background-color: #000a;
+    padding: 10px;
+    margin: 5px;
+    user-select: text;
+    border-radius: 10px;
+}
+.code-keyword {
+    color: rgb(255, 100, 185);
+}
+.code-type {
+    color: rgb(206, 100, 255);
+}
+.code-number {
+    color: rgb(255, 116, 81);
+}
+.code-string {
+    color: rgb(44, 255, 167);
+}
+.code-operator {
+    color: rgb(154, 210, 255);
+}
+.code-comment {
+    color: rgb(142, 103, 204);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--toggle-back);
+    border: solid 1px var(--color3);
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--toggle-back);
+    border: solid 1px var(--color3);
+}
+input:checked + .slider::before {
+    content: '🌜';
+    font-size: 20.2px;
+    background-color: var(--color4);
+    margin: -1px;
+}
+input:not(:checked) + .slider::before {
+    content: '🌞';
+    font-size: 20.2px;
+    background-color: var(--white);
+    margin: -1px;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px var(--color3);
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.content {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.documentation-page {
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    width: 100%;
+    height: calc(100% - 70px);
+}
+
+.documentation-sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    background-color: #00000005;
+    border-right: solid 1px var(--color);
+    padding: 10px;
+}
+
+.documentation-sidebar .sidebar-doc-link {
+    margin: 1px 0;
+    padding: 10px;
+    width: calc(100% - 20px);
+    height: fit-content;
+    border-radius: 10px;
+    transition: 0.2s;
+    user-select: none;
+    text-decoration-line: none;
+}
+.documentation-sidebar .sidebar-doc-link:hover {
+    margin-left: 5px;
+    background-color: var(--color2);
+    color: white;
+}
+.documentation-sidebar .sidebar-doc-link::before, .documentation-sidebar .sidebar-doc-link::before {
+    color: white;
+    content: '› ';
+    width: 0;
+    font-size: 0;
+    transition: 0.2s;
+}
+.documentation-sidebar .sidebar-doc-link:hover::before, .documentation-sidebar .sidebar-doc-link:active::before {
+    content: '› ';
+    width: auto;
+    font-size: unset;
+}
+.documentation-sidebar .sidebar-doc-link:active {
+    margin-left: 3px;
+    background-color: var(--color3);
+    color: white;
+}
+
+.documentation-page .page-content {
+    width: inherit;
+    height: calc(100% - 100px);
+    padding: 50px;
+    overflow-y: auto;
+}
+
+.content .row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 12px;
+    width: 100%;
+}
+
+.content .row>.column {
+    box-sizing: border-box;
+    display: block;
+    flex-basis: calc(25% - 8px);
+    flex-grow: 1;
+    flex-shrink: 1;
+    margin-right: 12px;
+    overflow-x: auto;
+    width: 100%;
+}
+
+p code, li code {
+    background-color: var(--code);
+    border-radius: 5px;
+    padding: 0 2px;
+}
+
+.content pre code {
+    text-align: start;
+    float: left;
+    width: calc(100% - 30px);
+    padding: 10px;
+    margin: 5px;
+    user-select: text;
+    border-radius: 5px;
+    background-color: var(--code);
+    margin: 10px 0 30px 0;
+}
+
+.docs-edit-tools {
+    top: 30px;
+    right: 65px;
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+.docs-edit-tools a {
+    user-select: none;
+    cursor: pointer;
+    padding: 10px;
+    margin-right: 10px;
+    text-decoration-line: none;
+    color: var(--color);
+    transition: 0.1s;
+    border-bottom: dashed 0 var(--color2);
+    white-space: nowrap;
+}
+.docs-edit-tools a:hover {
+    border-bottom: solid 4px var(--color2);
+}
+
+.download-page {
+    display: flex;
+    flex-direction: row;
+}
+
+.download-page .content {
+    width: 50%;
+    margin: 20px;
+    padding: 50px;
+    background-color: var(--code);
+    border: solid 1px var(--color4);
+    border-radius: 10px;
+}
+.download-page .content:first-child, .download-page2 .content {
+    text-align: center;
+}
+
+.download-page2 {
+    display: flex;
+}
+.download-page2 .content {
+    width: 100%;
+    min-width: -webkit-fill-available;
+    margin: 20px;
+    padding: 50px;
+    background-color: var(--code);
+    border: solid 1px var(--color4);
+    border-radius: 10px;
+}
+
+.download-buttons {
+    display: flex;
+    flex-direction: row;
+}
+.download-buttons button {
+    margin-bottom: 5px;
+    display: block;
+}
