@@ -1,0 +1,113 @@
+<script>
+function setCookie(name,value,days) {
+    var expires = "";
+    if (days) {
+        var date = new Date();
+        date.setTime(date.getTime() + (days*24*60*60*1000));
+        expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + (value || "")  + expires + "; path=/";
+}
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
+function eraseCookie(name) {   
+    document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+
+if (getCookie('neptyne-theme') != undefined) {
+    theme = getCookie('neptyne-theme');
+}
+else {
+    theme = '0';
+}
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+var path = '';
+var pathBackings = '';
+
+if (urlParams.get('path') != undefined) {
+    path = urlParams.get('path');
+    var i = 0;
+    var pathPartsCount = path.split('/').length;
+    while(i < pathPartsCount) {
+        pathBackings += '../';
+        i++;
+    }
+}
+</script>
+
+<head>
+    <title>Neptyne</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<script>
+    var head = document.getElementsByTagName("head")[0];
+    var styleHeadingDiv = document.createElement("link");
+    if (theme != '0') {
+    	styleHeadingDiv.rel = "stylesheet";
+    	styleHeadingDiv.href = pathBackings + "css/style-dark.css";
+    }
+    else {
+    	styleHeadingDiv.rel = "stylesheet";
+    	styleHeadingDiv.href = pathBackings + "css/style-light.css";
+    }
+    
+    head.appendChild(styleHeadingDiv);
+    
+    var styleHeadingDiv2 = document.createElement("link");
+    styleHeadingDiv2.rel2 = "stylesheet";
+    styleHeadingDiv2.href2 = pathBackings + "css/style.css";
+    
+    head.appendChild(styleHeadingDiv2);
+</script>
+    
+<header>
+    <div style="cursor: pointer;" onclick="window.location.href = '<?php echo $pathBackings; ?>./';"><div class="logo"></div></div>
+    <a href="<?php echo $pathBackings; ?>./#about">About</a>
+    <a href="<?php echo $pathBackings; ?>download">Download</a>
+    <a href="<?php echo $pathBackings; ?>documentation">Documentation</a>
+    <a href="<?php echo $pathBackings; ?>news">News</a>
+    <a href="https://github.com/Marakusa/neptyne">Source Code</a>
+    <div style="width: 100%;padding-right: 30px;">
+        <label class="switch" onClick="toggleDarkLight();" style="float: right;">
+            <input id="dark-light-checkbox" type="checkbox" <?php
+            if ($theme != 0) {
+                echo "checked";
+            }
+            ?> >
+            <span class="slider round"></span>
+        </label>
+    </div>
+
+<script>
+function toggleDarkLight() {
+    var checkbox = document.getElementById('dark-light-checkbox');
+    var head = document.getElementsByTagName('HEAD')[0];
+    
+    for (let i = 0; i < head.children.length; i++) {
+        const element = head.children[i];
+        if (element.rel === 'stylesheet') {
+            if (element.href.endsWith('style-light.css') || element.href.endsWith('style-dark.css')) {
+                element.href = checkbox.checked ? 'css/style-dark.css' : 'css/style-light.css';
+                setCookie("neptyne-theme", (checkbox.checked ? "1" : "0"), 10000);
+                break;
+            }
+        }
+    }
+}
+</script>
+</header>
+
