@@ -1,11 +1,11 @@
 #!/bin/sh
 
 # Call nasm assembler
-./linux/nasm -w+all -f elf64 -o "$2/$1.o" "$1.asm"
+./linux/nasm -w+all -f elf64 -o "$1.o" "$1.asm"
 
-if test -f "$2/$1.o"; then
+if test -f "$1.o"; then
     # Call linker
-    ld -s -o "$2/$1" "$2/$1.o"
+    gcc -m64 "$1.o" -o "$1"
     # Cleanup
-    rm "$2/$1.o"
+    rm "$1.o"
 fi

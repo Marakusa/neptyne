@@ -276,7 +276,7 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				currentFunction->Mov("ecx", "eax");
 				currentFunction->Mov("eax", "4");
 				currentFunction->Mov("ebx", "1");
-				currentFunction->Mov("edx", "1");
+				currentFunction->Mov("edx", "4");
 				currentFunction->Int("80h");
 				
 				token = Increment(tokens, TERMINATOR_EXPECTED);
