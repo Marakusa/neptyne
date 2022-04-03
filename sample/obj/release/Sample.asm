@@ -20,7 +20,7 @@ _main:
 	mov ecx, eax
 	mov eax, 4
 	mov ebx, 1
-	mov edx, 1
+	mov edx, 4
 	int 80h
 	mov eax, DWORD [rbp-8]
 	pop rbp

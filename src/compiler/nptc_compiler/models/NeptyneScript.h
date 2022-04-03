@@ -8,7 +8,7 @@
 
 class NeptyneScript {
  public:
-  string full_path_;
+  fs::path full_path_;
   string filename_;
   string extension_;
   string name_;
@@ -24,10 +24,10 @@ class NeptyneScript {
   explicit NeptyneScript(const string &file) {
 	  if (!file.empty()) {
 		  full_path_ = fs::canonical(file);
-		  filename_ = full_path_.substr(full_path_.find_last_of("/\\") + 1);
+		  filename_ = full_path_.string().substr(full_path_.string().find_last_of("/\\") + 1);
 		  extension_ = filename_.substr(filename_.find_last_of('.'));
 		  name_ = filename_.substr(0, filename_.length() - extension_.length());
-		  directory_path_ = full_path_.substr(0, full_path_.find_last_of("/\\") + 1);
+		  directory_path_ = full_path_.string().substr(0, full_path_.string().find_last_of("/\\") + 1);
 		  obj_directory_path_ = directory_path_;
 		  output_executable_path_ = directory_path_ + name_;
 		  output_assembly_path_ = obj_directory_path_ + name_ + ".asm";

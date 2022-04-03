@@ -56,7 +56,7 @@ void Compile(const NeptyneScript &script) {
 	CompilerErrorsReset();
 	
 	// Read parser_script file
-	string code = ReadFile(script.full_path_);
+	string code = ReadFile(script.full_path_.string());
 	neptyneScript = script;
 	neptyneScript.code_ = code;
 	
