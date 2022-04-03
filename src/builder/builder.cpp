@@ -24,8 +24,8 @@ bool Build(const string &file) {
 		Split(lines, project_file_content, "\n");
 		
 		// Create a project class object
-		string full_path = fs::canonical(file);
-		string directory_path = full_path.substr(0, full_path.find_last_of("/\\") + 1);
+		fs::path full_path = fs::canonical(file);
+		string directory_path = full_path.string().substr(0, full_path.string().find_last_of("/\\") + 1);
 		NeptyneProject project = NeptyneProject();
 		for (auto & line : lines) {
 			if (line.substr(0, 5) == "name:") {
