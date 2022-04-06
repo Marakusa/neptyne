@@ -69,15 +69,15 @@ void Compile(const NeptyneScript &script, bool run) {
 	vector<Token> tokens = Tokenize(neptyneScript);
 	
 	// Parse parser_input_tokens into a syntax tree
-	ParserToken root_token = ParserToken(ROOT, neptyneScript.name_, 1, 1, neptyneScript);
-	ParseToSyntaxTree(root_token, tokens, neptyneScript);
+	ParserToken abstract_syntax_tree = ParserToken(ROOT, neptyneScript.name_, 1, 1, neptyneScript);
+	ParseToSyntaxTree(abstract_syntax_tree, tokens, neptyneScript);
 	
 	// Compile code into functions and statements
 	assemblyScript = AssemblyScript();
 	compiler_index = 0;
 	scope_memory_size_offset = 0;
-	while (compiler_index < root_token.parameters_.size()) {
-		CompilerStep(root_token.parameters_, &root_token);
+	while (compiler_index < abstract_syntax_tree.parameters_.size()) {
+		CompilerStep(abstract_syntax_tree.parameters_, &abstract_syntax_tree);
 		compiler_index++;
 	}
 	
