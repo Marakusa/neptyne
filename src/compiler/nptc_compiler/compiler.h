@@ -6,4 +6,4 @@
 
 #include "models/NeptyneScript.h"
 
-void Compile(const NeptyneScript &script);
+void Compile(const NeptyneScript &script, bool run);

@@ -52,7 +52,7 @@ struct AssemblyFunctionFinder {
   string name;
 };
 
-void Compile(const NeptyneScript &script) {
+void Compile(const NeptyneScript &script, bool run) {
 	CompilerErrorsReset();
 	
 	// Read parser_script file
@@ -113,18 +113,22 @@ void Compile(const NeptyneScript &script) {
 	
 	// Write binaries
 #ifdef _WIN32
-	//system("");
-	cout << "Compiling in Windows is not supported yet" << endl;
+    string selfPath = string(getSelfPath().u8string());
+    ReplaceAll(selfPath, " ", "\\ ");
+    string e = "" + selfPath + "vendor\\nasm\\windows.bat \"" + script.output_assembly_path_ + "\" \"" + script
+            .output_obj_path_ + "\" \""
+               + script.output_executable_path_ + ".exe\" \"" + selfPath + "\"";
+    system(e.c_str());
 #endif
 #ifdef TARGET_OS_MAC
 	//system("");
 	cout << "Compiling in macOS is not supported yet" << endl;
 #endif
 #ifdef __linux__
-	string e = string(getSelfPath()) + "vendor/nasm/linux.sh \"" + script.output_assembly_path_ + "\" \"" + script
+	string e = "\"" + string(getSelfPath()) + "vendor/nasm/linux.sh\" \"" + script.output_assembly_path_ + "\" \"" + script
 		.output_obj_path_ + "\" \""
 		+ script.output_executable_path_ + "\" \"" + string(getSelfPath()) + "\"";
-	system(e.c_str());
+    system(e.c_str());
 #endif
 }
 

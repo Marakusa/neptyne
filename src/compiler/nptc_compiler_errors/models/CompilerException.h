@@ -4,7 +4,7 @@
 
 #pragma once
 
-#import "../../../common/common.h"
+#include "../../../common/common.h"
 
 struct CompilerException : public exception {
   string message;

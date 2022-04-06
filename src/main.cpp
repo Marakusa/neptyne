@@ -26,17 +26,17 @@ int main(int argc, char *argv[]) {
 	
 	try {
 		if (argc > 1) {
-			if (string(argv[1]) == "build") {
+			if (string(argv[1]) == "build" || string(argv[1]) == "run") {
 				if (argc > 2) {
 					string f = string(argv[2]);
 					if (fs::exists(f)) {
 						if (!fs::is_directory(f)) {
 							Log("Build started");
-							Build(f);
+							Build(f, string(argv[1]) == "run");
 						} else {
 							if (fs::exists(f + "/Project.nptp")) {
 								Log("Project build started");
-								Build(f + "/Project.nptp");
+								Build(f + "/Project.nptp", string(argv[1]) == "run");
 							} else {
 								cout << "Project.nptp not found in directory: " << f << endl;
 								throw "Project.nptp not found in directory";

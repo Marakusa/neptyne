@@ -8,13 +8,13 @@
 #include "../utils/file_utils.h"
 #include "../compiler/nptc_compiler/models/NeptyneProject.h"
 
-bool BuildScript(const NeptyneScript& script_file) {
+bool BuildScript(const NeptyneScript& script_file, bool run) {
 	cout << "Compile " << script_file.full_path_ << endl;
-	Compile(script_file);
+	Compile(script_file, run);
 	return true;
 }
 
-bool Build(const string &file) {
+bool Build(const string &file, bool run) {
 	if(file.substr(file.find_last_of('.') + 1) == "nptp") {
 		cout << "Project " << file << endl;
 		
@@ -46,11 +46,11 @@ bool Build(const string &file) {
 		project.executable_.output_obj_path_ = project.executable_.obj_directory_path_ + project.name_ + ".obj";
 		project.executable_.output_executable_path_ = project.executable_.directory_path_ + project.name_;
 		
-		BuildScript(project.executable_);
+		BuildScript(project.executable_, run);
 		return true;
 	} else {
 		NeptyneScript script_file = NeptyneScript(file);
-		BuildScript(script_file);
+		BuildScript(script_file, run);
 		return true;
 	}
 }

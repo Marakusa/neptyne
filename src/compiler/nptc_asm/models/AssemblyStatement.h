@@ -4,7 +4,7 @@
 
 #pragma once
 
-#import "../../../common/common.h"
+#include "../../../common/common.h"
 
 class AssemblyStatement {
  public:
