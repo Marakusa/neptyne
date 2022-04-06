@@ -8,7 +8,7 @@
 #include "../../utils/file_utils.h"
 #include "compiler.h"
 #include "models/NeptyneScript.h"
-#include "../nptc_tokenizer/tokenizer.h"
+#include "../nptc_lexer/lexer.h"
 #include "../nptc_parser/parser.h"
 #include "../nptc_asm/models/AssemblyScript.h"
 #include "../nptc_compiler_errors/models/CompilerErrorInfo.h"

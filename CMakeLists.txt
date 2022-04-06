@@ -16,11 +16,11 @@ add_executable(
         src/compiler/nptc_compiler/compiler.h
         src/utils/file_utils.h
         src/compiler/nptc_compiler/models/NeptyneScript.h
-        src/compiler/nptc_tokenizer/tokenizer.cpp
-        src/compiler/nptc_tokenizer/tokenizer.h
+        src/compiler/nptc_lexer/lexer.cpp
+        src/compiler/nptc_lexer/lexer.h
         src/common/common.h
-        src/compiler/nptc_tokenizer/models/Token.h
-        src/compiler/nptc_tokenizer/models/TokenType.h
+        src/compiler/nptc_lexer/models/Token.h
+        src/compiler/nptc_lexer/models/TokenType.h
         src/utils/string_utils.h
         src/compiler/nptc_compiler_errors/models/CompilerException.h
         src/utils/string_utils.cpp

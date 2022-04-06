@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../../../common/common.h"
-#include "../../nptc_tokenizer/models/TokenType.h"
+#include "../../nptc_lexer/models/TokenType.h"
 #include "../../nptc_compiler/models/NeptyneScript.h"
 
 class ParserToken {

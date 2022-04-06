@@ -4,7 +4,7 @@
 
 #include <regex>
 #include "../../common/common.h"
-#include "tokenizer.h"
+#include "lexer.h"
 #include "../nptc_compiler_errors/compiler_errors.h"
 
 int line, line_begin_index, i, tab_offset;
