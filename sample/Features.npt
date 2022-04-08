@@ -19,8 +19,8 @@ void main: {
 
     // # Fluid variables
 
-    // Normal variables cannot be reassigned
-    // Fluid variables are reassignable
+    // Normal variables cannot be reassigned (immutable)
+    // Fluid variables are reassignable (mutable)
     // The `fluid` keyword can also appear before type: `fluid int`
 
     int fluid d = 44; // Define a fluid variable
