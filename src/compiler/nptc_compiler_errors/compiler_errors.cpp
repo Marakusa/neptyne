@@ -56,7 +56,7 @@ void LineNumber(char result[8], int line) {
 	}
 }
 
-const char *LineErrorPointer(string &result, int column) {
+void LineErrorPointer(string &result, int column) {
 	result = "";
 	int i;
 	

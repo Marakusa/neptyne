@@ -33,3 +33,5 @@ cmake-build-release
 *.out
 *.app
 
+[Rr]elease/
+[Dd]ebug/
