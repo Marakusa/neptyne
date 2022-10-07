@@ -3,6 +3,7 @@
 #include "builder/builder.h"
 #include "logger/logger.h"
 #include "compiler/nptc_compiler_errors/models/CompilerException.h"
+#include "compiler/nptc_compiler_linux/compiler_linux.cpp"
 
 fs::path selfPath;
 
@@ -31,11 +32,11 @@ int main(int argc, char *argv[]) {
 					string f = string(argv[2]);
 					if (fs::exists(f)) {
 						if (!fs::is_directory(f)) {
-							Log("Build started");
+							LogInfo("Build started");
 							Build(f, string(argv[1]) == "run");
 						} else {
 							if (fs::exists(f + "/Project.nptp")) {
-								Log("Project build started");
+								LogInfo("Project build started");
 								Build(f + "/Project.nptp", string(argv[1]) == "run");
 							} else {
 								cout << "Project.nptp not found in directory: " << f << endl;
@@ -108,6 +109,8 @@ int main(int argc, char *argv[]) {
 				} else {
 					throw "Invalid syntax, correct: npt project <name> <directory>";
 				}
+			} else if (string(argv[1]) == "dev") {
+				buildELF();
 			} else {
 				cout << "Invalid command " << string(argv[1]) << "\nCommands:\n" << listCommands() << endl;
 				throw "Invalid command";
@@ -121,7 +124,7 @@ int main(int argc, char *argv[]) {
 		cout << e.Get() << endl;
 	}
 	catch (const char *e) {
-		Log("Error: %s", e);
+		LogError("%s", e);
 	}
 	
 	return 0;

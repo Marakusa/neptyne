@@ -13,7 +13,7 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 		case CANNOT_RESOLVE_SYMBOL:return {"NPT1002", "Cannot resolve symbol '%v'", type};
 		case TERMINATOR_EXPECTED:return {"NPT1003", "; expected", type};
 		case SYMBOL_EXPECTED:return {"NPT1004", "%v expected", type};
-		case INVALID_NUMBER_LITERAL:return {"NPT1004", "Invalid number literal", type};
+		case INVALID_NUMBER_LITERAL:return {"NPT1005", "Invalid number literal", type};
 			
 			// Statement errors
 		case INVALID_BRING_STATEMENT_PLACEMENT:

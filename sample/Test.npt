@@ -1,8 +1,1 @@
-int main: {
-    int a = 112;
-    int b = a;
-
-    out(b);
-
-    return b;
-}
+out("test");

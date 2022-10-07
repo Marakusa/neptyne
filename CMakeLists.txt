@@ -10,7 +10,6 @@ add_executable(
         src/main.cpp
         src/builder/builder.cpp
         src/builder/builder.h
-        src/logger/logger.cpp
         src/logger/logger.h
         src/compiler/nptc_compiler/compiler.cpp
         src/compiler/nptc_compiler/compiler.h
