@@ -20,7 +20,7 @@ string listCommands() {
 }
 
 int main(int argc, char *argv[]) {
-	cout << "Neptyne v0.1.3" << endl;
+	cout << "Neptyne v0.1.4" << endl;
 	
 	selfPath = argv[0];
 	selfPath = selfPath.remove_filename();

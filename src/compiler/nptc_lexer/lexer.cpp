@@ -89,7 +89,7 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 			CheckNextLine();
 			continue;
 		}
-		
+
 		// Comments '//' and '/* ~~~ */'
 		if (current == '/') {
 			if (i + 1 < code.length()) {
@@ -191,6 +191,7 @@ vector<Token> Tokenize(NeptyneScript &code_script) {
 						value += ConvertToString(current);
 					} else if (s == "\"") {
 						AddToken(STRING_LITERAL, value);
+						break;
 					} else {
 						value += ConvertToString(current);
 					}

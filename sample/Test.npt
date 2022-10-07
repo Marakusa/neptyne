@@ -1,1 +1,4 @@
-out("test");
+int main: {
+    string s = "Hello World";
+    out(s);
+}
