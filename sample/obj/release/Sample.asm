@@ -4,8 +4,16 @@ section .data
 	s_0_len equ $ - s_0
 
 section .text
+	global _start
 	global main
-_test:
+
+_start:
+	call main
+	mov eax, 1
+	mov ebx, 0
+	int 80h
+
+_Test:
 	push rbp
 	mov rbp, rsp
 	mov eax, s_0
@@ -25,10 +33,11 @@ _test:
 	mov eax, 0
 	pop rbp
 	ret
+
 main:
 	push rbp
 	mov rbp, rsp
-	call _test
+	call _Test
 	mov eax, 0
 	pop rbp
 	ret

@@ -31,10 +31,10 @@ string ParseToFunctionName(string s) {
 	regex regex("([a-zA-Z0-9]+)");
 	// Parse to pascal casing
 	string result = "";
-	bool nextIsUpper = true;
+	bool nextIsUpper = false;
 	for (int i = 0; i < s.length(); i++) {
 		if (s[i] == ' ' || s[i] == '_' || s[i] == '-') {
-			nextIsUpper = true;
+			nextIsUpper = result.length() > 0;
 		} else {
 			if (result == "" && regex_match(string(1, s[i]), numberRegex)) {
 				continue;
@@ -74,12 +74,12 @@ int main(int argc, char *argv[]) {
 						LogInfo("Build started");
 						Build(f, string(argv[1]) == "run");
 					} else {
-						if (fs::exists(f + "/Project.nptp")) {
+						if (fs::exists(f + "/project.nptp")) {
 							LogInfo("Project build started");
-							Build(f + "/Project.nptp", string(argv[1]) == "run");
+							Build(f + "/project.nptp", string(argv[1]) == "run");
 						} else {
-							cout << "Project.nptp not found in directory: " << f << endl;
-							throw "Project.nptp not found in directory";
+							cout << "project.nptp not found in directory: " << f << endl;
+							throw "project.nptp not found in directory";
 						}
 					}
 				} else {
@@ -100,25 +100,25 @@ int main(int argc, char *argv[]) {
 							throw "The given path exists but is not a directory";
 						}
 						
-						if (fs::exists(directory + "/Project.nptp")) {
-							cout << "Project.nptp already exists in the given directory" << endl;
-							throw "Project.nptp already exists in the given directory";
+						if (fs::exists(directory + "/project.nptp")) {
+							cout << "project.nptp already exists in the given directory" << endl;
+							throw "project.nptp already exists in the given directory";
 						}
 					} else {
 						fs::create_directory(directory);
 					}
 					
 					ofstream projectFile;
-					projectFile.open(directory + "/Project.nptp");
+					projectFile.open(directory + "/project.nptp");
 					projectFile << "name:" << name << endl <<
 					            "version:0.1.0" << endl <<
 					            "description:This is a new project named " << name << endl <<
-					            "executable:Main.npt" << endl;
+					            "executable:main.npt" << endl;
 					projectFile.close();
 					
 					ofstream mainFile;
-					mainFile.open(directory + "/Main.npt");
-					mainFile << "void Main: {" << endl <<
+					mainFile.open(directory + "/main.npt");
+					mainFile << "void main: {" << endl <<
 					         "\tout(\"Hello world!\");" << endl <<
 					         "}" << endl;
 					mainFile.close();

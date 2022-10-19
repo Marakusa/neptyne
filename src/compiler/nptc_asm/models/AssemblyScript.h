@@ -16,6 +16,8 @@ class AssemblyScript {
 	  variables_ = vector<AssemblyVariable>();
 	  string_literals_ = vector<string>();
 	  string_literal_names_ = vector<string>();
+	  AssemblyFunction start_function = AssemblyFunction("void", "start");
+	  functions_.push_back(start_function);
   }
   
   vector<AssemblyFunction> functions_;
@@ -26,21 +28,30 @@ class AssemblyScript {
   void Form(string &result) {
 	  result = "";
 	  result += "section .data\n" + ParseStringLiterals() + "\n";
-	  result += "section .text\n\tglobal main\n";
+	  result += "section .text\n\tglobal _start\n\tglobal main\n";
+	  AssemblyFunction *start_function = &functions_[0];
+	  
+	  // First find main function
+	  for (int i = 1; i < functions_.size(); i++) {
+		  AssemblyFunction *function = &functions_[i];
+		  if (function->name_ == "main") {
+			  start_function->Call(*function);
+			  start_function->Mov("eax", "1");
+			  start_function->Mov("ebx", "0");
+			  start_function->Int("80h");
+		  }
+	  }
 	  
 	  // Stringify functions
 	  for (auto &i : functions_) {
 		  AssemblyFunction *function = &i;
 		  
 		  // Function name
-		  if (function->name_ == "_main") {
-			  result += "main:\n";
-		  } else {
-			  result += function->name_ + ":\n";
-		  }
+		  result += "\n" + function->name_ + ":\n";
 		  
 		  // Function init
-		  result += "\tpush rbp\n\tmov rbp, rsp\n";
+		  if (function->name_ != "_start")
+			  result += "\tpush rbp\n\tmov rbp, rsp\n";
 		  
 		  for (auto &statement : function->statements_) {
 			  AssemblyStatement *s = &statement;
@@ -51,7 +62,7 @@ class AssemblyScript {
 		  }
 		  
 		  // Set return statement if not included in function
-		  if (!function->has_return_statement_)
+		  if (!function->has_return_statement_ && function->name_ != "_start")
 			  result += "\tmov eax, 0\n\tpop rbp\n\tret\n";
 	  }
   }

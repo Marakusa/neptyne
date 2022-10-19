@@ -6,10 +6,17 @@ section .data
 	s_0_len equ $ - s_0
 
 section .text
+	global _start
 	global main
 	global newline
 	global s_0
 	global s_0_len
+
+_start:
+	call main
+	mov eax, 1
+	mov ebx, 0
+	int 80h
 
 _test:
 	push rbp

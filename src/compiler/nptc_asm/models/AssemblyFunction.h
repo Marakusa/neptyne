@@ -5,6 +5,7 @@
 #pragma once
 
 #include <utility>
+#include <regex>
 
 #include "../../../common/common.h"
 #include "AssemblyStatement.h"
@@ -15,8 +16,10 @@ class AssemblyFunction {
   AssemblyFunction(const string &return_type, const string &function_name, vector<AssemblyVariable> parameters =
   vector<AssemblyVariable>()) {
 	  return_type_ = return_type;
-	  name_ = "_";
-	  name_ += function_name;
+    if (regex_match(function_name, regex("^[Mm][Aa][Ii][Nn]$")))
+	      name_ = "main";
+    else
+	      name_ = "_" + function_name;
 	  parameters_ = std::move(parameters);
 	  scope_ = kNullToken;
 	  scope_tokens_ = vector<ParserToken>();
@@ -25,8 +28,10 @@ class AssemblyFunction {
   AssemblyFunction(const string &return_type, const string &function_name, ParserToken scope,
                    vector<AssemblyVariable> parameters = vector<AssemblyVariable>()) {
 	  return_type_ = return_type;
-	  name_ = "_";
-	  name_ += function_name;
+    if (regex_match(function_name, regex("^[Mm][Aa][Ii][Nn]$")))
+	      name_ = "main";
+    else
+	      name_ = "_" + function_name;
 	  parameters_ = std::move(parameters);
 	  scope_ = std::move(scope);
 	  scope_tokens_ = scope_.parameters_;
