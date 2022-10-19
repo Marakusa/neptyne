@@ -6,6 +6,8 @@
 #include "compiler/nptc_compiler_linux/compiler_linux.cpp"
 #include <regex>
 
+const string version = "0.1.4";
+
 fs::path selfPath;
 
 fs::path getSelfPath() {
@@ -60,7 +62,7 @@ int main(int argc, char *argv[]) {
 	try {
 		if (argc > 1) {
 			if (string(argv[1]) == "build" || string(argv[1]) == "run") {
-				cout << "Neptyne v0.1.4" << endl;
+				cout << "Neptyne v" << version << endl;
 				
 				string f;
 				if (argc <= 2) {
@@ -162,15 +164,15 @@ int main(int argc, char *argv[]) {
 			} else if (string(argv[1]) == "dev") {
 				buildELF();
 			} else if (string(argv[1]) == "help") {
-				cout << "Neptyne v0.1.4" << endl;
+				cout << "Neptyne v" << version << endl;
 				cout << "Commands:\n" << listCommands() << endl;
 			} else {
-				cout << "Neptyne v0.1.4" << endl;
+				cout << "Neptyne v" << version << endl;
 				cout << "Invalid command " << string(argv[1]) << ", type \"npt help\" for a list of the commands" << endl;
 				throw "Invalid command";
 			}
 		} else {
-			cout << "Neptyne v0.1.4" << endl;
+			cout << "Neptyne v" << version << endl;
 			cout << "Command not given, type \"npt help\" for a list of the commands" << endl;
 			throw "Command not given";
 		}
