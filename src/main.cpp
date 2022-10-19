@@ -118,10 +118,15 @@ int main(int argc, char *argv[]) {
 					
 					ofstream mainFile;
 					mainFile.open(directory + "/Main.npt");
-					mainFile << "void main: {" << endl <<
+					mainFile << "void Main: {" << endl <<
 					         "\tout(\"Hello world!\");" << endl <<
 					         "}" << endl;
 					mainFile.close();
+					
+					ofstream gitIgnoreFile;
+					gitIgnoreFile.open(directory + "/.gitignore");
+					gitIgnoreFile << "bin/" << endl << "obj/" << endl;
+					gitIgnoreFile.close();
 				} else {
 					throw "Invalid syntax, correct: npt project <name> [directory]";
 				}
