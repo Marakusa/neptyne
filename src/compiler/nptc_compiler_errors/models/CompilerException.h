@@ -12,7 +12,7 @@ struct CompilerException : public exception {
  public:
   CompilerException(exception msg, const char *file, int line, int column) : std::exception(std::move(msg)) {
 	  string e_prefix = "[nptc] ";
-	  string e_suffix = ": (Line " + to_string(line) + ", Col " + to_string(column) + ")";
+	  string e_suffix = ":" + to_string(line) + ":" + to_string(column);
 	  message = e_prefix + msg.what() + e_suffix;
   }
   

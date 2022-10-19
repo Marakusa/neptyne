@@ -54,6 +54,7 @@ struct AssemblyFunctionFinder {
 
 void Compile(const NeptyneScript &script, bool run) {
 	CompilerErrorsReset();
+	assemblyScript = AssemblyScript();
 	
 	// Read parser_script file
 	string code = ReadFile(script.full_path_.string());
@@ -73,7 +74,6 @@ void Compile(const NeptyneScript &script, bool run) {
 	ParseToSyntaxTree(abstract_syntax_tree, tokens, neptyneScript);
 	
 	// Compile code into functions and statements
-	assemblyScript = AssemblyScript();
 	compiler_index = 0;
 	scope_memory_size_offset = 0;
 	while (compiler_index < abstract_syntax_tree.parameters_.size()) {
@@ -197,12 +197,13 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 			}
 			
 			// Statement is a definition
-			
+
 			token = Increment(tokens, EXPECTED_EXPRESSION);
 			
 			// Variable definition expression
 			vector<ParserToken> expression_tokens;
 			GetExpressionTokens(tokens, expression_tokens);
+			
 			if (expression_tokens.empty() && token.type_ == STATEMENT_TERMINATOR) {
 				CompilerError(EXPECTED_EXPRESSION, GetErrorInfo(token));
 				break;
@@ -238,6 +239,8 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 					currentFunction->has_return_statement_ = true;
 					currentFunction->Mov("eax", "0");
 					currentFunction->Return();
+					
+					currentFunction->Empty();
 					break;
 				}
 			}
@@ -248,6 +251,8 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				currentFunction->Return();
 			}
 			
+			currentFunction->Empty();
+
 			break;
 		}
 		case KEYWORD: {
@@ -280,9 +285,20 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				currentFunction->Mov("ecx", "eax");
 				currentFunction->Mov("eax", "4");
 				currentFunction->Mov("ebx", "1");
-				currentFunction->Mov("edx", "4");
 				currentFunction->Int("80h");
 				
+				currentFunction->Empty();
+
+				// Add newline
+				currentFunction->Mov("eax", "newline");
+				currentFunction->Mov("edx", "1");
+				currentFunction->Mov("ecx", "eax");
+				currentFunction->Mov("eax", "4");
+				currentFunction->Mov("ebx", "1");
+				currentFunction->Int("80h");
+
+				currentFunction->Empty();
+
 				token = Increment(tokens, TERMINATOR_EXPECTED);
 				
 				if (token.type_ != STATEMENT_TERMINATOR) {
@@ -291,7 +307,31 @@ void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 				}
 			}
 			else {
-				CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+				bool found = false;
+				for (AssemblyFunction f : assemblyScript.functions_) {
+					if (f.name_ == "_" + token.value_) {
+						found = true;
+
+						currentFunction->Call(f);
+
+						token = Increment(tokens, UNEXPECTED_TOKEN);
+						
+						if (token.type_ != EXPRESSION) {
+							CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+							break;
+						}
+						
+						token = Increment(tokens, TERMINATOR_EXPECTED);
+						
+						if (token.type_ != STATEMENT_TERMINATOR) {
+							CompilerError(TERMINATOR_EXPECTED, GetErrorInfo(token));
+							break;
+						}
+						break;
+					}
+				}
+				if (!found)
+					CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
 			}
 			break;
 		}
@@ -448,10 +488,6 @@ bool EqualType(ParserToken &expression_token, const string &type) {
 	if (t.empty()) return false;
 	
 	if (type == "bool" && t == "bool") {
-		if (expression_token.type_ == NAME) {
-			return true;
-		}
-		
 		return true;
 	} else if (type == "byte" && t == "int") {
 		if (expression_token.type_ == NAME) {
@@ -475,6 +511,8 @@ bool EqualType(ParserToken &expression_token, const string &type) {
 		
 		CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
 		return false;
+	} else if (type == "string" && t == "string") {
+		return true;
 	}
 	
 	/*TODO: These types below
@@ -483,13 +521,15 @@ bool EqualType(ParserToken &expression_token, const string &type) {
 	float
 	long
 	short
-	string
 	uint
 	ulong
 	ushort
 	void*/
 	
 	CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(expression_token));
+	std::cout << "===================" << std::endl;
+	std::cout << "Type " << t << " or " << type << " not supported yet" << std::endl;
+	std::cout << "===================" << std::endl;
 	return false;
 }
 
@@ -544,6 +584,17 @@ void HandleBinaryExpressionTree(vector<ParserToken> &expression_tokens, const st
 				return;
 			}
 		} else if (expression_type == "any" || EqualType(expression_tokens[0], expression_type)) {
+			if (expression_tokens[0].type_ == STRING_LITERAL) {
+				assemblyScript.string_literals_.push_back(expression_tokens[0].value_);
+				
+				// Reference to the string literal
+				string name = "s_" + to_string(assemblyScript.string_literals_.size() - 1);
+				assemblyScript.string_literal_names_.push_back(name);
+				currentFunction->Mov("eax", name);
+				currentFunction->Mov("edx", name + "_len");
+
+				return;
+			}
 			currentFunction->Mov("eax", expression_tokens[0].value_);
 			return;
 		}

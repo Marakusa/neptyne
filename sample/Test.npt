@@ -1,4 +1,7 @@
+void test: {
+    out("Hello, world!");
+}
+
 int main: {
-    string s = "Hello World";
-    out(s);
+    test();
 }

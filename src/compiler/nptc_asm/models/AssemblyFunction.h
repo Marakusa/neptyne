@@ -41,6 +41,9 @@ class AssemblyFunction {
   vector<AssemblyVariable> variables_;
   bool has_return_statement_;
   
+  void Empty() {
+	  statements_.emplace_back("");
+  }
   void Mov(const string &to, const string &from) {
 	  statements_.emplace_back("mov", to, from);
   }

@@ -82,7 +82,7 @@ void CompilerError(CompilerErrorType code, const CompilerErrorInfo &error_info) 
 	// Form an error message
 	string e_prefix = "[nptc] ";
 	string code_suffix = ": ";
-	string e_suffix = ": (Line " + to_string(error_info.line_) + ", Col " + to_string(error_info.column_) + ")\n";
+	string e_suffix = ":" + to_string(error_info.line_) + ":" + to_string(error_info.column_) + "\n";
 	string error_message = e_prefix + e.code_ + code_suffix + error_info.file_.full_path_.string() + e_suffix;
 	
 	// Add code preview
