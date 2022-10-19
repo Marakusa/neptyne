@@ -1,6 +1,6 @@
 // This script has some examples of future features of Neptyne
 
-void main: {
+void featuresTest: {
 
     // # Pointers and references
 

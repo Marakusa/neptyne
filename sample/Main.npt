@@ -1,7 +1,10 @@
+//bring "BringTest.npt";
+
 void test: {
     out("Hello, world!");
 }
 
 int main: {
     test();
+    //bringTest();
 }

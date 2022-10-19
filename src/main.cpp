@@ -4,6 +4,7 @@
 #include "logger/logger.h"
 #include "compiler/nptc_compiler_errors/models/CompilerException.h"
 #include "compiler/nptc_compiler_linux/compiler_linux.cpp"
+#include <regex>
 
 fs::path selfPath;
 
@@ -12,42 +13,77 @@ fs::path getSelfPath() {
 }
 
 string listCommands() {
-	string commands = "npt build <project folder|project file|script>\n"
-					  "\tBuild the given project or script into an executable program\n"
-					  "npt project <name> <directory>\n"
-					  "\tCreate a new project into the given directory\n";
+	string commands = "\tnpt help\n"
+					  "\t\tPrints a list of the commands\n"
+					  "\tnpt build [project folder|project file|script]\n"
+					  "\t\tBuild the given project or script into an executable program\n"
+					  "\tnpt project <name> [directory]\n"
+					  "\t\tCreate a new project into the given directory\n"
+					  "\tnpt script <path>\n"
+					  "\t\tCreate a new Neptyne script\n";
 	return commands;
 }
 
+string ParseToFunctionName(string s) {
+	// Precompile regex
+	regex numberRegex("([0-9]+)");
+	regex regexCapital("([A-Z]+)");
+	regex regex("([a-zA-Z0-9]+)");
+	// Parse to pascal casing
+	string result = "";
+	bool nextIsUpper = true;
+	for (int i = 0; i < s.length(); i++) {
+		if (s[i] == ' ' || s[i] == '_' || s[i] == '-') {
+			nextIsUpper = true;
+		} else {
+			if (result == "" && regex_match(string(1, s[i]), numberRegex)) {
+				continue;
+			}
+			
+			if (!regex_match(string(1, s[i]), regex)) {
+				nextIsUpper = true;
+			} else if (nextIsUpper) {
+				result += toupper(s[i]);
+				nextIsUpper = false;
+			} else {
+				result += s[i];
+			}
+		}
+	}
+	return result;
+}
+
 int main(int argc, char *argv[]) {
-	cout << "Neptyne v0.1.4" << endl;
-	
 	selfPath = argv[0];
 	selfPath = selfPath.remove_filename();
 	
 	try {
 		if (argc > 1) {
 			if (string(argv[1]) == "build" || string(argv[1]) == "run") {
-				if (argc > 2) {
-					string f = string(argv[2]);
-					if (fs::exists(f)) {
-						if (!fs::is_directory(f)) {
-							LogInfo("Build started");
-							Build(f, string(argv[1]) == "run");
-						} else {
-							if (fs::exists(f + "/Project.nptp")) {
-								LogInfo("Project build started");
-								Build(f + "/Project.nptp", string(argv[1]) == "run");
-							} else {
-								cout << "Project.nptp not found in directory: " << f << endl;
-								throw "Project.nptp not found in directory";
-							}
-						}
+				cout << "Neptyne v0.1.4" << endl;
+				
+				string f;
+				if (argc <= 2) {
+					f = ".";
+				}
+				else {
+					f = string(argv[2]);
+				}
+				if (fs::exists(f)) {
+					if (!fs::is_directory(f)) {
+						LogInfo("Build started");
+						Build(f, string(argv[1]) == "run");
 					} else {
-						cout << "Script not found: " << f << endl;
-						throw "Invalid syntax, correct: npt build <project folder|project file|script>";
+						if (fs::exists(f + "/Project.nptp")) {
+							LogInfo("Project build started");
+							Build(f + "/Project.nptp", string(argv[1]) == "run");
+						} else {
+							cout << "Project.nptp not found in directory: " << f << endl;
+							throw "Project.nptp not found in directory";
+						}
 					}
 				} else {
+					cout << "Script not found: " << f << endl;
 					throw "Invalid syntax, correct: npt build <project folder|project file|script>";
 				}
 			} else if (string(argv[1]) == "project") {
@@ -72,7 +108,6 @@ int main(int argc, char *argv[]) {
 						fs::create_directory(directory);
 					}
 					
-					cout << "Creating a project: " << directory << "/Project.nptp" << endl;
 					ofstream projectFile;
 					projectFile.open(directory + "/Project.nptp");
 					projectFile << "name:" << name << endl <<
@@ -81,42 +116,57 @@ int main(int argc, char *argv[]) {
 					            "executable:Main.npt" << endl;
 					projectFile.close();
 					
-					cout << "Creating: " << directory << "/Main.npt" << endl;
 					ofstream mainFile;
 					mainFile.open(directory + "/Main.npt");
 					mainFile << "void main: {" << endl <<
 					         "\tout(\"Hello world!\");" << endl <<
 					         "}" << endl;
 					mainFile.close();
-					cout << "Success!" << endl;
 				} else {
-					throw "Invalid syntax, correct: npt project <name> <directory>";
+					throw "Invalid syntax, correct: npt project <name> [directory]";
 				}
 			} else if (string(argv[1]) == "script") {
 				if (argc > 2) {
-					string name = string(argv[2]);
+					string path = string(argv[2]);
+
+					if (path.find(".") == std::string::npos || path.substr(path.find_last_of(".")) != ".npt") {
+						path += ".npt";
+					}
 					
-					if (fs::exists(name + ".npt")) {
-						cout << "Script " << name << ".npt already exists" << endl;
+					if (fs::exists(path)) {
+						cout << "Script " << path << " already exists" << endl;
 						throw "Script already exists";
 					}
 					
-					cout << "Creating: " << name << ".npt" << endl;
+					string name = path;
+
+					if (path.find("/") != std::string::npos)
+						name = path.substr(path.find_last_of("/\\"));
+					
+					name = name.substr(0, name.find_last_of("."));
+
 					ofstream f;
-					f.open(name + ".npt");
+					f.open(path);
+					f << "void " << ParseToFunctionName(name) << ": {" << endl <<
+					         "\t" << endl <<
+					         "}" << endl;
 					f.close();
-					cout << "Success!" << endl;
 				} else {
-					throw "Invalid syntax, correct: npt project <name> <directory>";
+					throw "Invalid syntax, correct: npt script <path>";
 				}
 			} else if (string(argv[1]) == "dev") {
 				buildELF();
+			} else if (string(argv[1]) == "help") {
+				cout << "Neptyne v0.1.4" << endl;
+				cout << "Commands:\n" << listCommands() << endl;
 			} else {
-				cout << "Invalid command " << string(argv[1]) << "\nCommands:\n" << listCommands() << endl;
+				cout << "Neptyne v0.1.4" << endl;
+				cout << "Invalid command " << string(argv[1]) << ", type \"npt help\" for a list of the commands" << endl;
 				throw "Invalid command";
 			}
 		} else {
-			cout << "Command not given\nCommands:\n" << listCommands() << endl;
+			cout << "Neptyne v0.1.4" << endl;
+			cout << "Command not given, type \"npt help\" for a list of the commands" << endl;
 			throw "Command not given";
 		}
 	}

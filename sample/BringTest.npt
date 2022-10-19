@@ -1,0 +1,3 @@
+void bringTest: {
+    out("This print is from the BringTest.npt script");
+}

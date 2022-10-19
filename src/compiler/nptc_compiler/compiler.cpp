@@ -119,6 +119,10 @@ void Compile(const NeptyneScript &script, bool run) {
             .output_obj_path_ + "\" \""
                + script.output_executable_path_ + ".exe\" \"" + selfPath + "\"";
     system(e.c_str());
+	cout << endl << "Build done!" << endl << "===============================" << endl << endl;
+	// Start the executable
+	if (run)
+		system(("\"" + script.output_executable_path_ + ".exe\"").c_str());
 #endif
 #ifdef TARGET_OS_MAC
 	//system("");
@@ -129,6 +133,10 @@ void Compile(const NeptyneScript &script, bool run) {
 		.output_obj_path_ + "\" \""
 		+ script.output_executable_path_ + "\" \"" + string(getSelfPath()) + "\"";
     system(e.c_str());
+	cout << endl << "Build done!" << endl << "===============================" << endl << endl;
+	// Start the executable
+	if (run)
+		system(("\"" + script.output_executable_path_ + "\"").c_str());
 #endif
 }
 

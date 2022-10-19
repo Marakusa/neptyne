@@ -1,12 +1,10 @@
 @ECHO OFF
 
 :: Call nasm assembler
-.\win64\nasm.exe -w+all -f win32 -o "%2/%1.obj" "%1.asm"
+"%4\vendor\nasm\win64\nasm.exe" -w+all -f win64 -o "%2" "%1"
 
-if exist "%2\%1.obj" (
+if exist "%2" (
     :: Call linker
-    ld -s -o "%2\%1.exe" "%2\%1.obj"
-    :: Cleanup
-    rm "%2\%1.obj"
+    ld -s -o "%3" "%2"
 )
 
