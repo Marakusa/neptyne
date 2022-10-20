@@ -31,7 +31,7 @@ class NeptyneScript {
 		  obj_directory_path_ = directory_path_;
 		  output_executable_path_ = directory_path_ + name_;
 		  output_assembly_path_ = obj_directory_path_ + name_ + ".asm";
-		  output_obj_path_ = obj_directory_path_ + name_ + ".obj";
+		  output_obj_path_ = obj_directory_path_ + name_ + ".o";
 	  }
   }
   

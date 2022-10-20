@@ -1,4 +1,4 @@
-//bring "BringTest.npt";
+bring "bringTest.npt";
 
 void test: {
     out("Hello, world!");
@@ -6,5 +6,5 @@ void test: {
 
 int main: {
     test();
-    //bringTest();
+    bringTest();
 }

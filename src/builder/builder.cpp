@@ -14,6 +14,20 @@ bool BuildScript(const NeptyneScript& script_file, bool run) {
 	return true;
 }
 
+string ListParseObjectFiles(string path) {
+	string result = "";
+    for (const auto& entry : fs::directory_iterator(path))
+	{
+		string filePath = entry.path();
+		if (filePath.substr(filePath.length() - 2, 2) == ".o") {
+			result += "\"";
+			result += filePath;
+			result += "\" ";
+		}
+	}
+	return result;
+}
+
 bool Build(const string &file, bool run) {
 	if(file.substr(file.find_last_of('.') + 1) == "nptp") {
 		cout << "Project " << file << endl;
@@ -42,11 +56,37 @@ bool Build(const string &file, bool run) {
 		// Set output path
 		project.executable_.directory_path_ = directory_path + "bin/release/";
 		project.executable_.obj_directory_path_ = directory_path + "obj/release/";
-		project.executable_.output_assembly_path_ = project.executable_.obj_directory_path_ + project.name_ + ".asm";
-		project.executable_.output_obj_path_ = project.executable_.obj_directory_path_ + project.name_ + ".obj";
+		project.executable_.output_assembly_path_ = project.executable_.obj_directory_path_ + project.executable_.name_ + ".asm";
+		project.executable_.output_obj_path_ = project.executable_.obj_directory_path_ + project.executable_.name_ + ".o";
 		project.executable_.output_executable_path_ = project.executable_.directory_path_ + project.name_;
 		
+		fs::remove_all(project.executable_.directory_path_);
+		fs::remove_all(project.executable_.obj_directory_path_);
+		fs::create_directories(project.executable_.directory_path_);
+		fs::create_directories(project.executable_.obj_directory_path_);
+		
+		currentConstantVariableIndex = 0;
 		BuildScript(project.executable_, run);
+
+	#ifdef _WIN32
+		cout << endl << "Build done!" << endl << "===============================" << endl << endl;
+		// Start the executable
+		if (run)
+			system(("\"" + project.executable_.output_executable_path_ + ".exe\"").c_str());
+	#endif
+	#ifdef TARGET_OS_MAC
+		//system("");
+		cout << "Compiling in macOS is not supported yet" << endl;
+	#endif
+	#ifdef __linux__
+		string e = "\"" + string(getSelfPath()) + "vendor/nasm/linker_linux.sh\" \"" + project.executable_.output_executable_path_ + "\" " + ListParseObjectFiles(project.executable_.obj_directory_path_);
+		system(e.c_str());
+		cout << endl << "Build done!" << endl << "===============================" << endl << endl;
+		// Start the executable
+		if (run)
+			system(("\"" + project.executable_.output_executable_path_ + "\"").c_str());
+	#endif
+		
 		return true;
 	} else {
 		NeptyneScript script_file = NeptyneScript(file);

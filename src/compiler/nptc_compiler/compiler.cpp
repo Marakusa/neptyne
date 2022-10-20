@@ -19,6 +19,7 @@ private:
 	int compiler_index = 0;
 	AssemblyScript assemblyScript;
 	NeptyneScript neptyneScript;
+	vector<AssemblyScript> importedScripts;
 	AssemblyFunction *currentFunction;
 
 	int scope_memory_size_offset = 0;
@@ -36,6 +37,20 @@ private:
 	private:
 	string name;
 	};
+
+	string GetParentDirectory(const string &path) {
+		// If path ends with '/', remove it
+		string path_ = path;
+		if (path_.back() == '/') {
+			path_.pop_back();
+		}
+		return path_.substr(0, path_.find_last_of("/\\") + 1);
+	}
+
+	bool FileExists(const string &path) {
+		ifstream f(path);
+		return f.good();
+	}
 
 	void CompilerStep(vector<ParserToken> tokens, ParserToken *parent) {
 		if (compiler_index >= tokens.size()) {
@@ -164,6 +179,7 @@ private:
 				if (token.value_ == "bring") {
 					token = Increment(tokens, UNEXPECTED_TOKEN);
 
+					ParserToken nameToken = token;
 					string bringScript = token.value_;
 					
 					token = Increment(tokens, TERMINATOR_EXPECTED);
@@ -174,8 +190,25 @@ private:
 					}
 					
 					// Bring script
+					
+					// Set output path
+					string d = GetParentDirectory(GetParentDirectory(neptyneScript.obj_directory_path_));
+					// If file in doesn't exist, return an error
+					if (!FileExists(d + bringScript)) {
+						CompilerError(INVALID_SOURCE_FILE, GetErrorInfo(nameToken));
+						break;
+					}
+
+					NeptyneScript script = NeptyneScript(d + bringScript);
+					script.directory_path_ = neptyneScript.directory_path_;
+					script.obj_directory_path_ = neptyneScript.obj_directory_path_;
+					script.output_assembly_path_ = script.obj_directory_path_ + script.name_ + ".asm";
+					script.output_obj_path_ = script.obj_directory_path_ + script.name_ + ".o";
+					script.output_executable_path_ = script.directory_path_ + script.name_;
+					
 					Compiler compiler = Compiler();
-					compiler.Compile(NeptyneScript(neptyneScript.obj_directory_path_ + "../../" + bringScript), false);
+					compiler.Compile(script, false, false);
+					importedScripts.push_back(compiler.assemblyScript);
 				}
 				else {
 					CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
@@ -248,8 +281,37 @@ private:
 							break;
 						}
 					}
-					if (!found)
+					if (!found) {
+						for (AssemblyScript s : importedScripts) {
+							for (AssemblyFunction f : s.functions_) {
+								if (f.name_ == "_" + token.value_) {
+									found = true;
+
+									currentFunction->Call(f);
+
+									token = Increment(tokens, UNEXPECTED_TOKEN);
+									
+									if (token.type_ != EXPRESSION) {
+										CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+										break;
+									}
+									
+									token = Increment(tokens, TERMINATOR_EXPECTED);
+									
+									if (token.type_ != STATEMENT_TERMINATOR) {
+										CompilerError(TERMINATOR_EXPECTED, GetErrorInfo(token));
+										break;
+									}
+
+									assemblyScript.externValues_.push_back(f.name_);
+									break;
+								}
+							}
+						}
+					}
+					if (!found) {
 						CompilerError(UNEXPECTED_TOKEN, GetErrorInfo(token));
+					}
 				}
 				break;
 			}
@@ -506,10 +568,12 @@ private:
 					assemblyScript.string_literals_.push_back(expression_tokens[0].value_);
 					
 					// Reference to the string literal
-					string name = "s_" + to_string(assemblyScript.string_literals_.size() - 1);
+					string name = "s_" + to_string(currentConstantVariableIndex);
 					assemblyScript.string_literal_names_.push_back(name);
 					currentFunction->Mov("eax", name);
 					currentFunction->Mov("edx", name + "_len");
+
+					currentConstantVariableIndex++;
 
 					return;
 				}
@@ -529,11 +593,11 @@ public:
 
 	}
 
-	void Compile(const NeptyneScript &script, bool run) {
+	void Compile(const NeptyneScript &script, bool run, bool mainScript = true) {
 		cout << "    Compile:\t(" << script.name_ << ") " << script.full_path_ << endl;
 
 		CompilerErrorsReset();
-		assemblyScript = AssemblyScript();
+		assemblyScript = AssemblyScript(mainScript);
 		
 		// Read parser_script file
 		string code = ReadFile(script.full_path_.string());
@@ -578,11 +642,6 @@ public:
 		string result;
 		assemblyScript.Form(result);
 		//cout << "====================" << endl << result << endl << "====================" << endl;
-		
-		fs::remove_all(script.directory_path_);
-		fs::remove_all(script.obj_directory_path_);
-		fs::create_directories(script.directory_path_);
-		fs::create_directories(script.obj_directory_path_);
 		
 		// Write asm file
 		ofstream asm_file;

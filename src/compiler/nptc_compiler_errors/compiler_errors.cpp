@@ -40,6 +40,7 @@ class CompilerError GetErrorType(CompilerErrorType type) {
 		case INVALID_SCOPE_FOR_CALL:
 			return {"NPT1216", "Call statement cannot be placed outside a function scope",
 			        type};
+		case INVALID_SOURCE_FILE:return {"NPT1217", "Invalid source file %v", type};
 		
 		default:return {"NPTC999", "Unidentified error", UNASSIGNED};
 	}
