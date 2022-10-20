@@ -10,6 +10,7 @@ void helper: {
     ushort d = 63022;
     long e = 2047423647;
     ulong f = 4294963495;
+    //object o = null;
     //string helperString = "This string is helpful";
     out("Helpful string");
 }
