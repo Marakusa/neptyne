@@ -10,7 +10,13 @@ void helper: {
     ushort d = 63022;
     long e = 2047423647;
     ulong f = 4294963495;
+    //float g = 19.185f;
+    //double h = 21.037811012;
+    byte j = 96;
     //object o = null;
     //string helperString = "This string is helpful";
+
+    //int addition = c + j;
+
     out("Helpful string");
 }
