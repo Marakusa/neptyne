@@ -1,3 +1,15 @@
 void bringTest: {
     out("This print is from the BringTest.npt script");
+    helper();
+}
+
+void helper: {
+    int a = 1147483647;
+    uint b = 457423471;
+    short c = 25565;
+    ushort d = 63022;
+    long e = 2047423647;
+    ulong f = 4294963495;
+    //string helperString = "This string is helpful";
+    out("Helpful string");
 }

@@ -7,4 +7,5 @@ void test: {
 int main: {
     test();
     bringTest();
+    test();
 }

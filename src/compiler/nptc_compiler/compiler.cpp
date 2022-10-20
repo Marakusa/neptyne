@@ -303,7 +303,16 @@ private:
 										break;
 									}
 
-									assemblyScript.externValues_.push_back(f.name_);
+									// If the function already exists in extern values, don't push it
+									bool exists = false;
+									for (string v : assemblyScript.externValues_) {
+										if (v == f.name_) {
+											exists = true;
+											break;
+										}
+									}
+									if (!exists)
+										assemblyScript.externValues_.push_back(f.name_);
 									break;
 								}
 							}
@@ -491,6 +500,61 @@ private:
 			
 			CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
 			return false;
+		} else if (type == "uint" && t == "int") {
+			if (expression_token.type_ == NAME) {
+				return true;
+			}
+			
+			long long num_val = stoll(expression_token.value_);
+			if (num_val >= 0 && num_val <= 4294967295)
+				return true;
+			
+			CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
+			return false;
+		} else if (type == "short" && t == "int") {
+			if (expression_token.type_ == NAME) {
+				return true;
+			}
+			
+			long long num_val = stoll(expression_token.value_);
+			if (num_val >= -32768 && num_val <= 32767)
+				return true;
+			
+			CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
+			return false;
+		} else if (type == "ushort" && t == "int") {
+			if (expression_token.type_ == NAME) {
+				return true;
+			}
+			
+			long long num_val = stoll(expression_token.value_);
+			if (num_val >= 0 && num_val <= 65535)
+				return true;
+			
+			CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
+			return false;
+		} else if (type == "long" && t == "int") {
+			if (expression_token.type_ == NAME) {
+				return true;
+			}
+			
+			long long num_val = stoll(expression_token.value_);
+			if (num_val >= -2147483648 && num_val <= 2147483647)
+				return true;
+			
+			CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
+			return false;
+		} else if (type == "ulong" && t == "int") {
+			if (expression_token.type_ == NAME) {
+				return true;
+			}
+			
+			long long num_val = stoll(expression_token.value_);
+			if (num_val >= 0 && num_val <= 4294967295)
+				return true;
+			
+			CompilerError(OUTSIDE_THE_RANGE, GetErrorInfo(expression_token));
+			return false;
 		} else if (type == "string" && t == "string") {
 			return true;
 		}
@@ -499,11 +563,6 @@ private:
 		char
 		double
 		float
-		long
-		short
-		uint
-		ulong
-		ushort
 		void*/
 		
 		CompilerError(CANNOT_RESOLVE_SYMBOL, GetErrorInfo(expression_token));
