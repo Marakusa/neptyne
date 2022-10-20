@@ -4,13 +4,13 @@
 
 #include "../common/common.h"
 #include "builder.h"
-#include "../compiler/nptc_compiler/compiler.h"
+#include "../compiler/nptc_compiler/compiler.cpp"
 #include "../utils/file_utils.h"
 #include "../compiler/nptc_compiler/models/NeptyneProject.h"
 
 bool BuildScript(const NeptyneScript& script_file, bool run) {
-	cout << "Compile " << script_file.full_path_ << endl;
-	Compile(script_file, run);
+	Compiler compiler = Compiler();
+	compiler.Compile(script_file, run);
 	return true;
 }
 

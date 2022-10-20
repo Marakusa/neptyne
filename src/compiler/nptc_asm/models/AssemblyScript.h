@@ -28,7 +28,7 @@ class AssemblyScript {
   void Form(string &result) {
 	  result = "";
 	  result += "section .data\n" + ParseStringLiterals() + "\n";
-	  result += "section .text\n\tglobal _start\n\tglobal main\n";
+	  result += "section .text\n" + ParseGlobals() + "\n";
 	  AssemblyFunction *start_function = &functions_[0];
 	  
 	  // First find main function
@@ -78,6 +78,22 @@ class AssemblyScript {
 		  result += "\t" + name + " db \"" + EscapeString(value) + "\", 0\n";
 		  result += "\t" + name + "_len equ $ - " + name + "\n";
 	  }
+	  return result;
+  }
+
+  string ParseGlobals() {
+	  string result = "";
+	  
+	  for (int i = 0; i < functions_.size(); i++) {
+		  result += "\tglobal " + functions_[i].name_ + "\n";
+	  }
+	  
+	  for (int i = 0; i < string_literals_.size(); i++) {
+		  string name = string_literal_names_[i];
+		  result += "\tglobal " + name + "\n";
+		  result += "\tglobal " + name + "_len\n";
+	  }
+	  
 	  return result;
   }
 
